@@ -1,6 +1,6 @@
 /* Service Worker: App-Dateien offline verfügbar, Schriften werden beim ersten Laden zwischengespeichert.
    Nach Änderungen an den Dateien VERSION erhöhen, damit Geräte die neue Fassung laden. */
-var VERSION = 'krafttraining-v2';
+var VERSION = 'krafttraining-v3';
 var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-voice.js', 'kt-classify.js', 'kt-stats.js', 'kt-media.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 

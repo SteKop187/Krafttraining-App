@@ -21,3 +21,7 @@ Fotos und Videos aus der Bibliothek liegen nur auf dem jeweiligen Gerät (Indexe
 
 ## Updates
 Nach Änderungen in `sw.js` die Zeile `var VERSION = 'krafttraining-v1'` hochzählen (v2, v3 …), damit installierte Apps die neue Fassung laden.
+
+
+## Startbildschirm und Trainingsarten
+Die App öffnet auf dem Startbildschirm: Zusammenfassung der letzten Einheit, Wahl des Trainingsorts, Wahl der Trainingsart (Krafttraining oder Aufrichtung) und ein Button zur Statistik ohne neues Training. Aufrichtung hat eigene Einheiten (Aufrichtung A/B) mit Haltung, Hüfte und Mobilisation.

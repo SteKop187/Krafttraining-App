@@ -6,6 +6,9 @@
   var norm = function (s) { return KT.norm(s); };
 
   var RULES = [
+    [/(katze|cat ?cow|thorakal|brustwirbel|mobilis|kindshaltung|turrahmen|dehn|stretch)/, { cat: 'mobil', cx: 'isoliert' }, 'Beweglichkeit und Dehnung, daher Aufrichtung (Mobilisation)'],
+    [/(wall angel|pull ?apart|y ?t ?w|schulterblatt|skapula|scapula|aufricht)/, { cat: 'haltung', cx: 'isoliert' }, 'Haltung und Schulterblatt, daher Aufrichtung (Haltung)'],
+    [/(dead ?bug|bird ?dog|vierfussler|glute|bridge|clam|beckenheben|hip airplane)/, { cat: 'huefte', cx: 'isoliert' }, 'Hüfte und Rumpfkontrolle, daher Aufrichtung (Hüfte)'],
     [/(face ?pull|aussenrotation|nacken|trizeps|bizeps|curl|wade|seitheben|frontheben|handgelenk|abduktion|adduktion|shrug)/, { cat: 'assist', cx: 'isoliert' }, 'Zusatzmuskulatur, daher Assistenz'],
     [/(kniebeuge|squat|beinpresse|leg press|ausfallschritt|lunge|step ?up|beinstrecker|goblet|pistol)/, { cat: 'squat' }, 'kniedominant, daher Squat'],
     [/(kreuzheb|deadlift|hip ?thrust|good ?morning|beinbeug|rumanisch|rdl|rucken ?streck|hyperextension|nordic|swing)/, { cat: 'hinge' }, 'hüftdominant, daher Hinge'],
@@ -24,10 +27,10 @@
     ['Körpergewicht', /(klimmzug|liegestutz|plank|\bdips?\b|push ?up|bodyweight|korpergewicht|seitstutz|roll ?out)/]
   ];
   var SIDE = /(einbein|einarm|unilateral|einseitig|split|ausfall|lunge|step ?up|bulgar|single|one arm|1 arm|seitstutz|pistol)/;
-  var TIME = /(plank|stutz|halte|hold|carry|isometr|wall ?sit|hang|superman)/;
+  var TIME = /(plank|stutz|halte|hold|carry|isometr|wall ?sit|hang|superman|dehn|stretch|kindshaltung|brustwirbel)/;
   var ISO = /(curl|seitheben|frontheben|beinstrecker|beinbeuger|\bfly\b|extension|trizeps|bizeps|wade|abduktion|adduktion|kickback|isolation)/;
-  var DEFEQ = { push: 'Langhantel', pull: 'Seilzug', squat: 'Langhantel', hinge: 'Langhantel', schnell: 'Medizinball', rumpf: 'Körpergewicht', assist: 'Kurzhantel' };
-  var LABEL = { schnell: 'Schnell', squat: 'Squat', push: 'Drücken', hinge: 'Hinge', pull: 'Ziehen', rumpf: 'Rumpf', assist: 'Assistenz' };
+  var DEFEQ = { push: 'Langhantel', pull: 'Seilzug', squat: 'Langhantel', hinge: 'Langhantel', schnell: 'Medizinball', rumpf: 'Körpergewicht', assist: 'Kurzhantel', haltung: 'Körpergewicht', huefte: 'Körpergewicht', mobil: 'Körpergewicht' };
+  var LABEL = { schnell: 'Schnell', squat: 'Squat', push: 'Drücken', hinge: 'Hinge', pull: 'Ziehen', rumpf: 'Rumpf', assist: 'Assistenz', haltung: 'Haltung', huefte: 'Hüfte', mobil: 'Mobilisation' };
 
   /* lib = vorhandene Übungen [{name,cat,eq}] für den Ähnlichkeitshinweis */
   KT.classify = function (name, lib) {

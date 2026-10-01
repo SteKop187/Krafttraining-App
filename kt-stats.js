@@ -46,10 +46,10 @@
     var rows = [], i, ages = (hist || []).map(function (h) { return { a: ageDays(h.date, now), h: h }; });
     for (i = 0; i < range; i++) {
       var w = 40 - range + i, from = (39 - w) * 7, to = from + 7;
-      var row = { w: w, schnell: 0, squat: 0, push: 0, hinge: 0, pull: 0, rumpf: 0, t: 0, n: 0 }, days = {};
+      var row = { w: w, schnell: 0, squat: 0, push: 0, hinge: 0, pull: 0, rumpf: 0, aufricht: 0, t: 0, n: 0 }, days = {};
       ages.forEach(function (x) {
         if (x.a >= from && x.a < to) {
-          var c = x.h.cat === 'assist' ? 'rumpf' : x.h.cat;
+          var hc = x.h.cat, c = hc === 'assist' ? 'rumpf' : (hc === 'haltung' || hc === 'huefte' || hc === 'mobil' ? 'aufricht' : hc);
           if (row[c] != null) { row[c]++; row.t++; }
           days[x.h.date] = 1;
         }
