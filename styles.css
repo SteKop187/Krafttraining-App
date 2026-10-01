@@ -220,6 +220,10 @@ body{padding:0;background:var(--app)}
 .mt small:empty{display:none}
 .mt .mbadge{position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;background:rgba(0,0,0,.65);color:#fff;border-radius:8px;padding:3px 6px;max-width:calc(100% - 12px);overflow:hidden;white-space:nowrap;z-index:1}
 .sheet textarea.inp{resize:vertical;min-height:90px}
+/* Versionsnummer, immer sichtbar */
+.vbar{flex:none;height:18px;display:flex;align-items:center;justify-content:flex-end;padding:0 16px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.vbar:empty{display:none}
+
 /* Startbildschirm: Trainingsart */
 .tsel{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tcard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:14px;min-height:128px;color:var(--ink)}

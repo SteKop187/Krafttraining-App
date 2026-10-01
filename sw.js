@@ -1,7 +1,8 @@
 /* Service Worker: App-Dateien offline verfügbar, Schriften werden beim ersten Laden zwischengespeichert.
-   Nach Änderungen an den Dateien VERSION erhöhen, damit Geräte die neue Fassung laden. */
-var VERSION = 'krafttraining-v3';
-var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-voice.js', 'kt-classify.js', 'kt-stats.js', 'kt-media.js', 'manifest.webmanifest',
+   Die Versionsnummer kommt aus kt-version.js (eine Änderung dort lädt auf den Geräten die neue Fassung). */
+importScripts('kt-version.js');
+var VERSION = 'krafttraining-v' + self.KT_VERSION;
+var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-version.js', 'kt-voice.js', 'kt-classify.js', 'kt-stats.js', 'kt-media.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {

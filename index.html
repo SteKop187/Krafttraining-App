@@ -12,8 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Krafttraining">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,11 +22,13 @@
 <body>
 <main class="stage">
   <div class="frame" id="frame">
+    <div class="vbar" id="vbar" aria-label="Version der App"></div>
     <div class="screen" id="screen"></div>
     <nav class="tabbar" id="tabbar" aria-label="Hauptnavigation"></nav>
     <div id="overlay"></div>
   </div>
 </main>
+<script src="kt-version.js"></script>
 <script src="kt-voice.js"></script>
 <script src="kt-classify.js"></script>
 <script src="kt-stats.js"></script>
