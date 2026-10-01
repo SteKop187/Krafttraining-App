@@ -210,3 +210,13 @@ body{padding:0;background:var(--app)}
 @media (min-width:660px){body{background:var(--bg)}.frame{border-inline:1px solid var(--line)}}
 .top-bar{padding-top:6px}
 .pad{padding-top:14px}
+
+/* Medien-Kacheln (Foto, Video, Link) */
+.mt{position:relative;overflow:hidden;padding:0;cursor:pointer;color:var(--ink-2)}
+.mt .mimg{position:absolute;inset:0;background-size:cover;background-position:center;display:block}
+.mt img.mimg{width:100%;height:100%;object-fit:cover}
+.mt video{width:100%;height:100%;object-fit:cover;display:block}
+.mt small{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt small:empty{display:none}
+.mt .mbadge{position:absolute;top:6px;left:6px;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;background:rgba(0,0,0,.65);color:#fff;border-radius:8px;padding:3px 6px;max-width:calc(100% - 12px);overflow:hidden;white-space:nowrap;z-index:1}
+.sheet textarea.inp{resize:vertical;min-height:90px}
