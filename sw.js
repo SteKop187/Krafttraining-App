@@ -6,7 +6,12 @@ var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-version.js', 'kt-voi
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
+  // cache:'reload' holt jede Datei frisch vom Server (GitHub erlaubt Browsern sonst bis zu 10 Minuten Zwischenspeicher)
+  e.waitUntil(caches.open(VERSION).then(function (c) {
+    return Promise.all(CORE.map(function (u) {
+      return fetch(u, { cache: 'reload' }).then(function (r) { if (!r.ok) throw new Error(u); return c.put(u, r); });
+    }));
+  }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
@@ -27,11 +32,11 @@ self.addEventListener('fetch', function (e) {
     return;
   }
   if (url.origin !== location.origin) return;
-  // Eigene Dateien: Netz zuerst (damit Updates ankommen), offline aus dem Cache
-  e.respondWith(fetch(req).then(function (res) {
+  // Eigene Dateien: Netz zuerst und beim Server nachfragen (no-cache), damit Updates sofort ankommen; offline aus dem Cache
+  e.respondWith(fetch(req, { cache: 'no-cache' }).then(function (res) {
     if (res.ok) { var copy = res.clone(); caches.open(VERSION).then(function (c) { c.put(req, copy); }); }
     return res;
   }).catch(function () {
-    return caches.match(req).then(function (hit) { return hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined); });
+    return caches.match(req, { ignoreSearch: true }).then(function (hit) { return hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined); });
   }));
 });
