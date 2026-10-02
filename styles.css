@@ -233,3 +233,25 @@ body{padding:0;background:var(--app)}
 .tcard[aria-pressed="true"]{border:2px solid var(--ink);padding:13px}
 .tcard[aria-pressed="true"] .ti{background:var(--ink);color:var(--inv)}
 .tab i{width:46px}
+/* Satzfortschritt, Abgeschlossen-Gruppe, Maschinen-Unterkategorien */
+.prog{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--ink-2);margin-top:2px}
+.mini{display:inline-flex;gap:3px}
+.mini i{width:14px;height:5px;border-radius:3px;background:var(--line)}
+.mini i.done{background:var(--ink)}
+.setline{font-size:14px;color:var(--ink-2);margin:0 0 -8px}
+.setline b{color:var(--ink);font-weight:700}
+.donebtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:10px 12px;margin-bottom:12px;color:var(--ink-2)}
+.donebtn .ck{width:34px;height:34px;border-radius:11px;background:var(--surface-2);display:grid;place-items:center;flex:none;color:var(--ink)}
+.donebtn .txt b{color:var(--ink)}
+.donebtn .txt small{font-size:12px;color:var(--ink-3)}
+.okbadge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-aufricht);flex:none}
+.subtg{background:var(--surface-2);border-top:1px solid var(--line)}
+.subtg+.tg{border-top:1px solid var(--line)}
+.mrow{display:flex;align-items:center}
+.mrow .tg{padding-left:30px}
+.mrow+.mrow,.mrow+.mnew{border-top:1px solid var(--line)}
+.mnew{display:flex;gap:8px;padding:10px 14px 12px 30px}
+.mnew .inp{height:44px;font-size:15px;font-weight:500}
+.mnew .btn{height:44px;padding:0 14px}
+.subtg .sw{background:var(--line)}
+.subtg .tg[aria-pressed="true"] .sw{background:var(--ink)}
