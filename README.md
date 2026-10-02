@@ -33,3 +33,13 @@ Bei **Mehr → Orte und Equipment** hat „Maschine“ Unterkategorien (Beinpres
 
 ## Satzfortschritt im Training
 In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledigt und wie viele offen sind (z. B. „1 von 3 Sätzen · 2 offen“). Übungen mit allen Sätzen sind erledigt und stehen gesammelt unter „Abgeschlossen“; in der Liste bleiben nur die offenen. Gezählt werden die heute geloggten Sätze.
+
+## Training läuft (ab 3.3.0)
+- Die Übungsübersicht bleibt die Basis des Trainings. Jede Übung hat einen Start-Knopf; nach „Satz abschließen“ und der Bewertung geht es zurück in die Übersicht, die Pause läuft dort als Anzeige weiter.
+- Übungen lassen sich jederzeit hinzufügen, ersetzen, würfeln, verschieben (Nach oben/unten) und streichen, auch aus der laufenden Übung heraus (Menü „…“ oben rechts). „Training abschließen“ geht jederzeit und zeigt eine Zusammenfassung.
+- Hinzufügen und Ersetzen: Suchfeld, „Neu“ direkt daneben, Bibliothek nach Oberkategorien einklappbar. Neue Übungen lassen sich frei anlegen, mit Ablauf, Technikhinweis, Fotos, Videos und Links.
+- Übungen können mehrere Geräte haben (z. B. Kurzhantel oder Kettlebell); im Training wählst du das Gerät. Kurzhantel und Kettlebell stellen das Gewicht in 0,5-kg-Schritten ein.
+- Zeit-Übungen zählen von der Zielzeit herunter. Bei beidseitigen Übungen (z. B. Seitstütz) gibt es je Seite einen Durchgang („Seite 1 von 2“), erst danach ist „Satz abschließen“ frei.
+
+## Plan im Krafttraining
+Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.

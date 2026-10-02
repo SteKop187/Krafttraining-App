@@ -255,3 +255,24 @@ body{padding:0;background:var(--app)}
 .mnew .btn{height:44px;padding:0 14px}
 .subtg .sw{background:var(--line)}
 .subtg .tg[aria-pressed="true"] .sw{background:var(--ink)}
+
+/* Training läuft: Pausen-Anzeige, Spielknopf je Übung, größere Pfeile, Bibliothek-Menü mit Oberkategorien */
+:root{--c-warm:#C2528B;--c-zusatz:#8E6BC4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-warm:#E07AAE;--c-zusatz:#B39AE0}}
+:root[data-theme="dark"]{--c-warm:#E07AAE;--c-zusatz:#B39AE0}
+.irow{display:flex;align-items:stretch}
+.irow .item-main{flex:1;min-width:0;width:auto}
+.playbtn{flex:none;width:60px;border:0;border-left:1px solid var(--line);background:none;display:grid;place-items:center;color:var(--ink)}
+.playbtn:active{background:var(--surface-2)}
+.restbn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:var(--inv);border-radius:16px;padding:10px 12px 14px;margin-bottom:12px}
+.restbn .rt small{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.75}
+.restbn .rt b{font:700 34px/1 var(--font-d);font-variant-numeric:tabular-nums}
+.restbn .btn{background:transparent;color:inherit;border-color:rgba(128,128,128,.6)}
+.restbn .rbar{position:absolute;left:0;bottom:0;height:5px;background:var(--c-warm);transition:width .9s linear}
+.iconbtn.nav{width:52px;height:52px;border-radius:16px;background:var(--surface-2)}
+.top-bar{gap:6px}
+.actions{grid-template-columns:repeat(3,1fr);padding:0 10px 12px 14px}
+.act[disabled],.btn[disabled],.lrow[disabled]{opacity:.4;pointer-events:none}
+.xgrp+.xgrp{margin-top:2px}
+.xhead{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:6px}
+.xhead b{flex:1;font-size:15px;font-weight:600}

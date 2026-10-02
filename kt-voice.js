@@ -57,7 +57,7 @@
     'ziehen': 'pull', 'pull': 'pull',
     'hinge': 'hinge', 'huftdominant': 'hinge',
     'rumpf': 'rumpf', 'core': 'rumpf',
-    'assistenz': 'assist'
+    'assistenz': 'assist', 'zusatz': 'zusatz', 'erwarmung': 'warm', 'aufwarmen': 'warm'
   };
   function catOf(q) {
     var n = norm(q).replace(/^(?:die|den|das|eine|ein)\s+/, '').replace(/\s*(?:ubung|ubungen)$/, '').trim();
