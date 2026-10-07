@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.4.1
+- **Android-Zurück-Taste:** „Zurück“ geht in der App eine Seite zurück (erst offene Fenster schließen, dann Übung, Training, Tabs bis zum Start). Auf dem Start beendet ein zweiter Druck die App.
+
 ## Neu in 3.4.0
 - **Heutiges Training einrichten** (Startseite): eine Seite mit Ort, Trainingsart, Einheit und Ein/Aus-Schaltern für die Bestandteile (Cardio-Gerät, Achillessehnen-Prävention, Handstand-Vorbereitung, Schulterstabilität, Aufrichtung). Die Allgemeine Erwärmung ist immer dabei. Die Wahl bleibt als Standard gespeichert.
 - **Erwärmung:** zwei feste Plätze, Cardio-Gerät und Allgemeine Erwärmung. Der Timer läuft hoch, am Ende trägst du die Messgröße des Geräts ein (Meter, km, Kalorien, Watt oder Herzfrequenz, je Übung wählbar). Beim nächsten Mal siehst du die Zeit und den Wert vom letzten Mal und den Durchschnitt aller Erwärmungszeiten.

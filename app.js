@@ -1000,7 +1000,7 @@ function render(){
  var tb=$('#tabbar');tb.innerHTML=tabbar();tb.hidden=(S.screen==='train'||S.screen==='wizard'||S.screen==='detail'&&S.prev==='train');
  $('#overlay').innerHTML=overlay();
  renderVbar();I18N.trDom($('#frame'));bindCharts();hydrateMedia();
- saveLocs();
+ saveLocs();ensureGuard();
  var jk=jumpKey();document.querySelectorAll('#jump button').forEach(function(b){b.setAttribute('aria-current',String(b.getAttribute('data-j')===jk))});
  if(scrollKey!==S.screen){sc.scrollTop=0;scrollKey=S.screen}
  if(S.scrollTo){var st=document.getElementById(S.scrollTo);S.scrollTo='';if(st)st.scrollIntoView()}
@@ -1024,6 +1024,22 @@ function go(s,o){
  }
  render();
 }
+/* Zurück von Übungsdetail und Assistent (Pfeil oben links und Android-Zurück-Taste) */
+function backStep(){
+ if(S.prev==='train'&&S.tr&&S.screen==='detail'){S.screen='train';S.prev='heute';render()}
+ else go(S.prev&&S.prev!=='detail'&&S.prev!=='wizard'?S.prev:'lib');
+}
+/* Android-Zurück-Taste: erst Fenster schließen, dann eine Ebene zurück, vom Start aus mit zweitem Druck beenden */
+function appBack(){
+ if(S.sheet){stopTimers();stopRec();S.sheet=null;render();return true}
+ var sc=S.screen;
+ if(sc==='detail'||sc==='wizard'){backStep();return true}
+ if(sc==='train'||sc==='summary'){go('heute');return true}
+ if(sc!=='start'){go('start');return true}
+ return false;
+}
+var exitArmed=false;
+function ensureGuard(){try{if(!exitArmed&&!(history.state&&history.state.kt===1))history.pushState({kt:1},'')}catch(e){}}
 /* Übung öffnen: heute schon geloggte Sätze zählen mit, es geht beim nächsten offenen Satz weiter */
 function enterTrain(i){
  var ex=S.plan[i],log=todaySets(ex).map(function(h){return {kg:h.kg,reps:h.reps,sec:h.sec,rir:h.rir,r:h.r,d:h.d,pv:h.pv==null?null:h.pv,pu:h.pu||''}}),n=log.length;
@@ -1104,7 +1120,7 @@ document.addEventListener('click',function(e){
   case 'tab':go(d.t);break;
   case 'lang':I18N.setLang(isEn()?'de':'en');render();break;
   case 'go':go(d.s,{n:d.n});break;
-  case 'back':if(S.prev==='train'&&S.tr&&S.screen==='detail'){S.screen='train';S.prev='heute';render()}else go(S.prev&&S.prev!=='detail'&&S.prev!=='wizard'?S.prev:'lib');break;
+  case 'back':backStep();break;
   case 'exp':S.exp=S.exp===+d.i?-1:+d.i;render();break;
   case 'dice':{snap();var inT=S.screen==='train'&&!S.tr.over,okD=diceAt(+d.i);S.sheet=null;if(inT&&okD)enterTrain(+d.i);else render();break}
   case 'pick':S.sheet={type:'pick',i:+d.i,q:'',open:null};render();break;
@@ -1324,6 +1340,13 @@ document.addEventListener('input',function(e){
  if(e.target.id==='exq'&&S.sheet){S.sheet.q=e.target.value;var xl=$('#exlist');if(xl){xl.innerHTML=exListHtml(S.sheet);I18N.trDom(xl)}}
 });
 
+/* Zurück-Taste des Geräts: Basiseintrag plus Schutzeintrag im Verlauf, damit „Zurück“ in der App bleibt */
+try{history.replaceState({kt:0},'');history.pushState({kt:1},'')}catch(e){}
+window.addEventListener('popstate',function(){
+ if(appBack())return;
+ exitArmed=true;toast('Nochmal „Zurück“ zum Beenden');render();
+ setTimeout(function(){exitArmed=false;ensureGuard()},2500);
+});
 /* Sprungleiste */
 if($('#jump'))$('#jump').innerHTML=JUMPS.map(function(j){return '<button data-j="'+j[0]+'">'+j[1]+'</button>'}).join('');
 function renderVbar(){var vb=$('#vbar');if(!vb)return;vb.innerHTML='<span>Version '+esc(self.KT_VERSION||'?')+'</span><button class="langbtn" data-act="lang" aria-label="Sprache wechseln / Switch language" data-nt="1"><b>'+(isEn()?'':'')+'DE</b><i></i><b>EN</b></button>';var bs=vb.querySelectorAll('.langbtn b');bs[0].className=isEn()?'':'on';bs[1].className=isEn()?'on':''}
