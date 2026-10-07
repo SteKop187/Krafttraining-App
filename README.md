@@ -44,8 +44,10 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
-## Neu in 3.5.1
-- **Startseite:** Der Knopf „Plan ansehen“ ist weg. Stattdessen öffnet ein Tipp auf die Karte „Letzte Einheit“ den Plan mit allen Funktionen (Würfeln, Ersetzen, Behalten, Verschieben, Bearbeiten, Streichen).
+## Neu in 3.6.0
+- **Sätze hinzufügen:** In der Übung gibt es „Satz hinzufügen“ (jederzeit, auch nach dem letzten Satz). Auch bei einer abgeschlossenen Übung, die du unter „Abgeschlossen“ wieder öffnest, kannst du einen weiteren Satz anhängen.
+- **Übung vorzeitig abschließen:** „Übung abschließen“ beendet eine Übung, auch wenn nicht alle geplanten Sätze gemacht sind (ab dem ersten geloggten Satz). Sie steht dann unter „Abgeschlossen“ mit dem Hinweis „vorzeitig beendet“ und zählt in der Zusammenfassung als erledigt.
+- **Startseite:** Der Knopf „Plan ansehen“ ist weg. Stattdessen öffnet ein Tipp auf die Karte „Letzte Einheit“ (mit dem Hinweis „Plan-Vorschau“) den Plan mit allen Funktionen (Würfeln, Ersetzen, Behalten, Verschieben, Bearbeiten, Streichen).
 
 ## Neu in 3.5.0
 - **Gesamttimer:** Sobald du die erste Übung öffnest, läuft oben die Gesamtdauer des Trainings mit, bis du „Training beenden“ wählst. Daneben läuft weiter die Zeit seit dem letzten Satz.

@@ -318,7 +318,9 @@ function weekCount(){var d=new Date(),dow=(d.getDay()+6)%7,mon=new Date(d.getFul
 /* Fortschritt heute: die heute geloggten Sätze einer Übung (nach Name und Trainingsart) bestimmen, ob sie offen oder abgeschlossen ist */
 function todaySets(p){var d=todayStr();return S.hist.filter(function(h){return h.date===d&&h.name===p.name&&typOf(h)===S.type})}
 function setsDone(p){return todaySets(p).length}
-function isDone(p){return p.sets>0&&setsDone(p)>=p.sets}
+/* Übung gilt als erledigt, wenn alle Sätze gemacht sind oder du sie vorzeitig abgeschlossen hast (fin) */
+function isDone(p){return !!p.fin||(p.sets>0&&setsDone(p)>=p.sets)}
+function progP(p){var n=setsDone(p);return p.fin&&n<p.sets?n+' von '+p.sets+' Sätzen · vorzeitig beendet':progText(n,p.sets)}
 function openIdx(){var o=[];S.plan.forEach(function(p,i){if(!isDone(p))o.push(i)});return o}
 function nextOpenIdx(from){var o=openIdx().filter(function(i){return i!==from}),a=o.filter(function(i){return i>from});return a.length?a[0]:(o.length?o[0]:-1)}
 function progText(n,total){return n+' von '+total+' Sätzen · '+(total-n>0?(total-n)+' offen':'alles erledigt')}
@@ -406,7 +408,7 @@ function sHeute(){
  /* Abgeschlossene Übungen sind unter einem Punkt gesammelt, nur offene stehen in der Liste */
  if(doneL){
   out+='<button class="donebtn" data-act="toggledone" aria-expanded="'+S.showDone+'"><span class="ck">'+ic('check',16)+'</span><span class="txt"><b>Abgeschlossen · '+doneL+(doneL===1?' Übung':' Übungen')+'</b><small>'+(S.showDone?'Tippen zum Einklappen':'Tippen zum Anzeigen')+'</small></span>'+ic(S.showDone?'chevd':'next',16)+'</button>';
-  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt"><b>'+esc(p.name)+'</b><small>'+esc(progText(setsDone(p),p.sets))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button>':''}).join('')+'</div>';
+  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt"><b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button>':''}).join('')+'</div>';
  }
  out+='<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>'+
  '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button><button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Einheit wechseln</button></div>'+
@@ -436,7 +438,7 @@ function sTrain(){
  out+=restBanner()+slotTag(ex.cat)+'<h1 class="h1" style="font-size:36px">'+esc(ex.name)+'</h1>';
  var nLog=t.log.length;out+='<div class="setline"><b>'+nLog+' von '+total+' Sätzen erledigt</b> · '+(total-nLog>0?(total-nLog)+' offen':'alles erledigt')+'</div>';
  /* Satz-Streifen: erledigte Sätze sind antippbar und zeigen, was du genommen hast */
- out+='<div class="dots">';for(var s=1;s<=total;s++){var cls=(s<t.set?'done':(s===t.set&&t.phase!=='done'?'cur':(t.phase==='done'?'done':''))),isDoneSet=s<=nLog;
+ out+='<div class="dots">';for(var s=1;s<=total;s++){var cls=(s<t.set?'done':(s===t.set&&t.phase!=='done'?'cur':(t.phase==='done'&&s<=nLog?'done':''))),isDoneSet=s<=nLog;
   out+='<button type="button" class="dotb '+cls+'" data-act="peek" data-k="'+(s-1)+'" aria-label="Satz '+s+(isDoneSet?' ansehen':'')+'"'+(isDoneSet?'':' disabled')+'><i></i></button>'}out+='</div>';
  if(t.peek>=0&&t.log[t.peek]){var pl=t.log[t.peek];
   out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):fmt(pl.kg)+' kg × '+pl.reps+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':''))+'</div>'}
@@ -446,6 +448,7 @@ function sTrain(){
   t.log.forEach(function(l,k){out+='<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+(warm?mmss(l.sec)+(l.pv!=null?' · '+fmt(l.pv)+' '+l.pu:''):(time?fmtSec(l.sec):fmt(l.kg)+' kg × '+l.reps))+'</span>'+(warm?'':'<span class="ic">'+ic(l.r==='m'?'up':(l.r==='w'?'down':'eq'),18)+'</span>')+'</div>'});
   out+='</div>'+(warm?'':'<div class="hint">'+ic('info',18)+'<span>Nächstes Mal: <b>'+nx+'</b> (abgeleitet aus deiner letzten Bewertung).</span></div>');
   var nxi=t.over?-1:nextOpenIdx(t.i),nxt=nxi>=0?S.plan[nxi]:null;
+  if(!warm)out+='<button class="btn wide" data-act="addset" style="margin-bottom:8px">'+ic('plus',18)+'Satz hinzufügen</button>';
   out+='</div><div class="cta"><button class="btn primary big" data-act="nextex">'+(nxt?'Weiter: '+esc(nxt.name):'Einheit abschließen')+ic('next',18)+'</button></div>';
   return out;
  }
@@ -492,6 +495,7 @@ function sTrain(){
    '<div class="field"><small>Wiederholungen in Reserve (optional)</small><div class="seg">'+[0,1,2,3].map(function(v){return '<button data-act="rir" data-v="'+v+'" aria-pressed="'+(t.rir===v)+'">'+v+(v===3?'+':'')+' RIR</button>'}).join('')+'</div></div>';
   }
  }
+ if(!warm)out+='<div class="row2" style="margin-bottom:8px"><button class="btn" style="flex:1" data-act="addset">'+ic('plus',18)+'Satz hinzufügen</button><button class="btn" style="flex:1" data-act="finex"'+(nLog?'':' disabled')+'>'+ic('check',18)+'Übung abschließen</button></div>';
  out+='<button class="btn" data-act="go" data-s="detail" data-n="'+esc(ex.name)+'" style="width:100%;margin-bottom:4px">'+ic('video',18)+'Ablauf und Medien ansehen</button></div>'+
  '<div class="cta"><button class="btn primary big" data-act="done"'+(canDone?'':' disabled')+'>'+ic('check',20)+'Satz abschließen</button></div>';
  return out;
@@ -802,7 +806,7 @@ function sStart(){
  var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card last tap" role="button" tabindex="0" data-act="startplan" aria-label="Plan der letzten Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Plan öffnen'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last tap" role="button" tabindex="0" data-act="startplan" aria-label="Plan der letzten Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Plan-Vorschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
   '</div>';
  }else{
@@ -970,8 +974,8 @@ function exMenu(){
 }
 function sSummary(){
  var done=[],open=[],sets=0,ton=0;
- S.plan.forEach(function(p){var n=setsDone(p);sets+=n;todaySets(p).forEach(function(h){ton+=(h.kg||0)*(h.reps||0)});if(p.sets>0&&n>=p.sets)done.push(p);else open.push(p)});
- var row=function(p){return '<div class="logrow"><span><b>'+esc(p.name)+'</b></span><span class="mut">'+esc(progText(setsDone(p),p.sets).replace(' · alles erledigt',''))+'</span></div>'};
+ S.plan.forEach(function(p){var n=setsDone(p);sets+=n;todaySets(p).forEach(function(h){ton+=(h.kg||0)*(h.reps||0)});if(isDone(p))done.push(p);else open.push(p)});
+ var row=function(p){return '<div class="logrow"><span><b>'+esc(p.name)+'</b></span><span class="mut">'+esc(progP(p).replace(' · alles erledigt',''))+'</span></div>'};
  return '<div class="pad"><div class="eyebrow">Training abgeschlossen</div><h1 class="h1">Gut gemacht</h1><p class="sub">'+esc(TPL[S.tpl].name)+(S.sumDur?' · '+S.sumDur+' min':'')+'</p>'+
   '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+done.length+' von '+S.plan.length+'</b></div><div><small>Sätze</small><b>'+sets+'</b></div>'+(ton>0?'<div><small>Volumen</small><b>'+fmt(ton,0)+' kg</b></div>':'')+'</div></div>'+
   (done.length?'<div class="sec">Erledigt</div><div class="group">'+done.map(row).join('')+'</div>':'')+
@@ -1057,7 +1061,7 @@ function enterTrain(i){
  var t=S.tr,last=log[n-1],rf=getRef(ex.name,t.eq),time=ex.mode==='time',step=time?secStep(ex.name):rf.step,d=typeof last.d==='number'?last.d:(last.r==='m'?step:(last.r==='w'?-step:0));
  if(ex.cat==='warm'){}
  else if(time)t.sec=Math.max(secStep(ex.name),last.sec+d);else{t.kg=Math.max(0,last.kg+d);t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}
- if(n>=ex.sets)t.phase='done';
+ if(n>=ex.sets||ex.fin)t.phase='done';
  render();
 }
 /* Zeit-Übung: Countdown von der Zielzeit auf 0; je Seite ein Durchgang */
@@ -1183,6 +1187,14 @@ document.addEventListener('click',function(e){
   case 'rate':{if(d.r==='p')applyRating('p',0);else{S.tr.ra=d.r;S.tr.phase='amount';render()}break}
   case 'rateamt':applyRating(S.tr.ra,+d.v);break;
   case 'rateback':S.tr.phase='rate';render();break;
+  /* Satz hinzufügen: in der Eingabe einen Satz mehr als geplant, nach dem Abschluss mit einem Satz weitermachen */
+  case 'addset':{var ta=S.tr,xa=curEx(),na=ta.log.length;
+   xa.sets=ta.phase==='done'?Math.max(xa.sets,na+1):xa.sets+1;xa.fin=false;
+   toast('Satz hinzugefügt · '+xa.sets+' Sätze');
+   if(ta.phase==='done'){if(ta.over){ta.phase='input';ta.set=na+1;resetInputs();render()}else enterTrain(ta.i)}else render();
+   break}
+  /* Übung vorzeitig abschließen: gilt als erledigt, auch wenn nicht alle geplanten Sätze gemacht sind */
+  case 'finex':{var tf=S.tr,xf=curEx();if(!tf.log.length)break;xf.fin=true;saveLocs();toast(xf.name+' abgeschlossen');go('heute');break}
   case 'peek':{var tp=S.tr;tp.peek=tp.peek===+d.k?-1:+d.k;render();break}
   case 'wustart':wuStart();break;
   case 'wustop':wuStop();break;
