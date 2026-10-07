@@ -276,3 +276,24 @@ body{padding:0;background:var(--app)}
 .xgrp+.xgrp{margin-top:2px}
 .xhead{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:6px}
 .xhead b{flex:1;font-size:15px;font-weight:600}
+/* Satz-Streifen antippbar, Mengenwahl beim Bewerten, Einblendung der erledigten Sätze */
+.dots .dotb{flex:1;background:none;border:0;padding:12px 0;margin:-12px 0;display:block}
+.dots .dotb i{display:block;width:100%;height:6px;border-radius:3px;background:var(--line)}
+.dots .dotb.done i{background:var(--ink)}
+.dots .dotb.cur i{background:var(--ink-3)}
+.dots .dotb[disabled]{cursor:default}
+.peek{background:var(--surface-2);border-radius:12px;padding:9px 12px;margin:-6px 0 14px;font-size:14px;color:var(--ink-2)}
+.peek b{color:var(--ink)}
+.amounts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.amounts button{height:76px;border-radius:18px;border:1px solid var(--line);background:var(--surface);font:700 28px var(--font-d);color:var(--ink)}
+.amounts button:active{background:var(--surface-2)}
+/* Sprachwahl oben rechts */
+.vbar{height:32px;gap:10px}
+.vbar span{flex:1;text-align:right}
+.langbtn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ink-3)}
+.langbtn i{width:1px;height:12px;background:var(--line)}
+.langbtn b.on{color:var(--ink)}
+.xrow2{display:flex;align-items:center}
+.xrow2 .lrow{flex:1;min-width:0}
+.xrow2+.xrow2{border-top:1px solid var(--line)}
+.iconbtn.sm{width:40px;height:44px;flex:none;color:var(--ink-3)}
