@@ -44,6 +44,15 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.5.0
+- **Gesamttimer:** Sobald du die erste Übung öffnest, läuft oben die Gesamtdauer des Trainings mit, bis du „Training beenden“ wählst. Daneben läuft weiter die Zeit seit dem letzten Satz.
+- **Signaltöne bei Zeit-Übungen:** kurzer Piep bei 10 Sekunden Rest, je ein Piep bei 3, 2 und 1, langer Ton, wenn die Zeit abgelaufen ist (nur bei geöffneter App und eingeschaltetem Medienton).
+- **Startseite:** läuft schon ein Training, zeigt sie die Karte „Training läuft“ mit „Training fortsetzen“.
+- **Zurück-Taste:** der Schutzeintrag im Verlauf entsteht erst nach dem ersten Tippen, weil Chrome ihn sonst überspringt (vermutete Ursache des schwarzen Bildschirms).
+
+## Neu in 3.4.2
+- **Aufgeräumte Startseite:** oben Datum, darunter die Karte „Letzte Einheit“ mit Name, Tag, Ort, Übungen, Sätzen und Volumen (ohne Einzelübungen), darunter die Karte „Nächstes Training“ mit den Knöpfen „Nächstes Training einrichten“ und „Plan ansehen“. Ort und Trainingsart wählst du jetzt beim Einrichten.
+
 ## Neu in 3.4.1
 - **Android-Zurück-Taste:** „Zurück“ geht in der App eine Seite zurück (erst offene Fenster schließen, dann Übung, Training, Tabs bis zum Start). Auf dem Start beendet ein zweiter Druck die App.
 

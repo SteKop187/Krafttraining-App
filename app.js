@@ -364,17 +364,19 @@ function slotTag(cat){var s=SLOT[cat];return '<span class="tag"><i class="dot" s
 
 /* Training läuft: die Übersicht bleibt die Basis, der Timer läuft weiter, wenn man zwischen Übungen wechselt */
 function isLive(){return !!(S.live&&S.live.date===todayStr())}
-function startLive(){if(!isLive()){S.live={start:Date.now(),date:todayStr(),last:0};saveLocs()}}
-/* Timer oben: zählt hoch, seit der letzte Satz abgeschlossen wurde (kein Countdown, keine vorgegebene Pause) */
+function startLive(){if(!isLive()){S.live={start:Date.now(),date:todayStr(),last:0};saveLocs()}ensureTick()}
+/* Timer oben: Gesamtdauer des Trainings (läuft ab der ersten Übung bis „Training beenden“) und, daneben, die Zeit seit dem letzten Satz (zählt hoch, kein Countdown) */
 function sinceLast(){return isLive()&&S.live.last?Math.max(0,Math.floor((Date.now()-S.live.last)/1000)):-1}
+function totalSec(){return isLive()?Math.max(0,Math.floor((Date.now()-S.live.start)/1000)):-1}
+function hms(s){var h=Math.floor(s/3600);return h?h+':'+(Math.floor(s/60)%60<10?'0':'')+Math.floor(s/60)%60+':'+(s%60<10?'0':'')+s%60:mmss(s)}
 function restBanner(){
- var s=sinceLast();if(s<0)return '';
- return '<div class="restbn" role="timer"><div class="rt"><small>Seit dem letzten Satz</small><b id="restn">'+mmss(s)+'</b></div></div>';
+ var t=totalSec(),s=sinceLast();if(t<0)return '';
+ return '<div class="restbn" role="timer"><div class="rt"><small>Gesamt</small><b id="totn">'+hms(t)+'</b></div>'+(s>=0?'<div class="rt r"><small>Seit dem letzten Satz</small><b id="restn">'+mmss(s)+'</b></div>':'')+'</div>';
 }
 function ensureTick(){if(!S.rtmr)S.rtmr=setInterval(restTick,1000)}
 function markSet(){startLive();S.live.last=Date.now();saveLocs();ensureTick()}
 function endRest(){clearInterval(S.rtmr);S.rtmr=null;if(S.live)S.live.last=0}
-function restTick(){var s=sinceLast();if(s<0){clearInterval(S.rtmr);S.rtmr=null;return}var n=$('#restn');if(n)n.textContent=mmss(s)}
+function restTick(){var t=totalSec();if(t<0){clearInterval(S.rtmr);S.rtmr=null;return}var s=sinceLast(),a=$('#totn'),n=$('#restn');if(a)a.textContent=hms(t);if(n&&s>=0)n.textContent=mmss(s)}
 
 function sHeute(){
  var openL=openIdx(),doneL=S.plan.length-openL.length,anySets=S.plan.some(function(p){return setsDone(p)>0}),live=isLive();
@@ -780,7 +782,7 @@ function sSetup(){
  var kraft=S.type==='kraft',o=S.setup,l=curLoc(),anySets=S.plan.some(function(p){return setsDone(p)>0});
  var devs=l.eq&&l.eq.Cardio?S.cardios.filter(function(m){return l.card&&l.card[m]}):[];
  var tgRow=function(k,t,sub){return '<button class="tg" data-act="setopt" data-k="'+k+'" aria-pressed="'+!!o[k]+'"><span>'+t+'<small>'+sub+'</small></span><i class="sw"></i></button>'};
- var out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Heutiges Training</span><span style="width:44px"></span></div><div class="pad"><h1 class="h1" style="font-size:36px">Heutiges Training einrichten</h1><p class="sub">Wähle Ort, Trainingsart und die Bestandteile. Alles lässt sich danach im Plan noch ändern.</p>';
+ var out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Nächstes Training</span><span style="width:44px"></span></div><div class="pad"><h1 class="h1" style="font-size:36px">Nächstes Training einrichten</h1><p class="sub">Wähle Ort, Trainingsart und die Bestandteile. Alles lässt sich danach im Plan noch ändern.</p>';
  out+=locSection('Wo trainierst du?')+typeSection();
  if(kraft){
   var tpls=Object.keys(TPL).filter(function(k){return TPL[k].type==='kraft'}),cur=S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl();
@@ -797,19 +799,25 @@ function sSetup(){
  return out+'</div><div class="cta"><button class="btn primary big" data-act="makeplan">'+ic('check',18)+'Plan erstellen</button></div>';
 }
 function sStart(){
- var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1><p class="sub">Was steht heute an?</p>';
+ var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card"><div class="eyebrow">Letzte Einheit</div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last"><div class="eyebrow">Letzte Einheit</div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
-  '<div class="chips" style="margin-bottom:10px"><span class="chip">'+ic('up',14)+'Mehr '+ls.cnt.m+'</span><span class="chip">'+ic('eq',14)+'Passt '+ls.cnt.p+'</span><span class="chip">'+ic('down',14)+'Weniger '+ls.cnt.w+'</span></div>'+
-  '<div class="group">'+ls.list.slice(0,5).map(function(e){return '<div class="logrow"><span><b>'+esc(e.name)+'</b></span><span class="mut">'+exBest(e)+' · '+e.n+(e.n===1?' Satz':' Sätze')+'</span></div>'}).join('')+(ls.list.length>5?'<div class="logrow"><span class="mut">+ '+(ls.list.length-5)+' weitere Übungen</span></div>':'')+'</div></div>';
+  '</div>';
  }else{
   out+='<div class="card"><div class="eyebrow">Letzte Einheit</div><h3 style="margin-top:4px">Noch keine Einheit</h3><p class="cap" style="margin:0">Starte dein erstes Training. Danach siehst du hier eine kurze Zusammenfassung.</p></div>';
  }
- out+=locSection('Wo trainierst du heute?')+typeSection()+
- '<div class="sec">Ohne Training</div><button class="btn wide" data-act="tab" data-t="stats">'+ic('chart',18)+'Übersicht und Statistik</button><p class="mut" style="margin:8px 0 0;font-size:12px">Öffnet die Auswertung. Es wird keine Einheit gestartet.</p></div>'+
- '<div class="cta"><button class="btn primary big" data-act="setup">'+ic('play',18)+'Heutiges Training einrichten</button><button class="btn" data-act="startplan" style="height:56px;border-radius:16px;flex:none">Plan ansehen</button></div>';
+ if(isLive()){
+  /* Training läuft schon: ein Tipp führt zurück in den Plan */
+  out+='<div class="card hero"><div class="eyebrow">Training läuft</div><h3 style="margin-top:4px">'+esc(TPL[S.tpl].name)+'</h3><p class="cap">'+esc(curLoc().name)+' · seit '+new Date(S.live.start).toTimeString().slice(0,5)+'</p>'+
+  '<button class="btn primary big wide" data-act="startplan">'+ic('play',18)+'Training fortsetzen</button></div></div>';
+  return out;
+ }
+ var nt=TPL[S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl()];
+ out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(nt?nt.name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+esc(typeName(S.type))+'</p>'+
+ '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button>'+
+ '<button class="btn ghost wide" data-act="startplan" style="margin-top:6px;height:44px">Plan ansehen</button></div></div>';
  return out;
 }
 var SCREENS={start:sStart,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};
@@ -1038,8 +1046,9 @@ function appBack(){
  if(sc!=='start'){go('start');return true}
  return false;
 }
-var exitArmed=false;
-function ensureGuard(){try{if(!exitArmed&&!(history.state&&history.state.kt===1))history.pushState({kt:1},'')}catch(e){}}
+/* Chrome überspringt Verlaufseinträge, die ohne Antippen der Seite angelegt wurden. Darum entsteht der Schutzeintrag erst nach dem ersten Tippen. */
+var exitArmed=false,userActive=false;
+function ensureGuard(){try{if(userActive&&!exitArmed&&!(history.state&&history.state.kt===1))history.pushState({kt:1},'')}catch(e){}}
 /* Übung öffnen: heute schon geloggte Sätze zählen mit, es geht beim nächsten offenen Satz weiter */
 function enterTrain(i){
  var ex=S.plan[i],log=todaySets(ex).map(function(h){return {kg:h.kg,reps:h.reps,sec:h.sec,rir:h.rir,r:h.r,d:h.d,pv:h.pv==null?null:h.pv,pu:h.pu||''}}),n=log.length;
@@ -1053,16 +1062,23 @@ function enterTrain(i){
  render();
 }
 /* Zeit-Übung: Countdown von der Zielzeit auf 0; je Seite ein Durchgang */
-function cdFinish(held){
+/* Signaltöne für den Countdown (Web Audio, wird beim Tippen auf Start freigeschaltet) */
+var AC=null;
+function audioCtx(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;if(!AC)AC=new C();if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
+function beep(ms,hz){var c=audioCtx();if(!c)return;try{var o=c.createOscillator(),g=c.createGain(),t0=c.currentTime;o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.5,t0+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t0+ms/1000);o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+ms/1000+0.05)}catch(e){}}
+function cdFinish(held,ended){
  var t=S.tr;clearInterval(S.tmr);S.tmr=null;t.running=false;t.held.push(Math.max(1,held));
- try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}
+ if(ended)beep(900,660);
+ try{if(navigator.vibrate)navigator.vibrate(ended?[300,100,300]:[150,80,150])}catch(e){}
  render();
 }
 function cdStart(){
- var t=S.tr;if(t.running)return;t.running=true;t.start=Date.now();t.end=t.start+t.sec*1000;
+ var t=S.tr;if(t.running)return;t.running=true;t.start=Date.now();t.end=t.start+t.sec*1000;audioCtx();t.lb=-1;
  clearInterval(S.tmr);S.tmr=setInterval(function(){
   var left=Math.ceil((t.end-Date.now())/1000),el=$('#secv');
-  if(left<=0){cdFinish(t.sec);return}
+  /* kurzer Piep bei 10 s und je einer bei 3, 2, 1; langer Ton beim Ablauf */
+  if(left!==t.lb){t.lb=left;if(left<t.sec&&(left===10||left===3||left===2||left===1))beep(130,880)}
+  if(left<=0){cdFinish(t.sec,true);return}
   if(el)el.textContent=mmss(left);
  },250);
  render();
@@ -1341,7 +1357,8 @@ document.addEventListener('input',function(e){
 });
 
 /* Zurück-Taste des Geräts: Basiseintrag plus Schutzeintrag im Verlauf, damit „Zurück“ in der App bleibt */
-try{history.replaceState({kt:0},'');history.pushState({kt:1},'')}catch(e){}
+try{if(!(history.state&&history.state.kt!=null))history.replaceState({kt:0},'')}catch(e){}
+document.addEventListener('click',function(){if(!userActive){userActive=true;ensureGuard()}},true);
 window.addEventListener('popstate',function(){
  if(appBack())return;
  exitArmed=true;toast('Nochmal „Zurück“ zum Beenden');render();
@@ -1350,6 +1367,6 @@ window.addEventListener('popstate',function(){
 /* Sprungleiste */
 if($('#jump'))$('#jump').innerHTML=JUMPS.map(function(j){return '<button data-j="'+j[0]+'">'+j[1]+'</button>'}).join('');
 function renderVbar(){var vb=$('#vbar');if(!vb)return;vb.innerHTML='<span>Version '+esc(self.KT_VERSION||'?')+'</span><button class="langbtn" data-act="lang" aria-label="Sprache wechseln / Switch language" data-nt="1"><b>'+(isEn()?'':'')+'DE</b><i></i><b>EN</b></button>';var bs=vb.querySelectorAll('.langbtn b');bs[0].className=isEn()?'':'on';bs[1].className=isEn()?'on':''}
-if(isLive()&&S.live.last)ensureTick();
+if(isLive())ensureTick();
 relabel();render();
 })();

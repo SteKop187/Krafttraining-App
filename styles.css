@@ -265,6 +265,7 @@ body{padding:0;background:var(--app)}
 .playbtn{flex:none;width:60px;border:0;border-left:1px solid var(--line);background:none;display:grid;place-items:center;color:var(--ink)}
 .playbtn:active{background:var(--surface-2)}
 .restbn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:var(--inv);border-radius:16px;padding:10px 12px 14px;margin-bottom:12px}
+.restbn .rt.r{text-align:right}
 .restbn .rt small{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.75}
 .restbn .rt b{font:700 34px/1 var(--font-d);font-variant-numeric:tabular-nums}
 .restbn .btn{background:transparent;color:inherit;border-color:rgba(128,128,128,.6)}
@@ -287,6 +288,15 @@ body{padding:0;background:var(--app)}
 .amounts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .amounts button{height:76px;border-radius:18px;border:1px solid var(--line);background:var(--surface);font:700 28px var(--font-d);color:var(--ink)}
 .amounts button:active{background:var(--surface-2)}
+/* Startseite: kleine Info-Karte für die letzte Einheit, große Karte für das nächste Training */
+.card.last{padding:12px 14px}
+.card.last h3{font-size:20px}
+.card.last .cap{margin-bottom:6px}
+.card.last .kpis{margin:0;gap:22px}
+.card.last .kpis b{font-size:20px}
+.card.hero{padding:18px 16px 14px;margin-top:6px}
+.card.hero h3{font-size:30px}
+.card.hero .cap{margin-bottom:16px}
 /* Sprachwahl oben rechts */
 .vbar{height:32px;gap:10px}
 .vbar span{flex:1;text-align:right}
