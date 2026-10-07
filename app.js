@@ -802,7 +802,7 @@ function sStart(){
  var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card last"><div class="eyebrow">Letzte Einheit</div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last tap" role="button" tabindex="0" data-act="startplan" aria-label="Plan der letzten Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Plan öffnen'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
   '</div>';
  }else{
@@ -816,8 +816,7 @@ function sStart(){
  }
  var nt=TPL[S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl()];
  out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(nt?nt.name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+esc(typeName(S.type))+'</p>'+
- '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button>'+
- '<button class="btn ghost wide" data-act="startplan" style="margin-top:6px;height:44px">Plan ansehen</button></div></div>';
+ '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button></div></div>';
  return out;
 }
 var SCREENS={start:sStart,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};

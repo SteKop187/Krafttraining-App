@@ -290,6 +290,8 @@ body{padding:0;background:var(--app)}
 .amounts button:active{background:var(--surface-2)}
 /* Startseite: kleine Info-Karte für die letzte Einheit, große Karte für das nächste Training */
 .card.last{padding:12px 14px}
+.card.tap{cursor:pointer}
+.card.tap:active{background:var(--surface-2)}
 .card.last h3{font-size:20px}
 .card.last .cap{margin-bottom:6px}
 .card.last .kpis{margin:0;gap:22px}
