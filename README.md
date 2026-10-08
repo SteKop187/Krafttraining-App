@@ -44,6 +44,10 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.9.0
+- **Neues App-Icon:** vier Farbfelder (Orange, Gelb, Dunkelblau, Cyan) mit der weißen Athletenfigur. Es gibt die Größen 192 und 512 Pixel, eine Fassung mit Sicherheitsrand für Android und das Apple-Icon. Auf dem Handy die App einmal vom Startbildschirm entfernen und neu installieren, damit das neue Icon erscheint.
+- **Startbildschirm:** beim Öffnen erscheint rund 1,5 Sekunden die Kachel mit dem Icon, „Krafttraining“, „Satz für Satz“ (englisch „Set by set“) und fünf Strichen, die nacheinander aufleuchten: Dunkelblau, Orange, Hellblau, Gelb, Grau. Je nach hellem oder dunklem Modus sind die Töne so gewählt, dass jede Farbe zum Hintergrund mindestens 3:1 Kontrast hat (Gelb im hellen Modus als tieferes Gold, Dunkelblau im dunklen Modus aufgehellt).
+
 ## Neu in 3.8.0
 - **Trainingsarten in zwei Oberkategorien:** *Krafttraining* (Krafttrainingseinheit) mit Ganzkörper, Unterkörper und Oberkörper, und *Mikrotraining* (Mikrotrainingseinheit) mit Aufrichtung und der neuen Handstand-Vorbereitung. Beim Einrichten wählst du die Trainingsart direkt; die frühere Karte „Krafttraining“ ist entfallen.
 - **Standard:** Solange noch nichts gewählt ist, ist Ganzkörper voreingestellt; bei Ganzkörper wählst du die Einheit A oder B.
