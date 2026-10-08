@@ -63,7 +63,7 @@ function slotSg(s){return String(s).split(':')[1]||''}
 function slotLabel(s){var c=slotCat(s),g=slotSg(s);return SLOT[c].l+(g?' '+SG[g]:'')}
 /* Kategorien der Statistik: die drei Aufrichtungs-Muster werden zusammengefasst, Erwärmung zählt nicht mit */
 var STATCATS=['schnell','squat','push','hinge','pull','rumpf','zusatz','aufricht'];
-var TYPES={kraft:{name:'Krafttraining',sub:'Ganzkörper-, Unter- und Oberkörpereinheiten',icon:'dumbbell'},aufricht:{name:'Aufrichtung',sub:'Haltung, Hüfte und Mobilisation',icon:'spine'}};
+var TYPES={kraft:{name:'Krafttraining',sub:'Ganzkörper-, Unter- und Oberkörpereinheiten',icon:'dumbbell'},aufricht:{name:'Aufrichtung',sub:'Haltung, Hüfte und Mobilisation',icon:'spine'},handstand:{name:'Handstand-Vorbereitung',sub:'Schulter, Handgelenke und Körperspannung',icon:'spine'}};
 function typeName(t){return TYPES[t]?TYPES[t].name:'Gelöschte Trainingsart'}
 /* x: sg (Untergruppe), both (beidseitig, je Seite ein Durchgang), eqs (mehrere mögliche Geräte), param (Messgröße bei Cardio) */
 function P(name,eq,sets,reps,rest,sub,mode,machine,x){var p={name:name,eq:eq,sets:sets,reps:reps,rest:rest,sub:sub||'',mode:mode||'reps',machine:machine||''};if(x){if(x.sg)p.sg=x.sg;if(x.both)p.both=true;if(x.eqs&&x.eqs.length>1)p.eqs=x.eqs;if(x.param)p.param=x.param}return p}
@@ -143,7 +143,7 @@ var STEPS={
 
 /* ---------- Zustand ---------- */
 var S={
- screen:'start',prev:'start',exp:-1,toast:null,sheet:null,undo:null,type:'kraft',stash:{},
+ screen:'start',prev:'start',exp:-1,toast:null,sheet:null,undo:null,type:'kraft',ta:'ta_gk',hiddenTA:[],stash:{},
  plan:[
   {cat:'schnell',grp:'A1',rest:30},{cat:'schnell',grp:'A2',rest:90},{cat:'squat',grp:'B',rest:150},{cat:'push',grp:'C',rest:120},
   {cat:'hinge',grp:'D',rest:150},{cat:'pull',grp:'E',rest:90},{cat:'rumpf',grp:'F',rest:30}
@@ -191,7 +191,7 @@ function usesOf(name){var d={};S.hist.forEach(function(h){if(h.name===name)d[h.d
 function mediaCount(name,t){return (S.media[name]||[]).filter(function(m){return m.type===t}).length}
 /* Orte merken: letzter gewählter Ort ist beim nächsten Öffnen Standard (nur in diesem Browser) */
 var LSKEY='krafttraining-app-v1';
-function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,removed:S.removed,setup:S.setup,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,stash:S.stash}))}catch(e){}}
+function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,removed:S.removed,setup:S.setup,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
 function applyData(d){
  if(!d)return;
  if(Array.isArray(d.machines)&&d.machines.length)S.machines=d.machines.filter(function(m){return typeof m==='string'&&m});
@@ -215,6 +215,9 @@ function applyData(d){
  if(d.planDate)S.planDate=d.planDate;
  if(d.tpl&&TPL[d.tpl])S.tpl=d.tpl;
  if(d.type&&TYPES[d.type])S.type=d.type;
+ if(Array.isArray(d.hiddenTA))S.hiddenTA=d.hiddenTA.filter(function(x){return typeof x==='string'});
+ if(typeof d.ta==='string')S.ta=d.ta;
+ fixTA();
  if(d.stash&&typeof d.stash==='object')S.stash=d.stash;
  ensureMach();initRecent();syncCustomEn();
 }
@@ -273,6 +276,7 @@ var TPL={
  aufb:{name:'Aufrichtung B',slots:['huefte','mobil','haltung','huefte','haltung','mobil']}
 };
 Object.keys(TPL).forEach(function(k){TPL[k].type=/^auf/.test(k)?'aufricht':'kraft'});
+TPL.hand={name:'Handstand-Vorbereitung',slots:['warm:allg','zusatz:hand','zusatz:hand','zusatz:hand','zusatz:schulter','zusatz:schulter'],type:'handstand'};
 /* Eigene Trainingsarten: ein Name und die Bewegungsmuster, aus denen die Einheit besteht (in der festen Reihenfolge der Muster) */
 function typeCats(t){return ORDER.filter(function(c){return t.cats.indexOf(c)>-1})}
 function registerType(t){
@@ -281,7 +285,15 @@ function registerType(t){
 }
 function unregisterType(t){delete TYPES[t.id];delete TPL[t.id]}
 function customType(id){return S.types.filter(function(t){return t.id===id})[0]}
-function rotation(){return TYPES[S.type]&&TYPES[S.type].custom?[S.type]:(S.type==='aufricht'?['aufa','aufb']:(S.set.perWeek===2?['gka','gkb']:['uk','ok','gka']))}
+/* Trainingsarten in zwei Oberkategorien: Krafttraining (Ganzkörper, Unterkörper, Oberkörper, eigene) und Mikrotraining (Aufrichtung, Handstand-Vorbereitung, eigene). Eingebaute lassen sich ausblenden, eigene löschen. */
+var TAG={kraft:{name:'Krafttraining',sub:'Krafttrainingseinheit'},mikro:{name:'Mikrotraining',sub:'Mikrotrainingseinheit'}};
+var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka','gkb']},{id:'ta_uk',name:'Unterkörper',group:'kraft',type:'kraft',tpls:['uk']},{id:'ta_ok',name:'Oberkörper',group:'kraft',type:'kraft',tpls:['ok']},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb']},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand']}];
+function allTA(){return TA_BUILTIN.concat(S.types.map(function(t){return {id:t.id,name:t.name,group:t.group||'kraft',type:t.id,tpls:[t.id],custom:true}}))}
+function visTA(){return allTA().filter(function(t){return S.hiddenTA.indexOf(t.id)<0})}
+function curTA(){return allTA().filter(function(t){return t.id===S.ta})[0]}
+/* aktuelle Trainingsart und interne Art (S.type) zusammenhalten, falls eine gelöscht wurde */
+function fixTA(){var c=curTA();if(c&&c.type===S.type&&S.hiddenTA.indexOf(c.id)<0)return;var v=visTA().filter(function(t){return t.type===S.type})[0]||visTA()[0];if(v){S.ta=v.id;if(v.type!==S.type&&TYPES[v.type])S.type=v.type}}
+function rotation(){var ta=curTA();if(ta&&ta.type===S.type)return ta.tpls.slice();return TYPES[S.type]&&TYPES[S.type].custom?[S.type]:(S.type==='aufricht'?['aufa','aufb']:(S.set.perWeek===2?['gka','gkb']:['uk','ok','gka']))}
 function typOf(h){return h.typ||'kraft'}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function pastDates(){var o={};S.hist.forEach(function(h){if(h.date!==todayStr()&&typOf(h)===S.type)o[h.date]=h.tpl||''});return Object.keys(o).sort().map(function(d){return {date:d,tpl:o[d]}})}
@@ -291,7 +303,7 @@ function cxRank(p){var s=p.sub||'';return /komplex/.test(s)?0:(/unilateral/.test
 /* Plätze einer Vorlage: im Krafttraining je nach Einrichtung (Allgemeine Erwärmung ist immer dabei) */
 function slotsFor(id){
  var t=TPL[id],o=S.setup;
- if(!t||t.slots.indexOf('warm:allg')<0)return t.slots;
+ if(!t||t.type!=='kraft'||t.slots.indexOf('warm:allg')<0)return t.slots;
  var s=t.slots.filter(function(x){return !((x==='warm:cardio'&&!o.cardio)||(x==='zusatz:as'&&!o.as)||(x==='zusatz:hand'&&!o.hand))});
  if(o.schulter)s.push('zusatz:schulter');
  if(o.aufr)s.push(['haltung','huefte','mobil'][Math.floor(Math.random()*3)]);
@@ -334,6 +346,8 @@ function setType(t){
  else newDayPlan();
  adaptPlan();saveLocs();
 }
+/* Trainingsart wählen: wechselt bei Bedarf die interne Art (Kraft, Aufrichtung, Handstand, eigene), die Einheit kommt aus ihrem Wechsel */
+function setTA(id){var ta=allTA().filter(function(x){return x.id===id})[0];if(!ta)return;S.ta=id;S.setupTpl='';if(ta.type!==S.type)setType(ta.type);else saveLocs()}
 loadLocs();ensureMach();initRecent();if(S.planDate!==todayStr()||!TPL[S.tpl]||TPL[S.tpl].type!==S.type)newDayPlan();adaptPlan();
 
 /* ---------- Auswertungsdaten ---------- */
@@ -370,6 +384,8 @@ function kcls(x){var k=tagKey(x);return KALIAS[k]||k}
 function catLabel(x){var k=tagKey(x);return k==='praev'?'Prävention · Reha':SLOT[k].l}
 function slotTag(x){return '<span class="ctag k-'+kcls(x)+'">'+catLabel(x)+'</span>'}
 /* Gliederung des Plans im Krafttraining: Vorbereitung, Hauptteil, Ergänzung (Aufrichtung ohne Gliederung) */
+function planSectioned(){return S.plan.some(function(p){return partOf(p)==='haupt'})}
+function partKey(p){return planSectioned()?partOf(p):''}
 function partOf(p){var c=p.cat;return (c==='warm'||c==='schnell')?'vor':((c==='squat'||c==='push'||c==='hinge'||c==='pull')?'haupt':(AUFR_CATS.indexOf(c)>-1?'':'erg'))}
 
 /* Training läuft: die Übersicht bleibt die Basis, der Timer läuft weiter, wenn man zwischen Übungen wechselt */
@@ -396,12 +412,12 @@ function sHeute(){
  '<button class="locrow" data-act="sheet" data-s="loc" aria-label="Trainingsort wechseln"><span class="pin">'+ic('pin',20)+'</span><span class="txt"><small>Trainingsort · '+eqCount()+' Geräte</small><b>'+esc(curLoc().name)+'</b></span><span class="mut" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px">wechseln'+ic('next',14)+'</span></button>'+
  (openL.length?'':'<div class="hint">'+ic('check',18)+'<span><b>Alle '+S.plan.length+' Übungen sind erledigt.</b> Gut gemacht. Unten findest du sie unter „Abgeschlossen“.</span></div>');
  var curSec='-',nSec=0,secCnt={},secTitle={vor:'Vorbereitung',haupt:'Hauptteil',erg:'Ergänzung'};
- S.plan.forEach(function(p){var k=partOf(p);secCnt[k]=(secCnt[k]||0)+1});
+ S.plan.forEach(function(p){var k=partKey(p);secCnt[k]=(secCnt[k]||0)+1});
  var closeSec=function(k){return k==='-'?'':'</div>'+(k==='haupt'?'</div>':'')};
  var openSec=function(k){if(k==='')return '<div class="group">';nSec++;var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+secTitle[k]+'</b><span class="hr"></span><small>'+secCnt[k]+' Übungen</small></div>';return (k==='haupt'?'<div class="blk">':'')+h+'<div class="group">'};
  S.plan.forEach(function(p,i){
   if(isDone(p))return;
-  var sc=partOf(p);if(sc!==curSec){out+=closeSec(curSec)+openSec(sc);curSec=sc}
+  var sc=partKey(p);if(sc!==curSec){out+=closeSec(curSec)+openSec(sc);curSec=sc}
   /* Supersatz-Kopf nur, wenn beide Übungen des Supersatzes noch offen sind */
   if(p.grp==='A2'&&i>0&&!isDone(S.plan[i-1])){out+='<div class="ss">'+ic('swap',13)+'Supersatz · abwechselnd</div>'}
   var open=S.exp===i,nd=setsDone(p),up=moveTarget(i,-1)>-1,dn=moveTarget(i,1)>-1;
@@ -431,7 +447,7 @@ function sHeute(){
 }
 
 /* Ziel der Verschiebung: der nächste noch offene Nachbar in dieser Richtung (erledigte Übungen werden übersprungen) */
-function moveTarget(i,d){var s0=partOf(S.plan[i]);for(var j=i+d;j>=0&&j<S.plan.length;j+=d){if(partOf(S.plan[j])!==s0)return -1;if(!isDone(S.plan[j]))return j}return -1}
+function moveTarget(i,d){var s0=partKey(S.plan[i]);for(var j=i+d;j>=0&&j<S.plan.length;j+=d){if(partKey(S.plan[j])!==s0)return -1;if(!isDone(S.plan[j]))return j}return -1}
 function movePlan(i,d){var j=moveTarget(i,d);if(j<0)return i;snap();var t=S.plan[i];S.plan[i]=S.plan[j];S.plan[j]=t;relabel();return j}
 
 function curEx(){return S.tr.over||S.plan[S.tr.i]}
@@ -742,21 +758,28 @@ function sLocs(){
 }
 /* Trainingsarten verwalten: die eingebauten Arten ansehen, eigene anlegen, umbenennen und löschen */
 function sTypes(){
- var ids=Object.keys(TYPES),ed=ids.indexOf(S.editType)>-1?S.editType:S.type,t=TYPES[ed],ct=customType(ed);
- var out='<div class="sec" id="sec-types">Trainingsarten</div>'+
- '<div class="fchips" style="margin-bottom:10px">'+ids.map(function(k){return '<button class="chip" data-act="edittype" data-v="'+esc(k)+'" aria-pressed="'+(k===ed)+'">'+(k===S.type?ic('pin',14):'')+esc(TYPES[k].name)+'</button>'}).join('')+'<button class="chip ex" data-act="newtype">'+ic('plus',14)+'Neue Trainingsart</button></div>';
- if(ct){
-  out+='<div class="q" style="margin-bottom:10px"><small>Name der Trainingsart</small><input class="inp" id="typename" value="'+esc(ct.name)+'" aria-label="Name der Trainingsart"></div>'+
-  '<div class="q"><small>Bewegungsmuster in der Einheit</small><div class="chips">'+ORDER.map(function(c){return '<button class="chip" data-act="tgcat" data-c="'+c+'" aria-pressed="'+(ct.cats.indexOf(c)>-1)+'"><i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l+'</button>'}).join('')+'</div></div>'+
-  '<p class="mut" style="margin:0 0 10px;font-size:13px">Jedes gewählte Muster ergibt eine Übung im Tagesplan, aus deiner Bibliothek ausgewählt nach Ort und Equipment. Änderungen gelten ab dem nächsten Plan, über „Einheit wechseln“ stellst du den heutigen neu zusammen.</p>';
+ var all=allTA(),vis=visTA(),cur=curTA(),ed=vis.filter(function(t){return t.id===S.editType})[0]||cur||vis[0],ct=ed&&ed.custom?customType(ed.id):null;
+ var chip=function(t){return '<button class="chip" data-act="edittype" data-v="'+esc(t.id)+'" aria-pressed="'+(!!ed&&ed.id===t.id)+'">'+(cur&&cur.id===t.id?ic('pin',14):'')+esc(t.name)+'</button>'};
+ var out='<div class="sec" id="sec-types">Trainingsarten</div>';
+ ['kraft','mikro'].forEach(function(g){
+  out+='<div class="eyebrow" style="margin:8px 0 6px">'+TAG[g].name+' <span style="text-transform:none;letter-spacing:0;font-weight:500">· '+TAG[g].sub+'</span></div><div class="fchips" style="margin-bottom:8px">'+vis.filter(function(t){return t.group===g}).map(chip).join('')+'<button class="chip ex" data-act="newtype" data-g="'+g+'">'+ic('plus',14)+'Neu</button></div>'});
+ if(ed){
+  if(ct){
+   out+='<div class="q" style="margin:10px 0"><small>Name der Trainingsart</small><input class="inp" id="typename" value="'+esc(ct.name)+'" aria-label="Name der Trainingsart"></div>'+
+   '<div class="q" style="margin-bottom:10px"><small>Oberkategorie</small><div class="chips">'+['kraft','mikro'].map(function(g){return '<button class="chip" data-act="tggroup" data-g="'+g+'" aria-pressed="'+((ct.group||'kraft')===g)+'">'+TAG[g].name+'</button>'}).join('')+'</div></div>'+
+   '<div class="q"><small>Bewegungsmuster in der Einheit</small><div class="chips">'+ORDER.map(function(c){return '<button class="chip" data-act="tgcat" data-c="'+c+'" aria-pressed="'+(ct.cats.indexOf(c)>-1)+'"><i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l+'</button>'}).join('')+'</div></div>'+
+   '<p class="mut" style="margin:0 0 10px;font-size:13px">Jedes gewählte Muster ergibt eine Übung im Tagesplan, aus deiner Bibliothek ausgewählt nach Ort und Equipment. Änderungen gelten ab dem nächsten Plan.</p>';
+  }else{
+   out+='<div class="card" style="margin:10px 0"><h3>'+esc(ed.name)+'</h3><p class="cap" style="margin:0">'+TAG[ed.group].sub+'. Einheiten: '+ed.tpls.map(function(k){return esc(TPL[k].name)}).join(', ')+'.</p></div>';
+  }
+  out+='<div class="row2">'+(cur&&cur.id===ed.id?'<span class="hint" style="flex:1;margin:0">'+ic('pin',18)+'<span>Aktuelle Trainingsart.</span></span>':'<button class="btn" style="flex:1.4" data-act="usetype" data-v="'+esc(ed.id)+'">'+ic('pin',18)+'Diese verwenden</button>')+(vis.length>1?'<button class="btn" style="flex:1" data-act="delta" data-v="'+esc(ed.id)+'">'+ic('trash',18)+'Löschen</button>':'')+'</div>';
  }else{
-  var tp=Object.keys(TPL).filter(function(k){return TPL[k].type===ed});
-  out+='<div class="card" style="margin-bottom:10px"><h3>'+esc(t.name)+'</h3><p class="cap" style="margin:0">'+esc(t.sub)+'. Eingebaute Art, Einheiten: '+tp.map(function(k){return esc(TPL[k].name)}).join(', ')+'.</p></div>';
+  out+='<p class="mut" style="font-size:13px">Alle Trainingsarten sind gelöscht. Stelle eine wieder her oder lege eine neue an.</p>';
  }
- out+='<div class="row2">'+(ed===S.type?'<span class="hint" style="flex:1;margin:0">'+ic('pin',18)+'<span>Aktuelle Trainingsart.</span></span>':'<button class="btn" style="flex:1.4" data-act="usetype" data-v="'+esc(ed)+'">'+ic('pin',18)+'Diese verwenden</button>')+(ct?'<button class="btn" style="flex:1" data-act="deltype" data-v="'+esc(ed)+'">'+ic('trash',18)+'Löschen</button>':'')+'</div>';
+ var hid=all.filter(function(t){return S.hiddenTA.indexOf(t.id)>-1});
+ if(hid.length)out+='<div class="eyebrow" style="margin:16px 0 6px">Gelöschte Trainingsarten</div><div class="fchips">'+hid.map(function(t){return '<button class="chip ex" data-act="restoreta" data-v="'+esc(t.id)+'">'+ic('plus',14)+esc(t.name)+' wiederherstellen</button>'}).join('')+'</div>';
  return out;
-}
-function sMore(){
+}function sMore(){
  return '<div class="pad"><h1 class="h1">Einstellungen</h1><p class="sub">Gilt für den Generator und den Plan.</p>'+
  sLocs()+sTypes()+
  '<div class="sec">Heute meiden</div><div class="chips" style="margin-bottom:6px">'+Object.keys(S.set.avoid).map(function(k){return '<button class="chip" data-act="tg" data-k="avoid" data-v="'+k+'" aria-pressed="'+!!S.set.avoid[k]+'">'+k+'</button>'}).join('')+'</div><p class="mut" style="margin:6px 0 0;font-size:13px">Der Generator schließt belastende Übungen aus, bis du die Markierung löschst.</p>'+
@@ -790,9 +813,10 @@ function locSection(title){
  '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="manageloc">'+ic('more',16)+'Orte und Equipment verwalten</button>';
 }
 function typeSection(){
- return '<div class="sec">Welche Trainingsart?</div><div class="tsel">'+Object.keys(TYPES).map(function(t){var on=S.type===t;
-  return '<button class="tcard" data-act="settype" data-v="'+t+'" aria-pressed="'+on+'"><span class="ti">'+ic(TYPES[t].icon,22)+'</span><b>'+esc(TYPES[t].name)+'</b><small>'+esc(TYPES[t].sub)+'</small></button>'}).join('')+'</div>'+
- '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="managetype">'+ic('more',16)+'Trainingsarten verwalten</button>';
+ var cur=curTA(),out='<div class="sec">Welche Trainingsart?</div>';
+ ['kraft','mikro'].forEach(function(g){var l=visTA().filter(function(t){return t.group===g});
+  out+='<div class="taGrp"><div class="eyebrow">'+TAG[g].name+'<small>'+TAG[g].sub+'</small></div><div class="chips">'+(l.length?l.map(function(t){return '<button class="chip" data-act="setta" data-v="'+esc(t.id)+'" aria-pressed="'+(!!cur&&cur.id===t.id)+'">'+esc(t.name)+'</button>'}).join(''):'<span class="mut" style="font-size:13px">Keine Trainingsart vorhanden.</span>')+'</div></div>'});
+ return out+'<button class="btn ghost" style="margin-top:8px;height:40px" data-act="managetype">'+ic('more',16)+'Trainingsarten verwalten</button>';
 }
 /* Heutiges Training einrichten: eine Seite mit Ein/Aus-Schaltern, alles lässt sich danach im Plan ändern */
 function sSetup(){
@@ -802,8 +826,8 @@ function sSetup(){
  var out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Nächstes Training</span><span style="width:44px"></span></div><div class="pad"><h1 class="h1" style="font-size:36px">Nächstes Training einrichten</h1><p class="sub">Wähle Ort, Trainingsart und die Bestandteile. Alles lässt sich danach im Plan noch ändern.</p>';
  out+=locSection('Wo trainierst du?')+typeSection();
  if(kraft){
-  var tpls=Object.keys(TPL).filter(function(k){return TPL[k].type==='kraft'}),cur=S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl();
-  out+='<div class="sec">Welche Einheit?</div><div class="chips">'+tpls.map(function(k){return '<button class="chip" data-act="settplsel" data-v="'+k+'" aria-pressed="'+(k===cur)+'">'+esc(TPL[k].name)+'</button>'}).join('')+'</div>'+
+  var cta=curTA(),tpls=cta&&cta.tpls.length>1?cta.tpls:[],cur=S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl();
+  out+=(tpls.length?'<div class="sec">Welche Einheit?</div><div class="chips">'+tpls.map(function(k){return '<button class="chip" data-act="settplsel" data-v="'+k+'" aria-pressed="'+(k===cur)+'">'+esc(TPL[k].name)+'</button>'}).join('')+'</div>':'')+
   '<div class="sec">Bestandteile</div><div class="group">'+
   tgRow('cardio','Cardio-Gerät zur Erwärmung',devs.length?esc(devs.join(', ')):'Kein Cardio-Gerät am Ort eingeschaltet')+
   '<div class="tg fixed"><span>Allgemeine Erwärmung<small>immer dabei</small></span><span class="okbadge">'+ic('check',14)+'Immer</span></div>'+
@@ -832,7 +856,7 @@ function sStart(){
   return out;
  }
  var nt=TPL[S.setupTpl&&TPL[S.setupTpl]?S.setupTpl:nextTpl()];
- out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(nt?nt.name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+esc(typeName(S.type))+'</p>'+
+ out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(nt?nt.name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+esc(curTA()?TAG[curTA().group].name:typeName(S.type))+'</p>'+
  '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button></div></div>';
  return out;
 }
@@ -1255,7 +1279,7 @@ document.addEventListener('click',function(e){
   case 'pickloc':S.sheet=null;if(d.v!==S.loc)setLoc(d.v);render();break;
   case 'startloc':if(d.v!==S.loc)setLoc(d.v);S.moreLocs=false;render();break;
   case 'moreloc':S.moreLocs=!S.moreLocs;render();break;
-  case 'settype':S.setupTpl='';setType(d.v);render();break;
+  case 'setta':setTA(d.v);render();break;
   case 'setup':go('setup');break;
   case 'setopt':S.setup[d.k]=!S.setup[d.k];saveLocs();render();break;
   case 'settplsel':S.setupTpl=d.v;render();break;
@@ -1264,10 +1288,18 @@ document.addEventListener('click',function(e){
   case 'manageloc':S.editLoc=S.loc;go('more');break;
   case 'managetype':S.editType=S.type;S.scrollTo='sec-types';go('more');break;
   case 'edittype':S.editType=d.v;render();break;
-  case 'usetype':setType(d.v);render();break;
-  case 'newtype':{var tid='typ'+Date.now(),nt={id:tid,name:'Neue Trainingsart',cats:['squat','push','pull']};S.types.push(nt);registerType(nt);S.editType=tid;saveLocs();render();var tn=$('#typename');if(tn){tn.focus();tn.select()}break}
+  case 'usetype':setTA(d.v);S.editType=d.v;render();break;
+  case 'newtype':{var tid='typ'+Date.now(),nt={id:tid,name:'Neue Trainingsart',cats:['squat','push','pull'],group:d.g==='mikro'?'mikro':'kraft'};S.types.push(nt);registerType(nt);S.editType=tid;saveLocs();render();var tn=$('#typename');if(tn){tn.focus();tn.select()}break}
   case 'tgcat':{var ct=customType(S.editType);if(!ct)break;var ci=ct.cats.indexOf(d.c);if(ci>-1){if(ct.cats.length<2){toast('Mindestens ein Bewegungsmuster bleibt gewählt');render();break}ct.cats.splice(ci,1)}else ct.cats.push(d.c);registerType(ct);saveLocs();render();break}
-  case 'deltype':{var dt=customType(d.v);if(!dt)break;if(S.type===dt.id)setType('kraft');unregisterType(dt);S.types=S.types.filter(function(x){return x.id!==dt.id});delete S.stash[dt.id];S.editType=S.type;saveLocs();toast(dt.name+' gelöscht. Bisherige Einträge bleiben in der Auswertung.');render();break}
+  /* Trainingsart löschen: eigene werden entfernt, eingebaute ausgeblendet und lassen sich wiederherstellen; mindestens eine bleibt */
+  case 'delta':{var dta=allTA().filter(function(x){return x.id===d.v})[0];if(!dta)break;
+   if(visTA().length<=1){toast('Mindestens eine Trainingsart bleibt erhalten');render();break}
+   if(dta.custom){var dct=customType(dta.id);if(S.type===dct.id)setType('kraft');unregisterType(dct);S.types=S.types.filter(function(x){return x.id!==dct.id});delete S.stash[dct.id]}
+   else if(S.hiddenTA.indexOf(dta.id)<0)S.hiddenTA.push(dta.id);
+   if(!curTA()||S.hiddenTA.indexOf(S.ta)>-1){var nv=visTA()[0];if(nv)setTA(nv.id)}
+   S.editType=S.ta;saveLocs();toast(dta.name+' gelöscht'+(dta.custom?'. Bisherige Einträge bleiben in der Auswertung.':'. Unter „Gelöschte Trainingsarten“ lässt sie sich wiederherstellen.'));render();break}
+  case 'restoreta':{S.hiddenTA=S.hiddenTA.filter(function(x){return x!==d.v});S.editType=d.v;saveLocs();toast('Trainingsart wiederhergestellt');render();break}
+  case 'tggroup':{var gt=customType(S.editType);if(!gt)break;gt.group=d.g==='mikro'?'mikro':'kraft';saveLocs();render();break}
   case 'addmach':addMachine(d.q);break;
   case 'delmach':{if(d.q==='Cardio'){if(CARD_DEFAULT.indexOf(d.v)>-1)break;S.cardios=S.cardios.filter(function(m){return m!==d.v});S.locs.forEach(function(l){if(l.card)delete l.card[d.v]});removeCustomEx(d.v)}
    else{if(machineUsed(d.v))break;S.machines=S.machines.filter(function(m){return m!==d.v});S.locs.forEach(function(l){if(l.mach)delete l.mach[d.v]})}

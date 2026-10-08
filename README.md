@@ -44,6 +44,12 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.8.0
+- **Trainingsarten in zwei Oberkategorien:** *Krafttraining* (Krafttrainingseinheit) mit Ganzkörper, Unterkörper und Oberkörper, und *Mikrotraining* (Mikrotrainingseinheit) mit Aufrichtung und der neuen Handstand-Vorbereitung. Beim Einrichten wählst du die Trainingsart direkt; die frühere Karte „Krafttraining“ ist entfallen.
+- **Standard:** Solange noch nichts gewählt ist, ist Ganzkörper voreingestellt; bei Ganzkörper wählst du die Einheit A oder B.
+- **Trainingsarten verwalten (Mehr):** neue Trainingsarten legst du je Oberkategorie mit „Neu“ an und kannst die Oberkategorie später ändern. Auch die eingebauten Trainingsarten lassen sich löschen (mindestens eine bleibt) und unter „Gelöschte Trainingsarten“ wiederherstellen.
+- Pläne ohne Hauptübungen (Mikrotraining) haben keine Gliederung Vorbereitung, Hauptteil, Ergänzung.
+
 ## Neu in 3.7.1
 - **Rückschau statt Plan-Vorschau:** Die Karte „Letzte Einheit“ auf der Startseite öffnet jetzt die Rückschau auf die letzte Einheit: Datum, Ort, Übungen, Sätze, Volumen und je Übung alle Sätze mit Gewicht, Wiederholungen, Reserve und Bewertung (nur zum Ansehen). Den aktuellen Plan öffnest du über „Heute“.
 

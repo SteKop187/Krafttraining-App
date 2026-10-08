@@ -379,3 +379,6 @@ body{padding:0;background:var(--app)}
 .tband .dots .dotb.cur i{background:color-mix(in srgb,var(--con) 66%,transparent)}
 .btn.kc{background:var(--cband);border-color:var(--cband);color:var(--con)}
 .rcard{box-shadow:inset 7px 0 0 var(--c);padding-left:21px}
+.taGrp{margin-bottom:12px}
+.taGrp .eyebrow{margin-bottom:6px}
+.taGrp .eyebrow small{margin-left:8px;text-transform:none;letter-spacing:0;font-weight:500}
