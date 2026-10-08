@@ -378,3 +378,4 @@ body{padding:0;background:var(--app)}
 .tband .dots .dotb.done i{background:var(--con)}
 .tband .dots .dotb.cur i{background:color-mix(in srgb,var(--con) 66%,transparent)}
 .btn.kc{background:var(--cband);border-color:var(--cband);color:var(--con)}
+.rcard{box-shadow:inset 7px 0 0 var(--c);padding-left:21px}

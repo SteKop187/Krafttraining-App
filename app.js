@@ -773,8 +773,8 @@ function lastSession(){
  if(!S.hist.length)return null;
  var l=S.hist[S.hist.length-1],sets=S.hist.filter(function(h){return h.date===l.date&&typOf(h)===typOf(l)}),ex={},order=[],ton=0,cnt={m:0,p:0,w:0};
  sets.forEach(function(h){
-  var e=ex[h.name];if(!e){e=ex[h.name]={name:h.name,cat:h.cat,n:0,kg:0,reps:0,sec:0};order.push(h.name)}
-  e.n++;
+  var e=ex[h.name];if(!e){e=ex[h.name]={name:h.name,cat:h.cat,n:0,kg:0,reps:0,sec:0,sl:[]};order.push(h.name)}
+  e.n++;e.sl.push(h);
   if(h.sec){if(h.sec>e.sec)e.sec=h.sec}else if(h.kg>e.kg||(h.kg===e.kg&&h.reps>e.reps)){e.kg=h.kg;e.reps=h.reps}
   ton+=(h.kg||0)*(h.reps||0);if(cnt[h.r]!=null)cnt[h.r]++;
  });
@@ -819,7 +819,7 @@ function sStart(){
  var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card last tap" role="button" tabindex="0" data-act="startplan" aria-label="Plan der letzten Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Plan-Vorschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last tap" role="button" tabindex="0" data-act="go" data-s="rueck" aria-label="Rückschau auf die letzte Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Rückschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
   '</div>';
  }else{
@@ -836,10 +836,24 @@ function sStart(){
  '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button></div></div>';
  return out;
 }
-var SCREENS={start:sStart,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};
+/* Rückschau: die letzte Einheit mit allen Sätzen, nur zum Ansehen */
+function sRueck(){
+ var ls=lastSession(),out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Rückschau</span><span style="width:44px"></span></div><div class="pad">';
+ if(!ls)return out+'<h1 class="h1">Noch keine Einheit</h1><p class="sub">Nach deinem ersten Training siehst du hier alle Sätze.</p></div>';
+ var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
+ out+='<div class="eyebrow">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</div><h1 class="h1">'+esc(nm)+'</h1>'+
+  '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
+  '<div class="chips"><span class="chip">'+ic('up',14)+'Mehr '+ls.cnt.m+'</span><span class="chip">'+ic('eq',14)+'Passt '+ls.cnt.p+'</span><span class="chip">'+ic('down',14)+'Weniger '+ls.cnt.w+'</span></div></div>';
+ ls.list.forEach(function(e){
+  out+='<div class="card rcard k-'+kcls(e)+'">'+slotTag(e)+'<h3>'+esc(e.name)+'</h3><div class="group" style="margin-top:8px">'+e.sl.map(function(h,k){
+   var v=h.cat==='warm'?mmss(h.sec)+(h.pv!=null?' · '+fmt(h.pv)+' '+h.pu:''):(h.sec?fmtSec(h.sec):fmt(h.kg)+' kg × '+h.reps+(h.rir!=null?' · '+h.rir+' RIR':''));
+   return '<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+v+'</span>'+(h.cat==='warm'?'':'<span class="ic">'+ic(h.r==='m'?'up':(h.r==='w'?'down':'eq'),18)+'</span>')+'</div>'}).join('')+'</div></div>'});
+ return out+'</div>';
+}
+var SCREENS={start:sStart,rueck:sRueck,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};
 
 function tabbar(){
- var cur={start:'start',heute:'heute',train:'heute',stats:'stats',lib:'lib',detail:'lib',wizard:'lib',more:'more',summary:'start',setup:'start'}[S.screen];
+ var cur={start:'start',heute:'heute',train:'heute',stats:'stats',lib:'lib',detail:'lib',wizard:'lib',more:'more',summary:'start',setup:'start',rueck:'start'}[S.screen];
  return [['start','home','Start'],['heute','today','Heute'],['lib','book','Bibliothek'],['stats','chart','Auswertung'],['more','more','Mehr']].map(function(t){return '<button class="tab" data-act="tab" data-t="'+t[0]+'" aria-current="'+(cur===t[0])+'"><i>'+ic(t[1],22)+'</i>'+t[2]+'</button>'}).join('');
 }
 

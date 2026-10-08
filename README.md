@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.7.1
+- **Rückschau statt Plan-Vorschau:** Die Karte „Letzte Einheit“ auf der Startseite öffnet jetzt die Rückschau auf die letzte Einheit: Datum, Ort, Übungen, Sätze, Volumen und je Übung alle Sätze mit Gewicht, Wiederholungen, Reserve und Bewertung (nur zum Ansehen). Den aktuellen Plan öffnest du über „Heute“.
+
 ## Neu in 3.7.0
 - **Neue Bereichsfarben nach den Workshop-Folien:** Schnell dunkelgrau, Squat kräftiges Dunkelblau, Drücken Orange-Rot, Hinge Cyan, Ziehen Amber, Rumpf und Assistenz hellgrau, Erwärmung Pink. Jede Übung hat links einen breiten Farbstreifen und ein getöntes Etikett mit dem Bereichsnamen. Alle Schriften erreichen mindestens 4,5:1 Kontrast, im hellen und im dunklen Modus.
 - **Prävention · Reha (rot) und Spezial (grün):** „Zusatz“ heißt jetzt „Spezial“ (z. B. Handstand, grün). Achillessehnen-Prävention und Schulterstabilität laufen als „Prävention · Reha“ in kräftigem Rot. Aufrichtung ist jetzt violett.
