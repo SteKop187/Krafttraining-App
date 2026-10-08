@@ -16,7 +16,8 @@ var IC={
  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
  plus:'<path d="M12 5v14M5 12h14"/>', minus:'<path d="M5 12h14"/>',
  back:'<path d="M15 5l-7 7 7 7"/>', next:'<path d="M9 5l7 7-7 7"/>', chevd:'<path d="M6 9l6 6 6-6"/>',
- check:'<path d="M5 12l5 5 9-10"/>', play:'<path d="M8 5v14l11-7z"/>', stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
+ check:'<path d="M5 12l5 5 9-10"/>', play:'<path d="M8 5v14l11-7z"/>', pause:'<path d="M9 5v14M15 5v14"/>',
+ stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
  close:'<path d="M6 6l12 12M18 6L6 18"/>',
  today:'<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
  home:'<path d="M4 11l8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/>', spine:'<circle cx="12" cy="4.5" r="1.8"/><path d="M12 8v13M9 10.5c2 1 4 1 6 0M9 14.5c2 1 4 1 6 0"/>', dumbbell:'<path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/>',
@@ -392,15 +393,19 @@ function partOf(p){var c=p.cat;return (c==='warm'||c==='schnell')?'vor':((c==='s
 function isLive(){return !!(S.live&&S.live.date===todayStr())}
 function startLive(){if(!isLive()){S.live={start:Date.now(),date:todayStr(),last:0};saveLocs()}ensureTick()}
 /* Timer oben: Gesamtdauer des Trainings (läuft ab der ersten Übung bis „Training beenden“) und, daneben, die Zeit seit dem letzten Satz (zählt hoch, kein Countdown) */
-function sinceLast(){return isLive()&&S.live.last?Math.max(0,Math.floor((Date.now()-S.live.last)/1000)):-1}
-function totalSec(){return isLive()?Math.max(0,Math.floor((Date.now()-S.live.start)/1000)):-1}
+function nowT(){return isLive()&&S.live.pausedAt?S.live.pausedAt:Date.now()}
+function sinceLast(){return isLive()&&S.live.last?Math.max(0,Math.floor((nowT()-S.live.last)/1000)):-1}
+function totalSec(){return isLive()?Math.max(0,Math.floor((nowT()-S.live.start)/1000)):-1}
 function hms(s){var h=Math.floor(s/3600);return h?h+':'+(Math.floor(s/60)%60<10?'0':'')+Math.floor(s/60)%60+':'+(s%60<10?'0':'')+s%60:mmss(s)}
 function restBanner(){
  var t=totalSec(),s=sinceLast();if(t<0)return '';
- return '<div class="restbn" role="timer"><div class="rt"><small>Gesamt</small><b id="totn">'+hms(t)+'</b></div>'+(s>=0?'<div class="rt r"><small>Seit dem letzten Satz</small><b id="restn">'+mmss(s)+'</b></div>':'')+'</div>';
+ var pz=!!S.live.pausedAt;
+ return '<div class="restbn'+(pz?' paused':'')+'" role="timer"><div class="rtop"><div class="rt"><small>Gesamt'+(pz?' · pausiert':'')+'</small><b id="totn">'+hms(t)+'</b></div>'+
+  '<div class="rctl"><button class="ib" data-act="livepause" aria-label="'+(pz?'Fortsetzen':'Pause')+'">'+ic(pz?'play':'pause',20)+'</button><button class="ib'+(S.confirmStop?' arm':'')+'" data-act="livestop" aria-label="Training abbrechen">'+ic('stop',20)+'</button><button class="ib" data-act="finish" aria-label="Training abschließen">'+ic('check',20)+'</button></div></div>'+
+  (s>=0?'<div class="rsub"><span>Seit dem letzten Satz</span><b id="restn">'+mmss(s)+'</b></div>':'')+'</div>';
 }
 function ensureTick(){if(!S.rtmr)S.rtmr=setInterval(restTick,1000)}
-function markSet(){startLive();S.live.last=Date.now();saveLocs();ensureTick()}
+function markSet(){startLive();var L=S.live;if(L.pausedAt){var pd=Date.now()-L.pausedAt;L.start+=pd;if(L.last)L.last+=pd;L.pausedAt=0}L.last=Date.now();saveLocs();ensureTick()}
 function endRest(){clearInterval(S.rtmr);S.rtmr=null;if(S.live)S.live.last=0}
 function restTick(){var t=totalSec();if(t<0){clearInterval(S.rtmr);S.rtmr=null;return}var s=sinceLast(),a=$('#totn'),n=$('#restn');if(a)a.textContent=hms(t);if(n&&s>=0)n.textContent=mmss(s)}
 
@@ -442,7 +447,7 @@ function sHeute(){
  out+='<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>'+
  '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button><button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Einheit wechseln</button></div>'+
  ((live||anySets)?'<button class="btn wide" style="margin-top:10px" data-act="finish">'+ic('check',18)+'Training abschließen</button><p class="mut" style="margin:8px 0 0;font-size:12px">Jederzeit möglich, auch wenn noch Übungen oder Sätze offen sind.</p>':'')+'</div>'+
- '<div class="cta">'+(openL.length?'<button class="btn primary big" data-act="start">'+ic('play',18)+(anySets?'Training fortsetzen':'Training starten')+'</button>':'<button class="btn primary big" data-act="finish">'+ic('check',18)+'Training abschließen</button>')+'<button class="fab" data-act="voice" aria-label="Plan per Sprache ändern">'+ic('mic',24)+'</button></div>';
+ '<div class="cta">'+(openL.length?(live?'':'<button class="btn primary big" data-act="start">'+ic('play',18)+(anySets?'Training fortsetzen':'Training starten')+'</button>'):'<button class="btn primary big" data-act="finish">'+ic('check',18)+'Training abschließen</button>')+'<button class="fab" data-act="voice" aria-label="Plan per Sprache ändern">'+ic('mic',24)+'</button></div>';
  return out;
 }
 
@@ -1204,7 +1209,12 @@ document.addEventListener('click',function(e){
    S.plan.splice(insertPos(le.cat),0,planItem(pe,le.cat,''));relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;toast(le.name+' zum Plan hinzugefügt',true);render();break}
   case 'enter':enterTrain(+d.i);break;
   case 'mv':{var nj=movePlan(+d.i,+d.d);S.exp=nj;S.sheet=null;if(S.screen==='train'&&!S.tr.over)S.tr.i=nj;render();break}
-  case 'finish':{S.sumDur=isLive()?Math.max(1,Math.round((Date.now()-S.live.start)/60000)):0;S.live=null;endRest();stopTimers();saveLocs();go('summary');break}
+  /* Training pausieren und fortsetzen: Gesamtzeit und „seit dem letzten Satz“ halten an, die Pause zählt nicht mit */
+  case 'livepause':{if(!isLive())break;var Lv=S.live;if(Lv.pausedAt){var pd=Date.now()-Lv.pausedAt;Lv.start+=pd;if(Lv.last)Lv.last+=pd;Lv.pausedAt=0}else Lv.pausedAt=Date.now();saveLocs();render();break}
+  /* Training abbrechen: zweiter Tipp bestätigt, geloggte Sätze bleiben im Verlauf */
+  case 'livestop':{if(!isLive())break;if(!S.confirmStop){S.confirmStop=true;clearTimeout(S.csT);S.csT=setTimeout(function(){S.confirmStop=false;render()},4500);toast('Nochmal auf Stopp tippen: Training abbrechen. Geloggte Sätze bleiben gespeichert.');render();break}
+   S.confirmStop=false;clearTimeout(S.csT);S.live=null;endRest();stopTimers();saveLocs();toast('Training abgebrochen. Bereits geloggte Sätze bleiben gespeichert.');go('heute');break}
+  case 'finish':{S.sumDur=isLive()?Math.max(1,Math.round((nowT()-S.live.start)/60000)):0;S.live=null;endRest();stopTimers();saveLocs();go('summary');break}
   case 'cdstart':cdStart();break;
   case 'cdstop':{var tc=S.tr;if(tc.running)cdFinish(Math.round((Date.now()-tc.start)/1000));break}
   case 'seteq':{var te=S.tr,ex4=curEx();te.eq=d.v;S.eqPick[ex4.name]=d.v;var rf4=getRef(ex4.name,d.v);if(rf4.start)te.kg=rf4.sug;saveLocs();render();break}

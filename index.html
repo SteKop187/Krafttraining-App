@@ -41,7 +41,7 @@
 /* Startbildschirm: kurz sichtbar, dann weich ausgeblendet */
 (function(){var s=document.getElementById('splash');if(!s)return;
  try{if(window.KT&&KT.i18n&&KT.i18n.lang&&KT.i18n.lang()==='en')document.getElementById('sp-claim').textContent='Set by set';var v=document.getElementById('sp-ver');if(v&&self.KT_VERSION)v.textContent='Version '+self.KT_VERSION}catch(e){}
- setTimeout(function(){s.classList.add('out');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},600)},1500)})();
+ setTimeout(function(){s.classList.add('out');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},600)},3200)})();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
 </body>

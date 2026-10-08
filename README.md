@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.10.0
+- **Zeitbalken im laufenden Training:** neben der Gesamtzeit drei Symbole: Pause/Weiter (hält die Gesamtzeit und „seit dem letzten Satz“ an, die Pause zählt nicht mit), Stopp (Training abbrechen, ein zweiter Tipp bestätigt; geloggte Sätze bleiben im Verlauf) und Häkchen (Training abschließen). Die Zeit seit dem letzten Satz steht in einer Zeile darunter.
+- Läuft ein Training, entfällt der Knopf „Training starten“ in der Übersicht; die Übungen startest du über ihr Dreieck. Nur das Mikrofon bleibt unten.
+- **Startbildschirm:** die fünf Striche bauen sich langsamer auf, der Bildschirm bleibt gut drei Sekunden.
+
 ## Neu in 3.9.0
 - **Neues App-Icon:** vier Farbfelder (Orange, Gelb, Dunkelblau, Cyan) mit der weißen Athletenfigur. Es gibt die Größen 192 und 512 Pixel, eine Fassung mit Sicherheitsrand für Android und das Apple-Icon. Auf dem Handy die App einmal vom Startbildschirm entfernen und neu installieren, damit das neue Icon erscheint.
 - **Startbildschirm:** beim Öffnen erscheint rund 1,5 Sekunden die Kachel mit dem Icon, „Krafttraining“, „Satz für Satz“ (englisch „Set by set“) und fünf Strichen, die nacheinander aufleuchten: Dunkelblau, Orange, Hellblau, Gelb, Grau. Je nach hellem oder dunklem Modus sind die Töne so gewählt, dass jede Farbe zum Hintergrund mindestens 3:1 Kontrast hat (Gelb im hellen Modus als tieferes Gold, Dunkelblau im dunklen Modus aufgehellt).
