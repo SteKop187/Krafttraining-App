@@ -391,12 +391,12 @@ body{padding:0;background:var(--app)}
 .sp-name{font:700 38px/1 var(--font-d);letter-spacing:.16em;text-transform:uppercase;margin-top:34px}
 .sp-claim{font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-top:8px}
 .sp-bars{display:flex;gap:7px;width:190px;margin-top:40px}
-.sp-bars i{flex:1;height:7px;border-radius:4px;background:var(--b);transform:scaleX(0);transform-origin:left;animation:spbar .6s ease forwards}
-.sp-bars i:nth-child(1){--b:#0D4690;animation-delay:.15s}
-.sp-bars i:nth-child(2){--b:#E5603B;animation-delay:.6s}
-.sp-bars i:nth-child(3){--b:#1F92B8;animation-delay:1.05s}
-.sp-bars i:nth-child(4){--b:#CC8C0C;animation-delay:1.5s}
-.sp-bars i:nth-child(5){--b:#6E7076;animation-delay:1.95s}
+.sp-bars i{flex:1;height:7px;border-radius:4px;background:var(--b);transform:scaleX(0);transform-origin:left;animation:spbar .45s ease forwards}
+.sp-bars i:nth-child(1){--b:#0D4690;animation-delay:.1s}
+.sp-bars i:nth-child(2){--b:#E5603B;animation-delay:.35s}
+.sp-bars i:nth-child(3){--b:#1F92B8;animation-delay:.6s}
+.sp-bars i:nth-child(4){--b:#CC8C0C;animation-delay:.85s}
+.sp-bars i:nth-child(5){--b:#6E7076;animation-delay:1.1s}
 .sp-ver{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.55}
 @keyframes spbar{to{transform:scaleX(1)}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sp-bars i:nth-child(1){--b:#4470A9}:root:not([data-theme="light"]) .sp-bars i:nth-child(3){--b:#22A2CC}:root:not([data-theme="light"]) .sp-bars i:nth-child(4){--b:#E8A83A}}
@@ -442,3 +442,45 @@ body{padding:0;background:var(--app)}
 .mrow .txt{flex:1;min-width:0}
 .mrow b{display:block;font-size:16px}
 .mrow small{color:var(--ink-3);font-size:13px}
+
+/* Trainingsart-Kacheln neutral: die Wahl zeigt nur kräftiger Rahmen, graue Fläche und Häkchen */
+.tagrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tacard{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--ink);min-height:0;position:relative;box-shadow:none}
+.tacard.wide{width:100%;padding:16px;min-height:96px;margin-bottom:8px;border-radius:22px}
+.tacard.sm{flex-direction:column;align-items:flex-start;gap:6px;min-height:96px;padding:11px 12px}
+.tacard .tai{width:40px;height:40px;border-radius:12px;background:var(--surface-2);color:var(--ink);display:grid;place-items:center;flex:none;margin:0}
+.tacard.wide .tai{width:56px;height:56px;border-radius:16px}
+.tacard.sm .tai{width:34px;height:34px}
+.tacard .tat{flex:1;min-width:0}
+.tacard b{display:block;font:700 19px/1.05 var(--font-d);letter-spacing:.2px}
+.tacard.wide b{font-size:28px}
+.tacard small{display:block;font-size:12px;line-height:1.25;color:var(--ink-3)}
+.tacard .tack{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:var(--inv)}
+.tacard.sm .tack{top:8px;right:8px;width:22px;height:22px}
+.tacard[aria-pressed="true"]{border-color:var(--ink);background:var(--surface-2);box-shadow:0 0 0 1px var(--ink)}
+.tacard[aria-pressed="true"] .tack{background:var(--ink);border-color:var(--ink)}
+.tacard[aria-pressed="true"] .tai{background:var(--ink);color:var(--inv)}
+.tacard[aria-pressed="true"] small{color:var(--ink-2)}
+.tacard.new{border-style:dashed;align-items:center;justify-content:center;color:var(--ink-3);background:none}
+.tacard.new .tai{background:none;color:var(--ink-3)}
+.tacard.new .tat{flex:none;text-align:center}
+.state{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--font-b);letter-spacing:.07em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px}
+/* Übungen per Griff verschieben */
+.dh{width:42px;border:0;background:none;color:var(--ink-3);display:grid;place-items:center;touch-action:none;cursor:grab;flex:none}
+.item.dragging{position:relative;z-index:5;box-shadow:0 12px 26px rgba(0,0,0,.28);background:var(--surface);transition:none}
+.item.dragging *{pointer-events:none}
+.dragr{display:flex;gap:6px;margin-top:8px}
+.dragr button{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font:700 15px var(--font-b);color:var(--ink)}
+.dragr button[aria-pressed="true"]{background:var(--ink);color:var(--inv);border-color:var(--ink)}
+/* Rückschau: Karten kompakt, Sätze erst beim Antippen */
+.rcard{padding:10px 14px 10px 21px}
+.rhead{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;text-align:left;padding:0;color:inherit}
+.rhead[disabled]{opacity:1}
+.rtx{flex:1;min-width:0}
+.rtx .ctag{margin-bottom:3px}
+.rhead h3{margin:0;font:700 19px/1.1 var(--font-d)}
+.rn{font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.rmet{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rmet div{background:var(--surface-2);border-radius:12px;padding:8px 10px}
+.rmet small{display:block;font:700 10.5px/1.2 var(--font-b);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.rmet b{font:700 22px/1.1 var(--font-d)}

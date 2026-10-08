@@ -44,6 +44,16 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.13.0
+- **Training einrichten neu aufgebaut:** Beim Öffnen wird ein frischer Plan gewürfelt. Oben steht nur der zuletzt genutzte Ort mit Haken, weitere Orte klappen als Auswahl auf. Danach die Trainingsart als Kacheln (Ganzkörper über die ganze Breite, Mikrotrainings kleiner; die Wahl zeigt nur ein kräftiger Rahmen, graue Fläche und Häkchen), bei Mikrotraining der Schwerpunkt (Handstand-Kraft und Handstand allgemein, bei Aufrichtung Haltung, Hüfte und Mobilisation), dann die Bestandteile, darunter die **Plan-Vorschau** und zuletzt „Trainingsplanung abschließen“.
+- **Teilweise neu würfeln:** Ändern sich Bestandteile oder Schwerpunkte, wird nur der betroffene Teil gewürfelt, alles andere und deine eigenen Änderungen bleiben. Ganz neu würfelst du mit „Neu würfeln“. Ein Ortswechsel passt nur Übungen an, die dort nicht möglich sind.
+- **Plan ändern und verschieben:** In der Vorschau (und im Plan) kannst du Übungen ersetzen, behalten, bearbeiten, streichen, hinzufügen und am Griff mit zwei Strichen an eine andere Stelle ziehen, innerhalb von Vorbereitung, Hauptteil oder Ergänzung.
+- **Startseite:** Nach dem Abschließen steht dort „Eingerichtet“ mit „Vorschau“ und „Training starten“; „Training starten“ gibt es erst dann. Nach Training oder Abbruch ist die Einrichtung wieder offen.
+- **Nur Ganzkörper unter Krafttraining** (ohne Einheiten A und B, jedes Mal neu gewürfelt); Unterkörper und Oberkörper entfallen. Die Allgemeine Erwärmung lässt sich abwählen.
+- **Ruder- und Skiergometer:** Strecke in Metern, Schnitt pro 500 m (aus Zeit und Strecke berechnet), Gesamtstrecke und Drag-Faktor von 1 bis 10 (voreingestellt vom letzten Mal).
+- **Rückschau kompakt:** Je Übung eine niedrige Karte mit Bereich, Name und Satzzahl; die Sätze klappen beim Antippen auf. Die Erwärmung zeigt Zeit, Schnitt pro 500 m, Strecke und Drag-Faktor.
+- Die Zeit bei der Erwärmung lässt sich in 5-Sekunden-Schritten ändern. Der Startbildschirm ist etwa eine Sekunde kürzer.
+
 ## Neu in 3.12.0
 - **Trainingsarten als große Kacheln** beim Einrichten: Krafttraining (dunkelblau) mit Ganzkörper, Unterkörper, Oberkörper und Mikrotraining (violett) mit Aufrichtung und Handstand-Vorbereitung, jeweils mit Symbol und Kurzbeschreibung. Die gewählte Art ist kräftig gefüllt.
 - **Trainingsplanung abschließen:** Der Knopf unten heißt jetzt „Trainingsplanung abschließen“, mit einem Hinweis darüber; danach erscheint „Trainingsplanung abgeschlossen“ und der Plan.
