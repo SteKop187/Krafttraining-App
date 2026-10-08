@@ -484,3 +484,32 @@ body{padding:0;background:var(--app)}
 .rmet div{background:var(--surface-2);border-radius:12px;padding:8px 10px}
 .rmet small{display:block;font:700 10.5px/1.2 var(--font-b);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
 .rmet b{font:700 22px/1.1 var(--font-d)}
+
+/* Zeitbalken: Gesamtzeit und, klein daneben, die Zeit seit dem letzten Satz; rechts die drei Tasten */
+.restbn .rl{display:flex;align-items:flex-end;gap:16px;min-width:0}
+.restbn .rt.sm small{font-size:9.5px;line-height:1.15;max-width:76px}
+.restbn .rt.sm b{font-size:22px;opacity:.92}
+.restbn .ib{width:40px;height:40px}
+.restbn .rctl{gap:6px}
+/* Cardio-Eingabe: Zeit in min und s, Drag-Faktor als Rädchen, Belastung als farbige Zahlenreihe */
+.tin2{display:flex;gap:10px;margin-top:6px}
+.tin2 label{flex:1;display:flex;align-items:center;gap:8px}
+.tin2 .inp{text-align:center;font:700 26px var(--font-d);height:52px}
+.tin2 span{font-weight:700;color:var(--ink-3)}
+.wheelbox{position:relative;height:120px;max-width:200px;margin:8px auto 0;border-radius:16px;background:var(--surface-2);overflow:hidden}
+.wheel{height:120px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wheel::-webkit-scrollbar{display:none}
+.wheel .wpad{display:block;height:40px}
+.wheel .wi{display:grid;place-items:center;height:40px;font:700 24px var(--font-d);font-style:normal;scroll-snap-align:center;color:var(--ink-2)}
+.wmark{position:absolute;left:8px;right:8px;top:40px;height:40px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);pointer-events:none}
+.wheelbox:before,.wheelbox:after{content:"";position:absolute;left:0;right:0;height:38px;pointer-events:none;z-index:1}
+.wheelbox:before{top:0;background:linear-gradient(var(--surface-2),transparent)}
+.wheelbox:after{bottom:0;background:linear-gradient(transparent,var(--surface-2))}
+.rpe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.rpeb{height:52px;border-radius:14px;border:2px solid transparent;background:var(--rc);color:var(--rt);font:700 24px var(--font-d)}
+.rpe.has .rpeb[aria-pressed="false"]{opacity:.5}
+.rpeb[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink);transform:scale(1.05)}
+.rpel{margin:10px 2px 0;font-size:14px;color:var(--ink-2)}
+.rpel b{font:700 20px var(--font-d);color:var(--ink)}
+.rmet .rpet{grid-column:1/-1}
+.rmet .rpet small{color:inherit;opacity:.85}

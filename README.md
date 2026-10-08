@@ -44,6 +44,13 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.14.0
+- **Cardio-Geräte ohne laufende Uhr:** Bei Ruder-, Ski- und anderen Cardio-Geräten trägst du nur die fertige Zeit (vorbelegt mit 5 min) und die Werte vom Display ein. Bei Ruder- und Skiergometer berechnet die App den Schnitt pro 500 m.
+- **Drag-Faktor als Rädchen:** statt der Zahlen 1 bis 10 drehst du ein kleines Rädchen (Voreinstellung: Wert vom letzten Mal).
+- **Belastungsempfinden (RPE, angepasste Borg-Skala 1 bis 10)** für Cardio-Geräte: farbige Zahlen von dunkelgrün (1 sehr locker) über gelb (5 und 6 anstrengend) bis dunkelrot (10 maximal anstrengend); die gewählte Zahl wird mit Beschriftung angezeigt und steht in der Rückschau.
+- **Zeitbalken:** Die Zeit seit dem letzten Satz steht klein neben der Gesamtzeit, rechts die drei Tasten.
+- **Rückfrage:** Vor „Training abbrechen“ (Stopp) und vor „Training abschließen“ (Häkchen) kommt eine Nachfrage, in der du mit „Nein“ zurück ins Training gehst.
+
 ## Neu in 3.13.0
 - **Training einrichten neu aufgebaut:** Beim Öffnen wird ein frischer Plan gewürfelt. Oben steht nur der zuletzt genutzte Ort mit Haken, weitere Orte klappen als Auswahl auf. Danach die Trainingsart als Kacheln (Ganzkörper über die ganze Breite, Mikrotrainings kleiner; die Wahl zeigt nur ein kräftiger Rahmen, graue Fläche und Häkchen), bei Mikrotraining der Schwerpunkt (Handstand-Kraft und Handstand allgemein, bei Aufrichtung Haltung, Hüfte und Mobilisation), dann die Bestandteile, darunter die **Plan-Vorschau** und zuletzt „Trainingsplanung abschließen“.
 - **Teilweise neu würfeln:** Ändern sich Bestandteile oder Schwerpunkte, wird nur der betroffene Teil gewürfelt, alles andere und deine eigenen Änderungen bleiben. Ganz neu würfelst du mit „Neu würfeln“. Ein Ortswechsel passt nur Übungen an, die dort nicht möglich sind.
