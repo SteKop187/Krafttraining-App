@@ -221,7 +221,7 @@ function applyData(d){
  if(d.planDate)S.planDate=d.planDate;
  if(d.tpl&&TPL[d.tpl])S.tpl=d.tpl;
  if(d.type&&TYPES[d.type])S.type=d.type;
- if(Array.isArray(d.hiddenTA))S.hiddenTA=d.hiddenTA.filter(function(x){return typeof x==='string'});
+ if(Array.isArray(d.hiddenTA)){var hadFixed=d.hiddenTA.indexOf('ta_gk')>-1;S.hiddenTA=d.hiddenTA.filter(function(x){return typeof x==='string'&&x!=='ta_gk'});if(hadFixed&&d.type==='kraft')d.ta='ta_gk'}
  if(typeof d.ta==='string')S.ta=d.ta;
  fixTA();
  if(d.stash&&typeof d.stash==='object')S.stash=d.stash;
@@ -293,9 +293,10 @@ function unregisterType(t){delete TYPES[t.id];delete TPL[t.id]}
 function customType(id){return S.types.filter(function(t){return t.id===id})[0]}
 /* Trainingsarten in zwei Oberkategorien: Krafttraining (Ganzkörper, Unterkörper, Oberkörper, eigene) und Mikrotraining (Aufrichtung, Handstand-Vorbereitung, eigene). Eingebaute lassen sich ausblenden, eigene löschen. */
 var TAG={kraft:{name:'Krafttraining',sub:'Krafttrainingseinheit'},mikro:{name:'Mikrotraining',sub:'Mikrotrainingseinheit'}};
-var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka','gkb']},{id:'ta_uk',name:'Unterkörper',group:'kraft',type:'kraft',tpls:['uk']},{id:'ta_ok',name:'Oberkörper',group:'kraft',type:'kraft',tpls:['ok']},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb']},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand']}];
+var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka','gkb'],fixed:true},{id:'ta_uk',name:'Unterkörper',group:'kraft',type:'kraft',tpls:['uk']},{id:'ta_ok',name:'Oberkörper',group:'kraft',type:'kraft',tpls:['ok']},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb']},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand']}];
 function allTA(){return TA_BUILTIN.concat(S.types.map(function(t){return {id:t.id,name:t.name,group:t.group||'kraft',type:t.id,tpls:[t.id],custom:true}}))}
-function visTA(){return allTA().filter(function(t){return S.hiddenTA.indexOf(t.id)<0})}
+/* Ganzkörper ist die Standard-Trainingsart und bleibt immer sichtbar */
+function visTA(){return allTA().filter(function(t){return t.fixed||S.hiddenTA.indexOf(t.id)<0})}
 function curTA(){return allTA().filter(function(t){return t.id===S.ta})[0]}
 /* aktuelle Trainingsart und interne Art (S.type) zusammenhalten, falls eine gelöscht wurde */
 function fixTA(){var c=curTA();if(c&&c.type===S.type&&S.hiddenTA.indexOf(c.id)<0)return;var v=visTA().filter(function(t){return t.type===S.type})[0]||visTA()[0];if(v){S.ta=v.id;if(v.type!==S.type&&TYPES[v.type])S.type=v.type}}
@@ -795,7 +796,7 @@ function sTypes(){
   }else{
    out+='<div class="card" style="margin:10px 0"><h3>'+esc(ed.name)+'</h3><p class="cap" style="margin:0">'+TAG[ed.group].sub+'. Einheiten: '+ed.tpls.map(function(k){return esc(TPL[k].name)}).join(', ')+'.</p></div>';
   }
-  out+='<div class="row2">'+(cur&&cur.id===ed.id?'<span class="hint" style="flex:1;margin:0">'+ic('pin',18)+'<span>Aktuelle Trainingsart.</span></span>':'<button class="btn" style="flex:1.4" data-act="usetype" data-v="'+esc(ed.id)+'">'+ic('pin',18)+'Diese verwenden</button>')+(vis.length>1?'<button class="btn" style="flex:1" data-act="delta" data-v="'+esc(ed.id)+'">'+ic('trash',18)+'Löschen</button>':'')+'</div>';
+  out+='<div class="row2">'+(cur&&cur.id===ed.id?'<span class="hint" style="flex:1;margin:0">'+ic('pin',18)+'<span>Aktuelle Trainingsart.</span></span>':'<button class="btn" style="flex:1.4" data-act="usetype" data-v="'+esc(ed.id)+'">'+ic('pin',18)+'Diese verwenden</button>')+(ed.fixed?'<span class="hint" style="flex:1;margin:0">'+ic('lock',18)+'<span>Standard, bleibt immer erhalten.</span></span>':(vis.length>1?'<button class="btn" style="flex:1" data-act="delta" data-v="'+esc(ed.id)+'">'+ic('trash',18)+'Löschen</button>':''))+'</div>';
  }else{
   out+='<p class="mut" style="font-size:13px">Alle Trainingsarten sind gelöscht. Stelle eine wieder her oder lege eine neue an.</p>';
  }
@@ -1321,6 +1322,7 @@ document.addEventListener('click',function(e){
   case 'tgcat':{var ct=customType(S.editType);if(!ct)break;var ci=ct.cats.indexOf(d.c);if(ci>-1){if(ct.cats.length<2){toast('Mindestens ein Bewegungsmuster bleibt gewählt');render();break}ct.cats.splice(ci,1)}else ct.cats.push(d.c);registerType(ct);saveLocs();render();break}
   /* Trainingsart löschen: eigene werden entfernt, eingebaute ausgeblendet und lassen sich wiederherstellen; mindestens eine bleibt */
   case 'delta':{var dta=allTA().filter(function(x){return x.id===d.v})[0];if(!dta)break;
+   if(dta.fixed){toast('Ganzkörper ist die Standard-Trainingsart und bleibt immer erhalten');render();break}
    if(visTA().length<=1){toast('Mindestens eine Trainingsart bleibt erhalten');render();break}
    if(dta.custom){var dct=customType(dta.id);if(S.type===dct.id)setType('kraft');unregisterType(dct);S.types=S.types.filter(function(x){return x.id!==dct.id});delete S.stash[dct.id]}
    else if(S.hiddenTA.indexOf(dta.id)<0)S.hiddenTA.push(dta.id);

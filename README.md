@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.11.1
+- **Ganzkörper ist fest:** Die Standard-Trainingsart Ganzkörper (mit allen Bestandteilen und der Gliederung) lässt sich nicht mehr löschen. Hast du sie vorher ausgeblendet, ist sie beim nächsten Öffnen wieder da und ausgewählt. Die einzelnen Bestandteile (Cardio, Prehab, Handstand usw.) schaltest du weiterhin beim Einrichten an und aus.
+
 ## Neu in 3.11.0
 - **Prehab und Spezial als eigene Bereiche:** „Prehab“ (Prävention und Rehabilitation, Achillessehne und Schulterstabilität) in knalligem Rot und „Spezial“ (z. B. Handstand) in Grün lassen sich in der Bibliothek filtern, im Assistenten „Neue Übung“ auswählen und in eigenen Trainingsarten ankreuzen. „Prävention · Reha“ heißt überall nur noch „Prehab“.
 - **Bibliothek im Layout des Plans:** gleiche Gliederung (1 Vorbereitung, 2 Hauptteil auf getönter Fläche, 3 Ergänzung, dazu Aufrichtung), farbiger Streifen und getöntes Etikett je Übung. Die Filter sind nach Teilen gruppiert und in den Bereichsfarben getönt, die gewählte Gruppe ist kräftig gefüllt. Dasselbe gilt für die Bereichswahl im Assistenten und für „Übung hinzufügen“.
