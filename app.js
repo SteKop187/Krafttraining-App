@@ -24,6 +24,7 @@ var IC={
  book:'<path d="M5 4h10a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h10"/>',
  chart:'<path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6"/>',
  edit:'<path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/>',
+ body:'<circle cx="12" cy="4.5" r="2"/><path d="M12 7v7M6 10l6-2 6 2M9 21l3-7 3 7"/>', legs:'<path d="M8 3h8M10 3l-2 18M14 3l2 18M7 21h3M14 21h3"/>', upper:'<circle cx="12" cy="5" r="2"/><path d="M4 11l8-2 8 2M12 9v6M9 15h6"/>', hand:'<path d="M12 3v9M9 6h6M8 21l3-9M16 21l-3-9"/>',
  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
  more:'<circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/>',
  image:'<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M4 17l5-4 4 3 3-2 4 3"/>',
@@ -293,8 +294,8 @@ function unregisterType(t){delete TYPES[t.id];delete TPL[t.id]}
 function customType(id){return S.types.filter(function(t){return t.id===id})[0]}
 /* Trainingsarten in zwei Oberkategorien: Krafttraining (Ganzkörper, Unterkörper, Oberkörper, eigene) und Mikrotraining (Aufrichtung, Handstand-Vorbereitung, eigene). Eingebaute lassen sich ausblenden, eigene löschen. */
 var TAG={kraft:{name:'Krafttraining',sub:'Krafttrainingseinheit'},mikro:{name:'Mikrotraining',sub:'Mikrotrainingseinheit'}};
-var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka','gkb'],fixed:true},{id:'ta_uk',name:'Unterkörper',group:'kraft',type:'kraft',tpls:['uk']},{id:'ta_ok',name:'Oberkörper',group:'kraft',type:'kraft',tpls:['ok']},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb']},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand']}];
-function allTA(){return TA_BUILTIN.concat(S.types.map(function(t){return {id:t.id,name:t.name,group:t.group||'kraft',type:t.id,tpls:[t.id],custom:true}}))}
+var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka','gkb'],fixed:true,icon:'body',sub:'Einheit A und B im Wechsel'},{id:'ta_uk',name:'Unterkörper',group:'kraft',type:'kraft',tpls:['uk'],icon:'legs',sub:'Beine und Hüfte'},{id:'ta_ok',name:'Oberkörper',group:'kraft',type:'kraft',tpls:['ok'],icon:'upper',sub:'Drücken und Ziehen'},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb'],icon:'spine',sub:'Haltung, Hüfte, Mobilisation'},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand'],icon:'hand',sub:'Schulter und Körperspannung'}];
+function allTA(){return TA_BUILTIN.concat(S.types.map(function(t){return {id:t.id,name:t.name,group:t.group||'kraft',type:t.id,tpls:[t.id],custom:true,icon:'dumbbell',sub:'Eigene Trainingsart'}}))}
 /* Ganzkörper ist die Standard-Trainingsart und bleibt immer sichtbar */
 function visTA(){return allTA().filter(function(t){return t.fixed||S.hiddenTA.indexOf(t.id)<0})}
 function curTA(){return allTA().filter(function(t){return t.id===S.ta})[0]}
@@ -777,7 +778,8 @@ function sLocs(){
  return '<div class="sec" style="margin-top:0">Orte und Equipment</div>'+
  '<div class="fchips" style="margin-bottom:10px">'+S.locs.map(function(l){return '<button class="chip" data-act="editloc" data-v="'+l.id+'" aria-pressed="'+(l.id===ed.id)+'">'+(l.id===S.loc?ic('pin',14):'')+esc(l.name)+'</button>'}).join('')+'<button class="chip ex" data-act="newloc">'+ic('plus',14)+'Neuer Ort</button></div>'+
  '<div class="q" style="margin-bottom:10px"><small>Name des Orts</small><input class="inp" id="locname" value="'+esc(ed.name)+'" aria-label="Name des Orts"></div>'+
- '<div class="group">'+EQ_ALL.map(function(e){return '<button class="tg" data-act="tg" data-k="eq" data-v="'+e+'" aria-pressed="'+!!ed.eq[e]+'"><span>'+e+(SUBS[e]&&ed.eq[e]?'<small>'+subOn(ed,e).length+' von '+S[SUBS[e].list].length+' '+SUBS[e].what+' vorhanden</small>':'')+'</span><i class="sw"></i></button>'+(SUBS[e]&&ed.eq[e]?subBlock(ed,e):'')}).join('')+'</div>'+
+ '<button class="donebtn" style="margin:0 0 8px" data-act="toggleeq" aria-expanded="'+!!S.eqOpen+'"><span class="txt"><b>Equipment · '+eqList(ed).length+' Geräte</b><small>'+(S.eqOpen?'Tippen zum Einklappen':esc(eqList(ed).join(', '))+' · Tippen zum Ändern')+'</small></span>'+ic(S.eqOpen?'chevd':'next',16)+'</button>'+
+ (S.eqOpen?'<div class="group">'+EQ_ALL.map(function(e){return '<button class="tg" data-act="tg" data-k="eq" data-v="'+e+'" aria-pressed="'+!!ed.eq[e]+'"><span>'+e+(SUBS[e]&&ed.eq[e]?'<small>'+subOn(ed,e).length+' von '+S[SUBS[e].list].length+' '+SUBS[e].what+' vorhanden</small>':'')+'</span><i class="sw"></i></button>'+(SUBS[e]&&ed.eq[e]?subBlock(ed,e):'')}).join('')+'</div>':'')+
  '<div class="row2" style="margin-top:10px">'+(isCur?'<span class="hint" style="flex:1;margin:0">'+ic('pin',18)+'<span>Aktueller Ort. Wird beim nächsten Öffnen wieder vorausgewählt.</span></span>':'<button class="btn" style="flex:1.4" data-act="useloc" data-v="'+ed.id+'">'+ic('pin',18)+'Hier trainieren</button>')+(S.locs.length>1?'<button class="btn" style="flex:1" data-act="delloc" data-v="'+ed.id+'">'+ic('trash',18)+'Löschen</button>':'')+'</div>';
 }
 /* Trainingsarten verwalten: die eingebauten Arten ansehen, eigene anlegen, umbenennen und löschen */
@@ -804,14 +806,17 @@ function sTypes(){
  if(hid.length)out+='<div class="eyebrow" style="margin:16px 0 6px">Gelöschte Trainingsarten</div><div class="fchips">'+hid.map(function(t){return '<button class="chip ex" data-act="restoreta" data-v="'+esc(t.id)+'">'+ic('plus',14)+esc(t.name)+' wiederherstellen</button>'}).join('')+'</div>';
  return out;
 }function sMore(){
- return '<div class="pad"><h1 class="h1">Einstellungen</h1><p class="sub">Gilt für den Generator und den Plan.</p>'+
- sLocs()+sTypes()+
- '<div class="sec">Heute meiden</div><div class="chips" style="margin-bottom:6px">'+Object.keys(S.set.avoid).map(function(k){return '<button class="chip" data-act="tg" data-k="avoid" data-v="'+k+'" aria-pressed="'+!!S.set.avoid[k]+'">'+k+'</button>'}).join('')+'</div><p class="mut" style="margin:6px 0 0;font-size:13px">Der Generator schließt belastende Übungen aus, bis du die Markierung löschst.</p>'+
- '<div class="sec">Training</div><div class="field" style="margin-bottom:0"><small>Einheiten pro Woche</small><div class="seg">'+[2,3].map(function(n){return '<button data-act="perweek" data-v="'+n+'" aria-pressed="'+(S.set.perWeek===n)+'">'+n+' pro Woche</button>'}).join('')+'</div></div>'+
- '<div class="group" style="margin-top:10px"><button class="tg" data-act="tg" data-k="voice" data-v="x" aria-pressed="'+!!S.set.voice+'"><span>Spracheingabe<small>Befehle für den Tagesplan, nutzt die Spracherkennung des Browsers</small></span><i class="sw"></i></button></div>'+
- (S.removed.length?'<div class="sec">Gelöschte Übungen</div><div class="group">'+S.removed.map(function(n){return '<div class="logrow"><span><b>'+esc(n)+'</b></span><button class="btn" style="height:38px" data-act="restoreex" data-n="'+esc(n)+'">Wiederherstellen</button></div>'}).join('')+'</div>':'')+
- '<div class="sec">Daten</div><p class="mut" style="margin:0 0 8px;font-size:13px">'+S.hist.length+' Sätze gespeichert, nur auf diesem Gerät. Exportiere regelmäßig als Sicherung.</p><p class="mut" style="margin:14px 0 0;font-size:12px">Version '+esc(self.KT_VERSION||'?')+(self.KT_BUILD?' · Stand '+esc(self.KT_BUILD.split('-').reverse().join('.')):'')+'</p><div class="row2"><button class="btn" style="flex:1" data-act="export" data-f="json">JSON</button><button class="btn" style="flex:1" data-act="export" data-f="csv">CSV</button><button class="btn" style="flex:1" data-act="import">Import</button></div><input type="file" id="importfile" accept=".json,application/json" hidden>'+
- '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p></div>';
+ var sub=S.moreSub||'',bar=function(title){return '<div class="top-bar"><button class="iconbtn" data-act="moresub" data-v="" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">'+title+'</span><span style="width:44px"></span></div>'};
+ var ver='<p class="mut" style="margin:14px 0 0;font-size:12px">Version '+esc(self.KT_VERSION||'?')+(self.KT_BUILD?' · Stand '+esc(self.KT_BUILD.split('-').reverse().join('.')):'')+'</p>';
+ if(sub==='loc')return bar('Orte und Equipment')+'<div class="pad">'+sLocs()+'</div>';
+ if(sub==='types')return bar('Trainingsarten')+'<div class="pad">'+sTypes()+'</div>';
+ if(sub==='settings')return bar('Einstellungen')+'<div class="pad"><div class="sec" style="margin-top:0">Heute meiden</div><div class="chips" style="margin-bottom:6px">'+Object.keys(S.set.avoid).map(function(k){return '<button class="chip" data-act="tg" data-k="avoid" data-v="'+k+'" aria-pressed="'+!!S.set.avoid[k]+'">'+k+'</button>'}).join('')+'</div><p class="mut" style="margin:6px 0 0;font-size:13px">Der Generator schließt belastende Übungen aus, bis du die Markierung löschst.</p>'+
+  '<div class="sec">Spracheingabe</div><div class="group"><button class="tg" data-act="tg" data-k="voice" data-v="x" aria-pressed="'+!!S.set.voice+'"><span>Spracheingabe<small>Befehle für den Tagesplan, nutzt die Spracherkennung des Browsers</small></span><i class="sw"></i></button></div>'+
+  (S.removed.length?'<div class="sec">Gelöschte Übungen</div><div class="group">'+S.removed.map(function(n){return '<div class="logrow"><span><b>'+esc(n)+'</b></span><button class="btn" style="height:38px" data-act="restoreex" data-n="'+esc(n)+'">Wiederherstellen</button></div>'}).join('')+'</div>':'')+'</div>';
+ if(sub==='data')return bar('Daten und Sicherung')+'<div class="pad"><p class="mut" style="margin:0 0 10px;font-size:13px">'+S.hist.length+' Sätze gespeichert, nur auf diesem Gerät. Exportiere regelmäßig als Sicherung.</p><div class="row2"><button class="btn" style="flex:1" data-act="export" data-f="json">JSON</button><button class="btn" style="flex:1" data-act="export" data-f="csv">CSV</button><button class="btn" style="flex:1" data-act="import">Import</button></div><input type="file" id="importfile" accept=".json,application/json" hidden>'+
+  '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p>'+ver+'</div>';
+ var rows=[['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV) und Import']];
+ return '<div class="pad"><h1 class="h1">Mehr</h1><p class="sub">Orte, Trainingsarten, Einstellungen und Daten.</p><div class="group">'+rows.map(function(r){return '<button class="mrow" data-act="moresub" data-v="'+r[0]+'"><span class="mi">'+ic(r[1],22)+'</span><span class="txt"><b>'+r[2]+'</b><small>'+esc(r[3])+'</small></span>'+ic('next',16)+'</button>'}).join('')+'</div>'+ver+'</div>';
 }
 /* ---------- Startbildschirm ---------- */
 function parseDay(s){var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2])}
@@ -839,7 +844,8 @@ function locSection(title){
 function typeSection(){
  var cur=curTA(),out='<div class="sec">Welche Trainingsart?</div>';
  ['kraft','mikro'].forEach(function(g){var l=visTA().filter(function(t){return t.group===g});
-  out+='<div class="taGrp"><div class="eyebrow">'+TAG[g].name+'<small>'+TAG[g].sub+'</small></div><div class="chips">'+(l.length?l.map(function(t){return '<button class="chip" data-act="setta" data-v="'+esc(t.id)+'" aria-pressed="'+(!!cur&&cur.id===t.id)+'">'+esc(t.name)+'</button>'}).join(''):'<span class="mut" style="font-size:13px">Keine Trainingsart vorhanden.</span>')+'</div></div>'});
+  /* große Kacheln: Krafttraining in Dunkelblau, Mikrotraining in Violett, die gewählte Art kräftig gefüllt */
+  out+='<div class="taGrp"><div class="eyebrow">'+TAG[g].name+'<small>'+TAG[g].sub+'</small></div>'+(l.length?'<div class="tagrid">'+l.map(function(t){return '<button class="tacard k-'+(g==='mikro'?'aufr':'squat')+'" data-act="setta" data-v="'+esc(t.id)+'" aria-pressed="'+(!!cur&&cur.id===t.id)+'"><span class="tai">'+ic(t.icon||'dumbbell',26)+'</span><b>'+esc(t.name)+'</b><small>'+esc(t.sub||'')+'</small></button>'}).join('')+'</div>':'<span class="mut" style="font-size:13px">Keine Trainingsart vorhanden.</span>')+'</div>'});
  return out+'<button class="btn ghost" style="margin-top:8px;height:40px" data-act="managetype">'+ic('more',16)+'Trainingsarten verwalten</button>';
 }
 /* Heutiges Training einrichten: eine Seite mit Ein/Aus-Schaltern, alles lässt sich danach im Plan ändern */
@@ -861,7 +867,8 @@ function sSetup(){
   tgRow('aufr','Aufrichtung','Eine Übung für Haltung, Hüfte oder Mobilisation')+'</div>';
  }
  if(anySets)out+='<div class="hint" style="margin-top:12px">'+ic('info',18)+'<span>Heute sind schon Sätze geloggt. Der Plan wird neu zusammengestellt, die geloggten Sätze bleiben im Verlauf.</span></div>';
- return out+'</div><div class="cta"><button class="btn primary big" data-act="makeplan">'+ic('check',18)+'Plan erstellen</button></div>';
+ out+='<div class="hint" style="margin-top:14px">'+ic('info',18)+'<span>Fertig? Mit „Trainingsplanung abschließen“ bestätigst du deine Auswahl. Danach siehst du den Plan und kannst das Training starten.</span></div>';
+ return out+'</div><div class="cta"><button class="btn primary big" data-act="makeplan">'+ic('check',18)+'Trainingsplanung abschließen</button></div>';
 }
 function sStart(){
  var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
@@ -1119,6 +1126,7 @@ function backStep(){
 function appBack(){
  if(S.sheet){stopTimers();stopRec();S.sheet=null;render();return true}
  var sc=S.screen;
+ if(sc==='more'&&S.moreSub){S.moreSub='';scrollKey='';render();return true}
  if(sc==='detail'||sc==='wizard'){backStep();return true}
  if(sc==='train'||sc==='summary'){go('heute');return true}
  if(sc!=='start'){go('start');return true}
@@ -1211,7 +1219,9 @@ document.addEventListener('click',function(e){
  var act=a.getAttribute('data-act'),d=a.dataset;
  if(act==='scrim'){if(e.target===a&&S.sheet){stopTimers();stopRec();S.sheet=null;render()}return}
  switch(act){
-  case 'tab':go(d.t);break;
+  case 'tab':if(d.t==='more')S.moreSub='';go(d.t);break;
+  case 'moresub':S.moreSub=d.v||'';scrollKey='';render();break;
+  case 'toggleeq':S.eqOpen=!S.eqOpen;render();break;
   case 'lang':I18N.setLang(isEn()?'de':'en');render();break;
   case 'go':go(d.s,{n:d.n});break;
   case 'back':backStep();break;
@@ -1312,10 +1322,10 @@ document.addEventListener('click',function(e){
   case 'setup':go('setup');break;
   case 'setopt':S.setup[d.k]=!S.setup[d.k];saveLocs();render();break;
   case 'settplsel':S.setupTpl=d.v;render();break;
-  case 'makeplan':{if(S.type==='kraft'&&S.setupTpl&&TPL[S.setupTpl])S.tpl=S.setupTpl;else S.tpl=nextTpl();S.plan=generatePlan(S.tpl);S.planDate=todayStr();relabel();adaptPlan();S.setupTpl='';S.exp=-1;saveLocs();toast('Plan erstellt: '+TPL[S.tpl].name);go('heute');break}
+  case 'makeplan':{if(S.type==='kraft'&&S.setupTpl&&TPL[S.setupTpl])S.tpl=S.setupTpl;else S.tpl=nextTpl();S.plan=generatePlan(S.tpl);S.planDate=todayStr();relabel();adaptPlan();S.setupTpl='';S.exp=-1;saveLocs();toast('Trainingsplanung abgeschlossen: '+TPL[S.tpl].name);go('heute');break}
   case 'startplan':go('heute');break;
-  case 'manageloc':S.editLoc=S.loc;go('more');break;
-  case 'managetype':S.editType=S.type;S.scrollTo='sec-types';go('more');break;
+  case 'manageloc':S.editLoc=S.loc;S.moreSub='loc';go('more');break;
+  case 'managetype':S.editType=S.type;S.moreSub='types';go('more');break;
   case 'edittype':S.editType=d.v;render();break;
   case 'usetype':setTA(d.v);S.editType=d.v;render();break;
   case 'newtype':{var tid='typ'+Date.now(),nt={id:tid,name:'Neue Trainingsart',cats:['squat','push','pull'],group:d.g==='mikro'?'mikro':'kraft'};S.types.push(nt);registerType(nt);S.editType=tid;saveLocs();render();var tn=$('#typename');if(tn){tn.focus();tn.select()}break}

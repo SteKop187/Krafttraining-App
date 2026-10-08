@@ -44,6 +44,13 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.12.0
+- **Trainingsarten als große Kacheln** beim Einrichten: Krafttraining (dunkelblau) mit Ganzkörper, Unterkörper, Oberkörper und Mikrotraining (violett) mit Aufrichtung und Handstand-Vorbereitung, jeweils mit Symbol und Kurzbeschreibung. Die gewählte Art ist kräftig gefüllt.
+- **Trainingsplanung abschließen:** Der Knopf unten heißt jetzt „Trainingsplanung abschließen“, mit einem Hinweis darüber; danach erscheint „Trainingsplanung abgeschlossen“ und der Plan.
+- **Mehr ist jetzt ein Menü** mit vier Unterseiten: Orte und Equipment, Trainingsarten, Einstellungen (Heute meiden, Spracheingabe, gelöschte Übungen) und Daten und Sicherung (Export JSON und CSV, Import). Die Zurück-Taste führt von einer Unterseite zum Menü.
+- **Equipment eingeklappt:** Unter „Orte und Equipment“ steht nur eine Zeile mit den vorhandenen Geräten; die Schalter für Geräte und Maschinen klappen erst auf Tippen auf.
+- Die Option „Einheiten pro Woche“ ist entfernt. Der zuletzt gewählte Ort steht beim Einrichten immer vorn.
+
 ## Neu in 3.11.1
 - **Ganzkörper ist fest:** Die Standard-Trainingsart Ganzkörper (mit allen Bestandteilen und der Gliederung) lässt sich nicht mehr löschen. Hast du sie vorher ausgeblendet, ist sie beim nächsten Öffnen wieder da und ausgewählt. Die einzelnen Bestandteile (Cardio, Prehab, Handstand usw.) schaltest du weiterhin beim Einrichten an und aus.
 
