@@ -7,9 +7,9 @@
 
   var RULES = [
     [/(ergometer|airbike|air bike|ellipse|crosstrainer|laufband|cardio|aufwarm)/, { cat: 'warm', meas: 'time', cx: 'isoliert' }, 'Erwärmung mit Cardio, daher Erwärmung'],
-    [/(handstand|schulterflexion|scapular|scap shrug|handgelenk ?vorbereit)/, { cat: 'zusatz', sg: 'hand', cx: 'isoliert' }, 'Handstand-Vorbereitung, daher Zusatz (Handstand)'],
-    [/(achilles|wadenheb|waden|calf)/, { cat: 'zusatz', sg: 'as', cx: 'isoliert' }, 'Wadenvariante für die Achillessehne, daher Zusatz (AS-Prävention)'],
-    [/(serratus|schulterstabil|scapula push|scapula-push)/, { cat: 'zusatz', sg: 'schulter', cx: 'isoliert' }, 'Schulterblattkontrolle, daher Zusatz (Schulterstabilität)'],
+    [/(handstand|schulterflexion|scapular|scap shrug|handgelenk ?vorbereit)/, { cat: 'zusatz', sg: 'hand', cx: 'isoliert' }, 'Handstand-Vorbereitung, daher Spezial (Handstand)'],
+    [/(achilles|wadenheb|waden|calf)/, { cat: 'zusatz', sg: 'as', cx: 'isoliert' }, 'Wadenvariante für die Achillessehne, daher Prävention · Reha (AS-Prävention)'],
+    [/(serratus|schulterstabil|scapula push|scapula-push)/, { cat: 'zusatz', sg: 'schulter', cx: 'isoliert' }, 'Schulterblattkontrolle, daher Prävention · Reha (Schulterstabilität)'],
     [/(katze|cat ?cow|thorakal|brustwirbel|mobilis|kindshaltung|turrahmen|dehn|stretch)/, { cat: 'mobil', cx: 'isoliert' }, 'Beweglichkeit und Dehnung, daher Aufrichtung (Mobilisation)'],
     [/(wall angel|pull ?apart|y ?t ?w|schulterblatt|skapula|scapula|aufricht)/, { cat: 'haltung', cx: 'isoliert' }, 'Haltung und Schulterblatt, daher Aufrichtung (Haltung)'],
     [/(dead ?bug|bird ?dog|vierfussler|glute|bridge|clam|beckenheben|hip airplane)/, { cat: 'huefte', cx: 'isoliert' }, 'Hüfte und Rumpfkontrolle, daher Aufrichtung (Hüfte)'],
@@ -34,7 +34,7 @@
   var TIME = /(plank|stutz|halte|hold|carry|isometr|wall ?sit|hang|superman|dehn|stretch|kindshaltung|brustwirbel)/;
   var ISO = /(curl|seitheben|frontheben|beinstrecker|beinbeuger|\bfly\b|extension|trizeps|bizeps|wade|abduktion|adduktion|kickback|isolation)/;
   var DEFEQ = { warm: 'Cardio', zusatz: 'Körpergewicht', push: 'Langhantel', pull: 'Seilzug', squat: 'Langhantel', hinge: 'Langhantel', schnell: 'Medizinball', rumpf: 'Körpergewicht', assist: 'Kurzhantel', haltung: 'Körpergewicht', huefte: 'Körpergewicht', mobil: 'Körpergewicht' };
-  var LABEL = { warm: 'Erwärmung', zusatz: 'Zusatz', schnell: 'Schnell', squat: 'Squat', push: 'Drücken', hinge: 'Hinge', pull: 'Ziehen', rumpf: 'Rumpf', assist: 'Assistenz', haltung: 'Haltung', huefte: 'Hüfte', mobil: 'Mobilisation' };
+  var LABEL = { warm: 'Erwärmung', zusatz: 'Spezial', schnell: 'Schnell', squat: 'Squat', push: 'Drücken', hinge: 'Hinge', pull: 'Ziehen', rumpf: 'Rumpf', assist: 'Assistenz', haltung: 'Haltung', huefte: 'Hüfte', mobil: 'Mobilisation' };
 
   /* lib = vorhandene Übungen [{name,cat,eq}] für den Ähnlichkeitshinweis */
   KT.classify = function (name, lib) {

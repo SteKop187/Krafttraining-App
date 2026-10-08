@@ -47,7 +47,7 @@ function kwOf(w){var d=new Date(TODAY.getTime()-(40-w)*7*864e5);var t=new Date(D
 /* ---------- Domänendaten ---------- */
 var SLOT={
  warm:{l:'Erwärmung',c:'--c-warm'}, schnell:{l:'Schnell',c:'--c-schnell'}, squat:{l:'Squat',c:'--c-squat'}, push:{l:'Drücken',c:'--c-push'},
- hinge:{l:'Hinge',c:'--c-hinge'}, pull:{l:'Ziehen',c:'--c-pull'}, rumpf:{l:'Rumpf',c:'--c-rumpf'}, assist:{l:'Assistenz',c:'--c-rumpf'}, zusatz:{l:'Zusatz',c:'--c-zusatz'},
+ hinge:{l:'Hinge',c:'--c-hinge'}, pull:{l:'Ziehen',c:'--c-pull'}, rumpf:{l:'Rumpf',c:'--c-rumpf'}, assist:{l:'Assistenz',c:'--c-rumpf'}, zusatz:{l:'Spezial',c:'--c-zusatz'}, praev:{l:'Prävention · Reha',c:'--c-praev'},
  haltung:{l:'Haltung',c:'--c-aufricht'}, huefte:{l:'Hüfte',c:'--c-aufricht'}, mobil:{l:'Mobilisation',c:'--c-aufricht'}, aufricht:{l:'Aufrichtung',c:'--c-aufricht'}
 };
 var ORDER=['warm','schnell','squat','push','hinge','pull','rumpf','assist','zusatz','haltung','huefte','mobil'];
@@ -362,7 +362,15 @@ var STACK=[];
 
 /* ---------- Screens ---------- */
 var JUMPS=[['heute','Heute'],['ort','Ort wählen'],['voice','Sprache'],['train','Training'],['time','Zeit-Übung'],['stats','Auswertung'],['lib','Bibliothek'],['detail','Übungsdetail'],['wizard','Neue Übung'],['more','Einstellungen']];
-function slotTag(cat){var s=SLOT[cat];return '<span class="tag"><i class="dot" style="--c:var('+s.c+')"></i>'+s.l+'</span>'}
+/* Farbbereich einer Übung: Zusatzübungen für Achillessehne und Schulter laufen als „Prävention · Reha“ (rot), der Rest als „Spezial“ (grün) */
+var KALIAS={assist:'rumpf',haltung:'aufr',huefte:'aufr',mobil:'aufr',aufricht:'aufr'};
+function sgOfEx(x){if(x.sg)return x.sg;var le=LIB.filter(function(e){return e.name===x.name})[0];return le&&le.sg||''}
+function tagKey(x){var c=typeof x==='string'?x:x.cat;if(c==='zusatz'&&typeof x==='object'){var g=sgOfEx(x);if(g==='as'||g==='schulter')return 'praev'}return c}
+function kcls(x){var k=tagKey(x);return KALIAS[k]||k}
+function catLabel(x){var k=tagKey(x);return k==='praev'?'Prävention · Reha':SLOT[k].l}
+function slotTag(x){return '<span class="ctag k-'+kcls(x)+'">'+catLabel(x)+'</span>'}
+/* Gliederung des Plans im Krafttraining: Vorbereitung, Hauptteil, Ergänzung (Aufrichtung ohne Gliederung) */
+function partOf(p){var c=p.cat;return (c==='warm'||c==='schnell')?'vor':((c==='squat'||c==='push'||c==='hinge'||c==='pull')?'haupt':(AUFR_CATS.indexOf(c)>-1?'':'erg'))}
 
 /* Training läuft: die Übersicht bleibt die Basis, der Timer läuft weiter, wenn man zwischen Übungen wechselt */
 function isLive(){return !!(S.live&&S.live.date===todayStr())}
@@ -386,13 +394,18 @@ function sHeute(){
  '<p class="sub">Einheit '+weekCount()+' dieser Woche · '+S.plan.length+' Übungen'+(doneL?' · '+doneL+' erledigt':'')+' · ca. '+planMinutes()+' min</p>'+
  restBanner()+
  '<button class="locrow" data-act="sheet" data-s="loc" aria-label="Trainingsort wechseln"><span class="pin">'+ic('pin',20)+'</span><span class="txt"><small>Trainingsort · '+eqCount()+' Geräte</small><b>'+esc(curLoc().name)+'</b></span><span class="mut" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px">wechseln'+ic('next',14)+'</span></button>'+
- (openL.length?'<div class="group">':'<div class="hint">'+ic('check',18)+'<span><b>Alle '+S.plan.length+' Übungen sind erledigt.</b> Gut gemacht. Unten findest du sie unter „Abgeschlossen“.</span></div>');
+ (openL.length?'':'<div class="hint">'+ic('check',18)+'<span><b>Alle '+S.plan.length+' Übungen sind erledigt.</b> Gut gemacht. Unten findest du sie unter „Abgeschlossen“.</span></div>');
+ var curSec='-',nSec=0,secCnt={},secTitle={vor:'Vorbereitung',haupt:'Hauptteil',erg:'Ergänzung'};
+ S.plan.forEach(function(p){var k=partOf(p);secCnt[k]=(secCnt[k]||0)+1});
+ var closeSec=function(k){return k==='-'?'':'</div>'+(k==='haupt'?'</div>':'')};
+ var openSec=function(k){if(k==='')return '<div class="group">';nSec++;var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+secTitle[k]+'</b><span class="hr"></span><small>'+secCnt[k]+' Übungen</small></div>';return (k==='haupt'?'<div class="blk">':'')+h+'<div class="group">'};
  S.plan.forEach(function(p,i){
   if(isDone(p))return;
+  var sc=partOf(p);if(sc!==curSec){out+=closeSec(curSec)+openSec(sc);curSec=sc}
   /* Supersatz-Kopf nur, wenn beide Übungen des Supersatzes noch offen sind */
   if(p.grp==='A2'&&i>0&&!isDone(S.plan[i-1])){out+='<div class="ss">'+ic('swap',13)+'Supersatz · abwechselnd</div>'}
   var open=S.exp===i,nd=setsDone(p),up=moveTarget(i,-1)>-1,dn=moveTarget(i,1)>-1;
-  out+='<div class="item"><div class="irow"><button class="item-main" data-act="exp" data-i="'+i+'" aria-expanded="'+open+'"><span class="grp">'+p.grp+'</span><span class="txt">'+slotTag(p.cat)+'<b>'+esc(p.name)+(p.locked?' &nbsp;'+ic('lock',13):'')+'</b><small>'+esc(metaLine(p))+'</small>'+(nd?'<span class="prog" aria-label="'+esc(progText(nd,p.sets))+'"><span class="mini">'+Array.apply(null,Array(p.sets)).map(function(x,k){return '<i'+(k<nd?' class="done"':'')+'></i>'}).join('')+'</span>'+esc(progText(nd,p.sets))+'</span>':'')+(p.na?'<span class="warn">'+ic('alert',13)+(eqOk(p)?'Wegen „Heute meiden“ gesperrt':esc(eqOn(p.eq)?machOf(p):p.eq)+' gibt es hier nicht')+'</span>':(p.was&&p.was!==p.name?'<span class="was">statt '+esc(p.was)+'</span>':''))+'</span><span class="mut">'+ic(open?'chevd':'next',16)+'</span></button>'+
+  out+='<div class="item k-'+kcls(p)+'"><div class="irow"><button class="item-main" data-act="exp" data-i="'+i+'" aria-expanded="'+open+'"><span class="grp">'+p.grp+'</span><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+(p.locked?' &nbsp;'+ic('lock',13):'')+'</b><small>'+esc(metaLine(p))+'</small>'+(nd?'<span class="prog" aria-label="'+esc(progText(nd,p.sets))+'"><span class="mini">'+Array.apply(null,Array(p.sets)).map(function(x,k){return '<i'+(k<nd?' class="done"':'')+'></i>'}).join('')+'</span>'+esc(progText(nd,p.sets))+'</span>':'')+(p.na?'<span class="warn">'+ic('alert',13)+(eqOk(p)?'Wegen „Heute meiden“ gesperrt':esc(eqOn(p.eq)?machOf(p):p.eq)+' gibt es hier nicht')+'</span>':(p.was&&p.was!==p.name?'<span class="was">statt '+esc(p.was)+'</span>':''))+'</span><span class="mut">'+ic(open?'chevd':'next',16)+'</span></button>'+
    '<button class="playbtn" data-act="enter" data-i="'+i+'" aria-label="'+esc(p.name)+(nd?' fortsetzen':' starten')+'">'+ic('play',20)+'</button></div>';
   if(open){out+='<div class="actions">'+
    '<button class="act" data-act="dice" data-i="'+i+'">'+ic('dice',20)+'Würfeln</button>'+
@@ -404,7 +417,7 @@ function sHeute(){
    '<button class="act" data-act="del" data-i="'+i+'">'+ic('trash',20)+'Streichen</button></div>'}
   out+='</div>';
  });
- if(openL.length)out+='</div>';
+ out+=closeSec(curSec);
  /* Abgeschlossene Übungen sind unter einem Punkt gesammelt, nur offene stehen in der Liste */
  if(doneL){
   out+='<button class="donebtn" data-act="toggledone" aria-expanded="'+S.showDone+'"><span class="ck">'+ic('check',16)+'</span><span class="txt"><b>Abgeschlossen · '+doneL+(doneL===1?' Übung':' Übungen')+'</b><small>'+(S.showDone?'Tippen zum Einklappen':'Tippen zum Anzeigen')+'</small></span>'+ic(S.showDone?'chevd':'next',16)+'</button>';
@@ -418,7 +431,7 @@ function sHeute(){
 }
 
 /* Ziel der Verschiebung: der nächste noch offene Nachbar in dieser Richtung (erledigte Übungen werden übersprungen) */
-function moveTarget(i,d){for(var j=i+d;j>=0&&j<S.plan.length;j+=d){if(!isDone(S.plan[j]))return j}return -1}
+function moveTarget(i,d){var s0=partOf(S.plan[i]);for(var j=i+d;j>=0&&j<S.plan.length;j+=d){if(partOf(S.plan[j])!==s0)return -1;if(!isDone(S.plan[j]))return j}return -1}
 function movePlan(i,d){var j=moveTarget(i,d);if(j<0)return i;snap();var t=S.plan[i];S.plan[i]=S.plan[j];S.plan[j]=t;relabel();return j}
 
 function curEx(){return S.tr.over||S.plan[S.tr.i]}
@@ -433,13 +446,13 @@ function resetInputs(){
 function sTrain(){
  var t=S.tr,ex=curEx(),eqSel=t.eq||ex.eq,rf=getRef(ex.name,eqSel),time=ex.mode==='time',warm=ex.cat==='warm',total=ex.sets,out='',ch=eqChoices(ex),ss=secStep(ex.name);
  var idx=t.over?S.plan.length:t.i+1,par=warm&&paramOf(ex)?PARAMS[paramOf(ex)]:null;
- out+='<div class="top-bar"><button class="iconbtn" data-act="go" data-s="heute" aria-label="Zur Übersicht">'+ic('list',24)+'</button><span class="cnt">Übung '+idx+' von '+S.plan.length+'</span>'+
-  '<span class="row2"><button class="iconbtn nav" data-act="exnav" data-d="-1" aria-label="Vorige Übung">'+ic('back',28)+'</button><button class="iconbtn nav" data-act="exnav" data-d="1" aria-label="Nächste Übung">'+ic('next',28)+'</button><button class="iconbtn nav" data-act="sheet" data-s="exmenu" aria-label="Weitere Aktionen">'+ic('more',24)+'</button></span></div><div class="pad">';
- out+=restBanner()+slotTag(ex.cat)+'<h1 class="h1" style="font-size:36px">'+esc(ex.name)+'</h1>';
+ out+='<div class="tband k-'+kcls(ex)+'"><div class="top-bar"><button class="iconbtn" data-act="go" data-s="heute" aria-label="Zur Übersicht">'+ic('list',24)+'</button><span class="cnt">Übung '+idx+' von '+S.plan.length+'</span>'+
+  '<span class="row2"><button class="iconbtn nav" data-act="exnav" data-d="-1" aria-label="Vorige Übung">'+ic('back',28)+'</button><button class="iconbtn nav" data-act="exnav" data-d="1" aria-label="Nächste Übung">'+ic('next',28)+'</button><button class="iconbtn nav" data-act="sheet" data-s="exmenu" aria-label="Weitere Aktionen">'+ic('more',24)+'</button></span></div>';
+ out+='<div class="tin"><div class="tcat">'+esc(catLabel(ex))+'</div><h1 class="h1">'+esc(ex.name)+'</h1>';
  var nLog=t.log.length;out+='<div class="setline"><b>'+nLog+' von '+total+' Sätzen erledigt</b> · '+(total-nLog>0?(total-nLog)+' offen':'alles erledigt')+'</div>';
  /* Satz-Streifen: erledigte Sätze sind antippbar und zeigen, was du genommen hast */
  out+='<div class="dots">';for(var s=1;s<=total;s++){var cls=(s<t.set?'done':(s===t.set&&t.phase!=='done'?'cur':(t.phase==='done'&&s<=nLog?'done':''))),isDoneSet=s<=nLog;
-  out+='<button type="button" class="dotb '+cls+'" data-act="peek" data-k="'+(s-1)+'" aria-label="Satz '+s+(isDoneSet?' ansehen':'')+'"'+(isDoneSet?'':' disabled')+'><i></i></button>'}out+='</div>';
+  out+='<button type="button" class="dotb '+cls+'" data-act="peek" data-k="'+(s-1)+'" aria-label="Satz '+s+(isDoneSet?' ansehen':'')+'"'+(isDoneSet?'':' disabled')+'><i></i></button>'}out+='</div></div></div><div class="pad">'+restBanner();
  if(t.peek>=0&&t.log[t.peek]){var pl=t.log[t.peek];
   out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):fmt(pl.kg)+' kg × '+pl.reps+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':''))+'</div>'}
  if(t.phase==='done'){
@@ -497,7 +510,7 @@ function sTrain(){
  }
  if(!warm)out+='<div class="row2" style="margin-bottom:8px"><button class="btn" style="flex:1" data-act="addset">'+ic('plus',18)+'Satz hinzufügen</button><button class="btn" style="flex:1" data-act="finex"'+(nLog?'':' disabled')+'>'+ic('check',18)+'Übung abschließen</button></div>';
  out+='<button class="btn" data-act="go" data-s="detail" data-n="'+esc(ex.name)+'" style="width:100%;margin-bottom:4px">'+ic('video',18)+'Ablauf und Medien ansehen</button></div>'+
- '<div class="cta"><button class="btn primary big" data-act="done"'+(canDone?'':' disabled')+'>'+ic('check',20)+'Satz abschließen</button></div>';
+ '<div class="cta"><button class="btn primary big kc k-'+kcls(ex)+'" data-act="done"'+(canDone?'':' disabled')+'>'+ic('check',20)+'Satz abschließen</button></div>';
  return out;
 }
 function mmss(s){var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
@@ -643,7 +656,7 @@ function libList(){
  var q=S.lib.q.toLowerCase(),items=LIB.filter(function(e){return (S.lib.cat==='alle'||e.cat===S.lib.cat)&&(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1});
  if(!items.length)return '<div class="group"><div class="lrow"><span class="txt"><b>Keine Treffer</b><small>Lege die Übung neu an, sie ist danach sofort im Generator.</small></span></div></div>';
  return '<div class="group">'+items.map(function(e){
-  return '<button class="lrow" data-act="open" data-n="'+esc(e.name)+'"><span class="txt">'+slotTag(e.cat)+'<b>'+esc(e.name)+'</b><small>'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+'</small></span><span class="m">'+[['image','image'],['video','video'],['link','link']].map(function(t){var c=mediaCount(e.name,t[0]);return c?'<span>'+ic(t[1],14)+c+'</span>':''}).join('')+'</span><span class="num mut" style="font-size:18px;min-width:26px;text-align:right">'+usesOf(e.name)+'×</span></button>'}).join('')+'</div>';
+  return '<button class="lrow" data-act="open" data-n="'+esc(e.name)+'"><span class="txt">'+slotTag(e)+'<b>'+esc(e.name)+'</b><small>'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+'</small></span><span class="m">'+[['image','image'],['video','video'],['link','link']].map(function(t){var c=mediaCount(e.name,t[0]);return c?'<span>'+ic(t[1],14)+c+'</span>':''}).join('')+'</span><span class="num mut" style="font-size:18px;min-width:26px;text-align:right">'+usesOf(e.name)+'×</span></button>'}).join('')+'</div>';
 }
 function sLib(){
  var cats=['alle'].concat(ORDER);
@@ -655,7 +668,7 @@ function sLib(){
 }
 function sDetail(){
  var n=S.detail,e=LIB.filter(function(x){return x.name===n})[0]||{name:n,cat:'push',eq:'Langhantel',sub:''},sx=stepsOf(n),med=S.media[n]||[],out;
- out='<div class="top-bar"><button class="iconbtn" data-act="back" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Übung</span><span style="width:44px"></span></div><div class="pad">'+slotTag(e.cat)+'<h1 class="h1" style="font-size:36px">'+esc(e.name)+'</h1><p class="sub">'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+' · '+usesOf(n)+' Einheit'+(usesOf(n)===1?'':'en')+'</p>'+
+ out='<div class="top-bar"><button class="iconbtn" data-act="back" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Übung</span><span style="width:44px"></span></div><div class="pad">'+slotTag(e)+'<h1 class="h1" style="font-size:36px">'+esc(e.name)+'</h1><p class="sub">'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+' · '+usesOf(n)+' Einheit'+(usesOf(n)===1?'':'en')+'</p>'+
  '<div class="sec" style="margin-top:4px">Medien</div>';
  if(med.length)out+='<div class="media">'+med.map(mediaTile).join('')+'</div>';
  else out+='<p class="mut" style="margin:0 0 10px">Noch keine Medien. Füge Fotos, Videos oder Links hinzu, zum Beispiel eine Aufnahme deiner Technik.</p>';
@@ -884,9 +897,9 @@ function handleVoiceText(tx){
 }
 function voiceCard(res){
  var k=res.kind,row=function(ico,txt){return '<div class="line">'+ic(ico,18)+txt+'</div>'};
- if(k==='replace')return row('swap','Ersetzen')+'<div class="line"><span class="mut" style="font-weight:500">'+esc(res.from.name)+'</span>'+ic('next',14)+esc(res.to.name)+'</div>'+slotTag(res.to.cat)+(S.plan[res.from.idx]&&S.plan[res.from.idx].cat!==res.to.cat?'<div class="warn">'+ic('alert',13)+'Anderes Bewegungsmuster als bisher</div>':'');
+ if(k==='replace')return row('swap','Ersetzen')+'<div class="line"><span class="mut" style="font-weight:500">'+esc(res.from.name)+'</span>'+ic('next',14)+esc(res.to.name)+'</div>'+slotTag(res.to)+(S.plan[res.from.idx]&&S.plan[res.from.idx].cat!==res.to.cat?'<div class="warn">'+ic('alert',13)+'Anderes Bewegungsmuster als bisher</div>':'');
  if(k==='remove')return row('trash','Streichen')+'<div class="line">'+esc(res.name)+'</div>';
- if(k==='add')return row('plus','Hinzufügen')+'<div class="line">'+esc(res.to.name)+'</div>'+slotTag(res.to.cat);
+ if(k==='add')return row('plus','Hinzufügen')+'<div class="line">'+esc(res.to.name)+'</div>'+slotTag(res.to);
  if(k==='reroll')return row('dice','Neu würfeln')+'<div class="line">'+esc(res.name)+'</div>';
  if(k==='rerollall')return row('dice','Alles neu würfeln')+'<div class="line mut" style="font-weight:500">Gesperrte Übungen bleiben erhalten.</div>';
  return row('plus','Neue Übung anlegen')+'<div class="line">'+esc(res.name||'ohne Namen')+'</div>';

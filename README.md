@@ -44,6 +44,12 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.7.0
+- **Neue Bereichsfarben nach den Workshop-Folien:** Schnell dunkelgrau, Squat kräftiges Dunkelblau, Drücken Orange-Rot, Hinge Cyan, Ziehen Amber, Rumpf und Assistenz hellgrau, Erwärmung Pink. Jede Übung hat links einen breiten Farbstreifen und ein getöntes Etikett mit dem Bereichsnamen. Alle Schriften erreichen mindestens 4,5:1 Kontrast, im hellen und im dunklen Modus.
+- **Prävention · Reha (rot) und Spezial (grün):** „Zusatz“ heißt jetzt „Spezial“ (z. B. Handstand, grün). Achillessehnen-Prävention und Schulterstabilität laufen als „Prävention · Reha“ in kräftigem Rot. Aufrichtung ist jetzt violett.
+- **Gliederung des Plans im Krafttraining:** 1 Vorbereitung (Erwärmung, Schnell), 2 Hauptteil (Squat, Hinge, Drücken, Ziehen) auf einer getönten Fläche mit dicker Linie oben und unten, 3 Ergänzung (Rumpf, Assistenz, Spezial, Prävention · Reha). Übungen lassen sich nur innerhalb ihres Teils nach oben oder unten schieben.
+- **Training:** Der Kopf der Übung ist ein farbiges Band mit Bereichsname, Übungsname und Satz-Streifen; „Satz abschließen“ trägt dieselbe Farbe.
+
 ## Neu in 3.6.0
 - **Sätze hinzufügen:** In der Übung gibt es „Satz hinzufügen“ (jederzeit, auch nach dem letzten Satz). Auch bei einer abgeschlossenen Übung, die du unter „Abgeschlossen“ wieder öffnest, kannst du einen weiteren Satz anhängen.
 - **Übung vorzeitig abschließen:** „Übung abschließen“ beendet eine Übung, auch wenn nicht alle geplanten Sätze gemacht sind (ab dem ersten geloggten Satz). Sie steht dann unter „Abgeschlossen“ mit dem Hinweis „vorzeitig beendet“ und zählt in der Zusammenfassung als erledigt.

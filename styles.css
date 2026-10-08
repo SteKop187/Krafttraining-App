@@ -309,3 +309,72 @@ body{padding:0;background:var(--app)}
 .xrow2 .lrow{flex:1;min-width:0}
 .xrow2+.xrow2{border-top:1px solid var(--line)}
 .iconbtn.sm{width:40px;height:44px;flex:none;color:var(--ink-3)}
+/* Bereichsfarben nach den Workshop-Folien (Ganzkörper), erzeugt mit hohem Kontrast: Streifen (--c), Etikett (--cb Fläche, --ct Schrift), Kopfband (--cband Fläche, --con Schrift) */
+:root{--c-warm:#C2528B;--c-schnell:#4A4A50;--c-squat:#0D4690;--c-push:#E5603B;--c-hinge:#22A2CC;--c-pull:#E8A83A;--c-rumpf:#A6A6AB;--c-zusatz:#14873F;--c-praev:#E8112D;--c-aufricht:#7B4FB8}
+.k-warm{--c:#C2528B;--cb:#F7E9F0;--ct:#A54676;--cband:#C2528B;--con:#FFFFFF}
+.k-schnell{--c:#4A4A50;--cb:#E7E7E8;--ct:#4A4A50;--cband:#4A4A50;--con:#FFFFFF}
+.k-squat{--c:#0D4690;--cb:#E0E7F1;--ct:#0D4690;--cband:#0D4690;--con:#FFFFFF}
+.k-push{--c:#E5603B;--cb:#FCEAE6;--ct:#A6462B;--cband:#E5603B;--con:#12161C}
+.k-hinge{--c:#22A2CC;--cb:#E2F3F8;--ct:#197593;--cband:#22A2CC;--con:#12161C}
+.k-pull{--c:#E8A83A;--cb:#FCF4E5;--ct:#8E6824;--cband:#E8A83A;--con:#12161C}
+.k-rumpf{--c:#A6A6AB;--cb:#F3F3F4;--ct:#666669;--cband:#A6A6AB;--con:#12161C}
+.k-zusatz{--c:#14873F;--cb:#E0EFE6;--ct:#117336;--cband:#14873F;--con:#FFFFFF}
+.k-praev{--c:#E8112D;--cb:#FCE0E4;--ct:#C50E26;--cband:#E8112D;--con:#FFFFFF}
+.k-aufr{--c:#7B4FB8;--cb:#EEE8F6;--ct:#7B4FB8;--cband:#7B4FB8;--con:#FFFFFF}
+@media (prefers-color-scheme:dark){
+ :root:not([data-theme="light"]){--c-warm:#C2528B;--c-schnell:#8B8B8F;--c-squat:#6489B8;--c-push:#E5603B;--c-hinge:#22A2CC;--c-pull:#E8A83A;--c-rumpf:#A6A6AB;--c-zusatz:#14873F;--c-praev:#E8112D;--c-aufricht:#9572C6}
+ :root:not([data-theme="light"]) .k-warm{--c:#C2528B;--cb:#392636;--ct:#D382AB;--cband:#9F4372;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-schnell{--c:#8B8B8F;--cb:#2E3137;--ct:#9C9CA0;--cband:#3D3D42;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-squat{--c:#6489B8;--cb:#26313F;--ct:#7B9BC3;--cband:#0B3976;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-push{--c:#E5603B;--cb:#402926;--ct:#E97858;--cband:#BC4F30;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-hinge{--c:#22A2CC;--cb:#193643;--ct:#43B0D4;--cband:#176E8B;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-pull{--c:#E8A83A;--cb:#413726;--ct:#E8A83A;--cband:#9E7227;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-rumpf{--c:#A6A6AB;--cb:#34373D;--ct:#A6A6AB;--cband:#717174;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-zusatz{--c:#14873F;--cb:#163127;--ct:#55A874;--cband:#106F34;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-praev{--c:#E8112D;--cb:#411923;--ct:#F16D7F;--cband:#BE0E25;--con:#FFFFFF}
+ :root:not([data-theme="light"]) .k-aufr{--c:#9572C6;--cb:#302C42;--ct:#B399D6;--cband:#654197;--con:#FFFFFF}
+}
+:root[data-theme="dark"]{--c-warm:#C2528B;--c-schnell:#8B8B8F;--c-squat:#6489B8;--c-push:#E5603B;--c-hinge:#22A2CC;--c-pull:#E8A83A;--c-rumpf:#A6A6AB;--c-zusatz:#14873F;--c-praev:#E8112D;--c-aufricht:#9572C6}
+:root[data-theme="dark"] .k-warm{--c:#C2528B;--cb:#392636;--ct:#D382AB;--cband:#9F4372;--con:#FFFFFF}
+:root[data-theme="dark"] .k-schnell{--c:#8B8B8F;--cb:#2E3137;--ct:#9C9CA0;--cband:#3D3D42;--con:#FFFFFF}
+:root[data-theme="dark"] .k-squat{--c:#6489B8;--cb:#26313F;--ct:#7B9BC3;--cband:#0B3976;--con:#FFFFFF}
+:root[data-theme="dark"] .k-push{--c:#E5603B;--cb:#402926;--ct:#E97858;--cband:#BC4F30;--con:#FFFFFF}
+:root[data-theme="dark"] .k-hinge{--c:#22A2CC;--cb:#193643;--ct:#43B0D4;--cband:#176E8B;--con:#FFFFFF}
+:root[data-theme="dark"] .k-pull{--c:#E8A83A;--cb:#413726;--ct:#E8A83A;--cband:#9E7227;--con:#FFFFFF}
+:root[data-theme="dark"] .k-rumpf{--c:#A6A6AB;--cb:#34373D;--ct:#A6A6AB;--cband:#717174;--con:#FFFFFF}
+:root[data-theme="dark"] .k-zusatz{--c:#14873F;--cb:#163127;--ct:#55A874;--cband:#106F34;--con:#FFFFFF}
+:root[data-theme="dark"] .k-praev{--c:#E8112D;--cb:#411923;--ct:#F16D7F;--cband:#BE0E25;--con:#FFFFFF}
+:root[data-theme="dark"] .k-aufr{--c:#9572C6;--cb:#302C42;--ct:#B399D6;--cband:#654197;--con:#FFFFFF}
+
+/* Etikett, Streifen, Gliederung des Plans, farbiges Kopfband im Training */
+.ctag{display:inline-block;font:700 11px/1 var(--font-b);letter-spacing:.07em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--cb);color:var(--ct);margin-bottom:5px;align-self:flex-start;width:fit-content}
+.item{box-shadow:inset 7px 0 0 var(--c,transparent)}
+.item-main{padding-left:21px}
+.psec{display:flex;align-items:center;gap:10px;margin:18px 0 8px}
+.psec .n{width:22px;height:22px;border-radius:50%;background:var(--ink-3);color:var(--app);font:700 12px var(--font-b);display:grid;place-items:center;flex:none}
+.psec b{font:700 12px/1 var(--font-b);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.psec .hr{flex:1;height:1px;background:var(--line)}
+.psec small{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.blk{margin:22px -18px 10px;padding:4px 18px 12px;background:var(--surface-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)}
+.blk .psec{margin:12px 0 10px}
+.blk .psec .n{background:var(--ink);width:26px;height:26px;font-size:13px}
+.blk .psec b{font-size:14px;color:var(--ink);letter-spacing:.12em}
+.blk .psec .hr{background:var(--ink-3)}
+.blk .item-main{padding-top:16px;padding-bottom:16px}
+.blk .item-main b{font-size:17px}
+.blk .item{box-shadow:inset 10px 0 0 var(--c,transparent)}
+.blk .item-main{padding-left:24px}
+.tband{background:var(--cband);color:var(--con);padding:4px 0 18px;margin-bottom:6px}
+.tband .iconbtn{color:var(--con)}
+.tband .iconbtn.nav{background:color-mix(in srgb,var(--con) 16%,transparent)}
+.tband .top-bar .cnt{color:var(--con)}
+.tband .tin{padding:6px 18px 0}
+.tband .tcat{font:700 13px/1 var(--font-b);letter-spacing:.1em;text-transform:uppercase;opacity:.92}
+.tband .h1{color:var(--con);font-size:40px;margin:8px 0 8px}
+.tband .setline{color:var(--con);margin:0;opacity:.95}
+.tband .setline b{color:var(--con)}
+.tband .dots{margin:14px 0 0}
+.tband .dots .dotb i{background:color-mix(in srgb,var(--con) 32%,transparent)}
+.tband .dots .dotb.done i{background:var(--con)}
+.tband .dots .dotb.cur i{background:color-mix(in srgb,var(--con) 66%,transparent)}
+.btn.kc{background:var(--cband);border-color:var(--cband);color:var(--con)}
