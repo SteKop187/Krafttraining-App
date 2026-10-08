@@ -48,10 +48,15 @@ function kwOf(w){var d=new Date(TODAY.getTime()-(40-w)*7*864e5);var t=new Date(D
 /* ---------- Domänendaten ---------- */
 var SLOT={
  warm:{l:'Erwärmung',c:'--c-warm'}, schnell:{l:'Schnell',c:'--c-schnell'}, squat:{l:'Squat',c:'--c-squat'}, push:{l:'Drücken',c:'--c-push'},
- hinge:{l:'Hinge',c:'--c-hinge'}, pull:{l:'Ziehen',c:'--c-pull'}, rumpf:{l:'Rumpf',c:'--c-rumpf'}, assist:{l:'Assistenz',c:'--c-rumpf'}, zusatz:{l:'Spezial',c:'--c-zusatz'}, praev:{l:'Prävention · Reha',c:'--c-praev'},
+ hinge:{l:'Hinge',c:'--c-hinge'}, pull:{l:'Ziehen',c:'--c-pull'}, rumpf:{l:'Rumpf',c:'--c-rumpf'}, assist:{l:'Assistenz',c:'--c-rumpf'}, zusatz:{l:'Spezial',c:'--c-zusatz'}, praev:{l:'Prehab',c:'--c-praev'},
  haltung:{l:'Haltung',c:'--c-aufricht'}, huefte:{l:'Hüfte',c:'--c-aufricht'}, mobil:{l:'Mobilisation',c:'--c-aufricht'}, aufricht:{l:'Aufrichtung',c:'--c-aufricht'}
 };
 var ORDER=['warm','schnell','squat','push','hinge','pull','rumpf','assist','zusatz','haltung','huefte','mobil'];
+/* Bereiche für Bibliothek, Assistent und eigene Trainingsarten, in der Reihenfolge des Plans: Vorbereitung, Hauptteil, Ergänzung, Aufrichtung. Spezial (grün) und Prehab (rot) sind getrennt wählbar; beide liegen intern unter „zusatz“ und unterscheiden sich über die Untergruppe. */
+var UCATS=['warm','schnell','squat','push','hinge','pull','rumpf','assist','zusatz','praev','haltung','huefte','mobil'];
+var UGROUPS=[['Vorbereitung',['warm','schnell']],['Hauptteil',['squat','push','hinge','pull']],['Ergänzung',['rumpf','assist','zusatz','praev']],['Aufrichtung',['haltung','huefte','mobil']]];
+function ukLabel(k){return k==='praev'?'Prehab':SLOT[k].l}
+function ukPart(k){for(var i=0;i<UGROUPS.length;i++){if(UGROUPS[i][1].indexOf(k)>-1)return i}return 2}
 var KRAFT_CATS=['warm','schnell','squat','push','hinge','pull','rumpf','assist','zusatz'],AUFR_CATS=['haltung','huefte','mobil'];
 /* Untergruppen: Rumpf seitlich/gerade/Rotation, Zusatz AS-Prävention/Handstand/Schulterstabilität */
 var SG={seit:'seitlich',ger:'gerade',rot:'Rotation',as:'AS-Prävention',hand:'Handstand-Vorbereitung',schulter:'Schulterstabilität',cardio:'Cardio',allg:'allgemein'};
@@ -279,9 +284,9 @@ var TPL={
 Object.keys(TPL).forEach(function(k){TPL[k].type=/^auf/.test(k)?'aufricht':'kraft'});
 TPL.hand={name:'Handstand-Vorbereitung',slots:['warm:allg','zusatz:hand','zusatz:hand','zusatz:hand','zusatz:schulter','zusatz:schulter'],type:'handstand'};
 /* Eigene Trainingsarten: ein Name und die Bewegungsmuster, aus denen die Einheit besteht (in der festen Reihenfolge der Muster) */
-function typeCats(t){return ORDER.filter(function(c){return t.cats.indexOf(c)>-1})}
+function typeCats(t){var o=[];UCATS.forEach(function(k){if(t.cats.indexOf(k)<0)return;if(k==='praev'){o.push('zusatz:as','zusatz:schulter')}else if(k==='zusatz'){o.push('zusatz:hand')}else o.push(k)});return o}
 function registerType(t){
- TYPES[t.id]={name:t.name,sub:'Eigene Trainingsart · '+typeCats(t).map(function(c){return SLOT[c].l}).join(' · '),icon:'dumbbell',custom:true};
+ TYPES[t.id]={name:t.name,sub:'Eigene Trainingsart · '+UCATS.filter(function(k){return t.cats.indexOf(k)>-1}).map(ukLabel).join(' · '),icon:'dumbbell',custom:true};
  TPL[t.id]={name:t.name,slots:typeCats(t),type:t.id};
 }
 function unregisterType(t){delete TYPES[t.id];delete TPL[t.id]}
@@ -382,7 +387,7 @@ var KALIAS={assist:'rumpf',haltung:'aufr',huefte:'aufr',mobil:'aufr',aufricht:'a
 function sgOfEx(x){if(x.sg)return x.sg;var le=LIB.filter(function(e){return e.name===x.name})[0];return le&&le.sg||''}
 function tagKey(x){var c=typeof x==='string'?x:x.cat;if(c==='zusatz'&&typeof x==='object'){var g=sgOfEx(x);if(g==='as'||g==='schulter')return 'praev'}return c}
 function kcls(x){var k=tagKey(x);return KALIAS[k]||k}
-function catLabel(x){var k=tagKey(x);return k==='praev'?'Prävention · Reha':SLOT[k].l}
+function catLabel(x){return ukLabel(tagKey(x))}
 function slotTag(x){return '<span class="ctag k-'+kcls(x)+'">'+catLabel(x)+'</span>'}
 /* Gliederung des Plans im Krafttraining: Vorbereitung, Hauptteil, Ergänzung (Aufrichtung ohne Gliederung) */
 function planSectioned(){return S.plan.some(function(p){return partOf(p)==='haupt'})}
@@ -674,16 +679,27 @@ function bindCharts(){
 }
 
 function libList(){
- var q=S.lib.q.toLowerCase(),items=LIB.filter(function(e){return (S.lib.cat==='alle'||e.cat===S.lib.cat)&&(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1});
+ var q=S.lib.q.toLowerCase(),items=LIB.filter(function(e){return (S.lib.cat==='alle'||tagKey(e)===S.lib.cat)&&(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1});
  if(!items.length)return '<div class="group"><div class="lrow"><span class="txt"><b>Keine Treffer</b><small>Lege die Übung neu an, sie ist danach sofort im Generator.</small></span></div></div>';
- return '<div class="group">'+items.map(function(e){
-  return '<button class="lrow" data-act="open" data-n="'+esc(e.name)+'"><span class="txt">'+slotTag(e)+'<b>'+esc(e.name)+'</b><small>'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+'</small></span><span class="m">'+[['image','image'],['video','video'],['link','link']].map(function(t){var c=mediaCount(e.name,t[0]);return c?'<span>'+ic(t[1],14)+c+'</span>':''}).join('')+'</span><span class="num mut" style="font-size:18px;min-width:26px;text-align:right">'+usesOf(e.name)+'×</span></button>'}).join('')+'</div>';
+ /* gleiche Gliederung wie im Plan: Vorbereitung, Hauptteil auf getönter Fläche, Ergänzung */
+ var out='',nSec=0,row=function(e){
+  return '<div class="item k-'+kcls(e)+'"><button class="lrow" data-act="open" data-n="'+esc(e.name)+'"><span class="txt">'+slotTag(e)+'<b>'+esc(e.name)+'</b><small>'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+'</small></span><span class="m">'+[['image','image'],['video','video'],['link','link']].map(function(t){var c=mediaCount(e.name,t[0]);return c?'<span>'+ic(t[1],14)+c+'</span>':''}).join('')+'</span><span class="num mut" style="font-size:18px;min-width:26px;text-align:right">'+usesOf(e.name)+'×</span></button></div>'};
+ UGROUPS.forEach(function(g,gi){
+  var l=items.filter(function(e){return ukPart(tagKey(e))===gi}).map(function(e,i){return {e:e,i:i,k:UCATS.indexOf(tagKey(e))}}).sort(function(a,b){return a.k-b.k||a.i-b.i}).map(function(x){return x.e});
+  if(!l.length)return;nSec++;
+  var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+g[0]+'</b><span class="hr"></span><small>'+l.length+' Übungen</small></div>';
+  out+=(gi===1?'<div class="blk">':'')+h+'<div class="group">'+l.map(row).join('')+'</div>'+(gi===1?'</div>':'')});
+ return out;
+}
+function libChips(){
+ return '<div class="fchips" style="margin-bottom:6px"><button class="chip" data-act="libcat" data-c="alle" aria-pressed="'+(S.lib.cat==='alle')+'">Alle</button></div>'+
+  UGROUPS.map(function(g){return '<div class="fgrp"><span class="fl">'+g[0]+'</span>'+g[1].map(function(k){return '<button class="fchip k-'+kcls(k)+'" data-act="libcat" data-c="'+k+'" aria-pressed="'+(S.lib.cat===k)+'">'+ukLabel(k)+'</button>'}).join('')+'</div>'}).join('');
 }
 function sLib(){
  var cats=['alle'].concat(ORDER);
  return '<div class="pad"><h1 class="h1">Bibliothek</h1><p class="sub">'+LIB.length+' Übungen · wächst mit dir</p>'+
  '<label class="search">'+ic('search',18)+'<input id="libq" type="search" placeholder="Übung suchen" value="'+esc(S.lib.q)+'" aria-label="Übung suchen"></label>'+
- '<div class="fchips">'+cats.map(function(c){return '<button class="chip" data-act="libcat" data-c="'+c+'" aria-pressed="'+(S.lib.cat===c)+'">'+(c==='alle'?'Alle':'<i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l)+'</button>'}).join('')+'</div>'+
+ libChips()+
  '<div id="liblist">'+libList()+'</div></div>'+
  '<div class="cta" style="justify-content:flex-end"><button class="btn primary" style="height:56px;border-radius:18px;padding:0 20px" data-act="go" data-s="wizard">'+ic('plus',20)+'Neue Übung</button></div>';
 }
@@ -715,6 +731,8 @@ function pendingList(){
  var p=S.wiz.pending||[];
  return p.length?'<div class="chips" style="margin-top:8px">'+p.map(function(m,i){return '<span class="chip">'+ic(m.type==='link'?'link':(m.type==='video'?'video':'image'),14)+esc(m.title||m.url||'Medium')+'<button data-act="wzdelp" data-i="'+i+'" aria-label="Entfernen" style="background:none;border:0;padding:0;margin-left:4px;line-height:0">'+ic('close',14)+'</button></span>'}).join('')+'</div>':'';
 }
+/* Untergruppen im Assistenten: Prehab nur Achillessehne oder Schulter, Spezial mit oder ohne Handstand */
+function sgListFor(w){var k=tagKey({cat:w.cat,sg:w.sg,name:''});if(k==='praev')return ['as','schulter'];if(w.cat==='zusatz')return ['','hand'];return SG_OF[w.cat]?[''].concat(SG_OF[w.cat]):null}
 function sWizard(){
  var w=S.wiz,ctx=S.wizCtx||{mode:'lib'},time=w.meas==='time',ta='height:auto;padding:12px 14px;line-height:1.4;font-weight:500;font-size:15px';
  var edit=ctx.mode==='edit',ttl=edit?'Übung bearbeiten':(ctx.mode==='replace'?'Übung ersetzen':(ctx.mode==='add'?'Übung hinzufügen':'Neue Übung'));
@@ -724,8 +742,8 @@ function sWizard(){
  '<div class="q"><small>Name</small><input class="inp" id="wizname" value="'+esc(w.name)+'" aria-label="Name der Übung"></div>'+
  '<div class="q"><small>Englischer Name</small><input class="inp" id="wizen" value="'+esc(w.en)+'" placeholder="English name" aria-label="Englischer Name" autocomplete="off"></div>'+
  (edit?'':'<div class="hint">'+ic('info',18)+'<span>'+S.wizHint+' Ändere die Antworten unten, falls es nicht passt.</span></div>')+
- '<div class="q"><small>Bewegungsmuster</small><div class="chips">'+ORDER.map(function(c){return '<button class="chip" data-act="wz" data-f="cat" data-v="'+c+'" aria-pressed="'+(w.cat===c)+'"><i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l+'</button>'}).join('')+'</div></div>'+
- (SG_OF[w.cat]?'<div class="q"><small>Gruppe</small>'+chipsFor('sg',[''].concat(SG_OF[w.cat]),['Keine Angabe'].concat(SG_OF[w.cat].map(function(g){return SG[g]})))+'</div>':'')+
+ '<div class="q"><small>Bewegungsmuster</small>'+UGROUPS.map(function(g){return '<div class="fgrp"><span class="fl">'+g[0]+'</span>'+g[1].map(function(c){return '<button class="fchip k-'+kcls(c)+'" data-act="wz" data-f="cat" data-v="'+c+'" aria-pressed="'+(tagKey({cat:w.cat,sg:w.sg,name:''})===c)+'">'+ukLabel(c)+'</button>'}).join('')+'</div>'}).join('')+'</div>'+
+ (sgListFor(w)?'<div class="q"><small>Gruppe</small>'+chipsFor('sg',sgListFor(w),sgListFor(w).map(function(g){return g?SG[g]:'Keine Angabe'}))+'</div>':'')+
  ((w.cat==='push'||w.cat==='pull')?'<div class="q"><small>Richtung</small>'+chipsFor('dir',['horizontal','schräg-vertikal','vertikal'],['Horizontal','Schräg','Vertikal'])+'</div>':'')+
  '<div class="q"><small>Seiten</small>'+chipsFor('side',['bilateral','unilateral'],['Beidseitig','Einseitig'])+'</div>'+
  '<div class="q"><small>Komplexität</small>'+chipsFor('cx',['komplex','isoliert'],['Mehrgelenkig','Isoliert'])+'</div>'+
@@ -772,7 +790,7 @@ function sTypes(){
   if(ct){
    out+='<div class="q" style="margin:10px 0"><small>Name der Trainingsart</small><input class="inp" id="typename" value="'+esc(ct.name)+'" aria-label="Name der Trainingsart"></div>'+
    '<div class="q" style="margin-bottom:10px"><small>Oberkategorie</small><div class="chips">'+['kraft','mikro'].map(function(g){return '<button class="chip" data-act="tggroup" data-g="'+g+'" aria-pressed="'+((ct.group||'kraft')===g)+'">'+TAG[g].name+'</button>'}).join('')+'</div></div>'+
-   '<div class="q"><small>Bewegungsmuster in der Einheit</small><div class="chips">'+ORDER.map(function(c){return '<button class="chip" data-act="tgcat" data-c="'+c+'" aria-pressed="'+(ct.cats.indexOf(c)>-1)+'"><i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l+'</button>'}).join('')+'</div></div>'+
+   '<div class="q"><small>Bewegungsmuster in der Einheit</small>'+UGROUPS.map(function(g){return '<div class="fgrp"><span class="fl">'+g[0]+'</span>'+g[1].map(function(c){return '<button class="fchip k-'+kcls(c)+'" data-act="tgcat" data-c="'+c+'" aria-pressed="'+(ct.cats.indexOf(c)>-1)+'">'+ukLabel(c)+'</button>'}).join('')+'</div>'}).join('')+'</div>'+
    '<p class="mut" style="margin:0 0 10px;font-size:13px">Jedes gewählte Muster ergibt eine Übung im Tagesplan, aus deiner Bibliothek ausgewählt nach Ort und Equipment. Änderungen gelten ab dem nächsten Plan.</p>';
   }else{
    out+='<div class="card" style="margin:10px 0"><h3>'+esc(ed.name)+'</h3><p class="cap" style="margin:0">'+TAG[ed.group].sub+'. Einheiten: '+ed.tpls.map(function(k){return esc(TPL[k].name)}).join(', ')+'.</p></div>';
@@ -1004,11 +1022,11 @@ function sheetExtra(sh){
 /* Übungen hinzufügen oder ersetzen: Suche, Neu-Anlegen direkt daneben, die Bibliothek nach Oberkategorien eingeklappt */
 function exListHtml(sh){
  var replace=sh.type==='pick',cur=replace?S.plan[sh.i]:null,names=S.plan.map(function(x){return x.name}).filter(function(n){return !cur||n!==cur.name}),q=(sh.q||'').toLowerCase().trim(),out='',any=false;
- ORDER.forEach(function(c){
-  var items=LIB.filter(function(e){return e.cat===c&&names.indexOf(e.name)<0&&eqOk(e)&&(!q||(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1||(e.sub||'').toLowerCase().indexOf(q)>-1||(e.sg&&SG[e.sg].toLowerCase().indexOf(q)>-1))});
+ UCATS.forEach(function(c){
+  var items=LIB.filter(function(e){return tagKey(e)===c&&names.indexOf(e.name)<0&&eqOk(e)&&(!q||(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1||(e.sub||'').toLowerCase().indexOf(q)>-1||(e.sg&&SG[e.sg].toLowerCase().indexOf(q)>-1))});
   if(!items.length)return;any=true;
-  var open=q?true:(sh.open?!!sh.open[c]:(replace&&cur.cat===c));
-  out+='<div class="xgrp"><button class="xhead" data-act="exgrp" data-c="'+c+'" aria-expanded="'+open+'"><i class="dot" style="--c:var('+SLOT[c].c+')"></i><b>'+SLOT[c].l+'</b><span class="mut">'+items.length+'</span>'+ic(open?'chevd':'next',16)+'</button>'+
+  var open=q?true:(sh.open?!!sh.open[c]:(replace&&tagKey(cur)===c));
+  out+='<div class="xgrp"><button class="xhead k-'+kcls(c)+'" data-act="exgrp" data-c="'+c+'" aria-expanded="'+open+'"><b>'+ukLabel(c)+'</b><span class="mut">'+items.length+'</span>'+ic(open?'chevd':'next',16)+'</button>'+
    (open?'<div class="group" style="margin-bottom:8px">'+items.map(function(e){return '<div class="xrow2"><button class="lrow" data-act="'+(replace?'pickdo':'adddo')+'" data-i="'+(replace?sh.i:'')+'" data-n="'+esc(e.name)+'"><span class="txt"><b>'+esc(e.name)+'</b><small>'+esc((e.sg?SG[e.sg]+' · ':'')+(e.sub&&!(e.sg&&e.sub.indexOf(SG[e.sg])===0)?e.sub+' · ':'')+eqLabel(e))+'</small></span>'+ic('plus',18)+'</button><button class="iconbtn sm" data-act="editex" data-n="'+esc(e.name)+'" aria-label="'+esc(e.name)+' bearbeiten">'+ic('edit',18)+'</button><button class="iconbtn sm" data-act="delcat" data-n="'+esc(e.name)+'" aria-label="'+esc(e.name)+' aus dem Katalog löschen">'+ic('trash',18)+'</button></div>'}).join('')+'</div>':'')+'</div>';
  });
  if(!any)out='<div class="hint">'+ic('info',18)+'<span>'+(q?'Keine Treffer für „'+esc(sh.q)+'“. Lege die Übung mit „Neu“ selbst an.':'Keine passende Übung am Ort gefunden.')+'</span></div>';
@@ -1204,7 +1222,7 @@ document.addEventListener('click',function(e){
   case 'del':{snap();var gone=S.plan.splice(+d.i,1)[0];S.exp=-1;S.sheet=null;relabel();toast(gone.name+' gestrichen',true);if(S.screen==='train')go('heute');else render();break}
   case 'sheet':S.sheet={type:d.s,q:'',open:null};render();break;
   case 'sheetclose':stopTimers();stopRec();S.sheet=null;render();break;
-  case 'exgrp':{if(!S.sheet)break;var og=S.sheet.open;if(!og){og={};var cur0=S.sheet.type==='pick'?S.plan[S.sheet.i]:null;if(cur0)og[cur0.cat]=true}og[d.c]=!og[d.c];S.sheet.open=og;render();break}
+  case 'exgrp':{if(!S.sheet)break;var og=S.sheet.open;if(!og){og={};var cur0=S.sheet.type==='pick'?S.plan[S.sheet.i]:null;if(cur0)og[tagKey(cur0)]=true}og[d.c]=!og[d.c];S.sheet.open=og;render();break}
   case 'adddo':{var le=LIB.filter(function(x){return x.name===d.n})[0],pe=exFromLib(d.n),curN=S.screen==='train'&&!S.tr.over?S.plan[S.tr.i]:null;snap();
    S.plan.splice(insertPos(le.cat),0,planItem(pe,le.cat,''));relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;toast(le.name+' zum Plan hinzugefügt',true);render();break}
   case 'enter':enterTrain(+d.i);break;
@@ -1268,7 +1286,7 @@ document.addEventListener('click',function(e){
   case 'tbl':S.stats.table=!S.stats.table;render();break;
   case 'libcat':S.lib.cat=d.c;render();break;
   case 'open':go('detail',{n:d.n});break;
-  case 'wz':{var wq0=S.wiz;wq0[d.f]=d.v;if(d.f==='cat'){if((SG_OF[d.v]||[]).indexOf(wq0.sg)<0)wq0.sg='';wizDefaults(wq0)}if(d.f==='meas')wq0.repsTxt=d.v==='time'?'45':'8';render();break}
+  case 'wz':{var wq0=S.wiz;wq0[d.f]=d.v;if(d.f==='cat'){if(d.v==='praev'){wq0.cat='zusatz';wq0[d.f]='zusatz';if(['as','schulter'].indexOf(wq0.sg)<0)wq0.sg='as'}else if(d.v==='zusatz'){wq0.cat='zusatz';if(wq0.sg==='as'||wq0.sg==='schulter')wq0.sg='hand'}else if((SG_OF[d.v]||[]).indexOf(wq0.sg)<0)wq0.sg='';wizDefaults(wq0)}if(d.f==='meas')wq0.repsTxt=d.v==='time'?'45':'8';render();break}
   case 'wzn':S.wiz[d.f]=+d.v;render();break;
   case 'wzeq':{var wq=S.wiz,ix=wq.eqs.indexOf(d.v);if(ix>-1){if(wq.eqs.length>1)wq.eqs.splice(ix,1)}else wq.eqs.push(d.v);wq.eq=wq.eqs[0];if(wq.eqs.indexOf('Maschine')<0&&wq.eqs.indexOf('Cardio')<0)wq.machine='';render();break}
   case 'wzboth':S.wiz.both=d.v==='1';render();break;

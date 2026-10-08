@@ -416,3 +416,13 @@ body{padding:0;background:var(--app)}
 .restbn .rsub{display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--inv) 25%,transparent);font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.9}
 .restbn .rsub b{font:700 22px/1 var(--font-d);letter-spacing:0;font-variant-numeric:tabular-nums}
 .cta .fab:only-child{margin-left:auto}
+
+/* Bibliothek, Assistent und Trainingsarten: Bereiche als getönte Chips in den Farben des Plans, Auswahl kräftig gefüllt */
+.fgrp{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.fgrp .fl{flex-basis:100%;font:700 10.5px/1 var(--font-b);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.fchip{border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:var(--cb);color:var(--ct);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.fchip[aria-pressed="true"]{background:var(--cband);border-color:var(--cband);color:var(--con)}
+.item .lrow{padding-left:21px}
+.blk .item .lrow{padding:16px 16px 16px 24px}
+.blk .item .lrow b{font-size:17px}
+.xhead[class*=" k-"]{box-shadow:inset 7px 0 0 var(--c);padding-left:21px}
