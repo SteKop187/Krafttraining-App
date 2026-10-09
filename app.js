@@ -950,7 +950,7 @@ function sStart(){
   /* eingerichtet: Vorschau (Plan ansehen und ändern) und Training starten */
   out+='<div class="card hero"><span class="state">'+ic('check',13)+'Eingerichtet</span><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(TPL[S.tpl]?TPL[S.tpl].name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+S.plan.length+' Übungen · ca. '+planMinutes()+' min</p>'+
   '<div class="row2"><button class="btn big" style="flex:1" data-act="startplan">Vorschau</button><button class="btn primary big" style="flex:1.2" data-act="start">'+ic('play',18)+'Training starten</button></div>'+
-  '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="setup">Neu einrichten</button></div></div>';
+  '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="resetupask">Neu einrichten</button></div></div>';
   return out;
  }
  out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">Noch nicht eingerichtet</h3><p class="cap">Wähle Ort, Trainingsart und Bestandteile, dann siehst du den Plan.</p>'+
@@ -1134,7 +1134,7 @@ function exSheet(sh){
 /* Menü der laufenden Übung: ersetzen, würfeln, verschieben, streichen, hinzufügen, Training abschließen */
 /* Rückfrage vor Abbruch und Abschluss des Trainings */
 function confirmSheet(sh){
- if(sh.k==='stop')return '<h3>Training abbrechen?</h3><p>Das Training endet ohne Zusammenfassung. Bereits geloggte Sätze bleiben im Verlauf gespeichert.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, weiter trainieren</button><button class="btn primary" style="flex:1" data-act="confirmstop">Ja, abbrechen</button></div>';
+ if(sh.k==='resetup')return '<h3>Wirklich neu einrichten?</h3><p>Der eingerichtete Plan wird verworfen, und du stellst das nächste Training neu zusammen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Abbrechen</button><button class="btn primary" style="flex:1" data-act="setup">Ja, neu einrichten</button></div>'; '<h3>Training abbrechen?</h3><p>Das Training endet ohne Zusammenfassung. Bereits geloggte Sätze bleiben im Verlauf gespeichert.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, weiter trainieren</button><button class="btn primary" style="flex:1" data-act="confirmstop">Ja, abbrechen</button></div>';
  return '<h3>Training abschließen?</h3><p>Alle geloggten Sätze werden gespeichert und du siehst die Zusammenfassung. Offene Übungen und Sätze bleiben offen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, zurück</button><button class="btn primary" style="flex:1" data-act="confirmfinish">Ja, abschließen</button></div>';
 }
 function exMenu(){
@@ -1374,6 +1374,7 @@ document.addEventListener('click',function(e){
   case 'livepause':{if(!isLive())break;var Lv=S.live;if(Lv.pausedAt){var pd=Date.now()-Lv.pausedAt;Lv.start+=pd;if(Lv.last)Lv.last+=pd;Lv.pausedAt=0}else Lv.pausedAt=Date.now();saveLocs();render();break}
   /* Training abbrechen: zweiter Tipp bestätigt, geloggte Sätze bleiben im Verlauf */
   /* Stopp und Häkchen fragen erst nach; mit „Nein“ geht das Training unverändert weiter */
+  case 'resetupask':{S.sheet={type:'confirm',k:'resetup'};render();break}
   case 'livestop':{if(!isLive())break;S.sheet={type:'confirm',k:'stop'};render();break}
   case 'confirmstop':{S.sheet=null;S.live=null;S.planReady=false;endRest();stopTimers();saveLocs();toast('Training abgebrochen. Bereits geloggte Sätze bleiben gespeichert.');go('heute');break}
   case 'finish':{S.sheet={type:'confirm',k:'finish'};render();break}

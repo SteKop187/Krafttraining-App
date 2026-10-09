@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.16.3
+- **Neu einrichten mit Rückfrage:** Ist das nächste Training eingerichtet, fragt „Neu einrichten“ auf der Startseite erst nach („Wirklich neu einrichten?“). Mit „Abbrechen“ bleibt der eingerichtete Plan unverändert.
+
 ## Neu in 3.16.2
 - **Bibliothek übersichtlicher:** Die Bereiche (Erwärmung, Schnell, Squat, Drücken usw.) stehen zuerst nur als Oberbegriff mit der Zahl der Übungen da; die Übungen klappen erst beim Antippen auf, wie beim Ersetzen in der Trainingsplanung. Bei einer Suche oder einem gewählten Filter sind die passenden Bereiche gleich offen.
 
