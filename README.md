@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.15.1
+- **Einrichten:** Der Griff zum Verschieben in der Plan-Vorschau hat jetzt Abstand zum Bildschirmrand, damit die Rückwärtsgeste von Android das Ziehen nicht abfängt.
+
 ## Neu in 3.15.0
 - **Übungskatalog („Übung hinzufügen“ und „Ersetzen“) im Layout des Plans:** Die Gruppen stehen unter 1 Vorbereitung, 2 Hauptteil (auf getönter Fläche mit Linie vor Squat und nach Ziehen) und 3 Ergänzung, dazu Aufrichtung.
 - **Verschieben per Ziehen neu gebaut:** Der Griff mit den zwei Strichen reagiert jetzt auf Touch (Handy) und Maus. Die gegriffene Übung folgt dem Finger, die anderen weichen aus; losgelassen rutscht sie an die neue Stelle, nur innerhalb ihres Teils.
