@@ -422,16 +422,16 @@ function partOf(p){var c=p.cat;return (c==='warm'||c==='schnell')?'vor':((c==='s
 
 /* Training läuft: die Übersicht bleibt die Basis, der Timer läuft weiter, wenn man zwischen Übungen wechselt */
 function isLive(){return !!(S.live&&S.live.date===todayStr())}
-function startLive(){if(!isLive()){S.live={start:Date.now(),date:todayStr(),last:0};saveLocs()}ensureTick()}
+function startLive(){if(!isLive()){S.live={start:Date.now(),t0:Date.now(),date:todayStr(),last:0};saveLocs()}ensureTick()}
 /* Timer oben: Gesamtdauer des Trainings (läuft ab der ersten Übung bis „Training beenden“) und, daneben, die Zeit seit dem letzten Satz (zählt hoch, kein Countdown) */
 function nowT(){return isLive()&&S.live.pausedAt?S.live.pausedAt:Date.now()}
-function sinceLast(){return isLive()&&S.live.last?Math.max(0,Math.floor((Date.now()-S.live.last)/1000)):-1}
+function sinceLast(){return isLive()?Math.max(0,Math.floor((Date.now()-(S.live.last||S.live.t0||S.live.start))/1000)):-1}
 function totalSec(){return isLive()?Math.max(0,Math.floor((nowT()-S.live.start)/1000)):-1}
 function hms(s){var h=Math.floor(s/3600);return h?h+':'+(Math.floor(s/60)%60<10?'0':'')+Math.floor(s/60)%60+':'+(s%60<10?'0':'')+s%60:mmss(s)}
 function restBanner(){
  var t=totalSec(),s=sinceLast();if(t<0)return '';
  var pz=!!S.live.pausedAt;
- return '<div class="restbn'+(pz?' paused':'')+'" role="timer"><div class="rtop"><div class="rl"><div class="rt"><small>Gesamt'+(pz?' · pausiert':'')+'</small><b id="totn">'+hms(t)+'</b></div>'+(s>=0?'<div class="rt sm"><small>Seit letztem Satz</small><b id="restn">'+mmss(s)+'</b></div>':'')+'</div>'+
+ return '<div class="restbn'+(pz?' paused':'')+'" role="timer"><div class="rtop"><div class="rl"><div class="rt big"><small>'+(S.live.last?'Seit letztem Satz':'Seit Start')+'</small><b id="restn">'+mmss(s)+'</b></div><div class="rt sm"><small>Gesamt'+(pz?' · pausiert':'')+'</small><b id="totn">'+hms(t)+'</b></div></div>'+
   '<div class="rctl"><button class="ib" data-act="livepause" aria-label="'+(pz?'Fortsetzen':'Pause')+'">'+ic(pz?'play':'pause',20)+'</button><button class="ib'+(S.confirmStop?' arm':'')+'" data-act="livestop" aria-label="Training abbrechen">'+ic('stop',20)+'</button><button class="ib" data-act="finish" aria-label="Training abschließen">'+ic('check',20)+'</button></div></div></div>';
 }
 function ensureTick(){if(!S.rtmr)S.rtmr=setInterval(restTick,1000)}

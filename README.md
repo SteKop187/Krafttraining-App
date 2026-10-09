@@ -44,6 +44,10 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.17.3
+- **Zeitbalken oben fixiert:** Beim Training bleibt der Balken oben sichtbar, auch wenn du im Plan oder in der Übungsauswahl nach unten scrollst.
+- **Wichtigste Zahl zuerst:** Die Zeit seit dem letzten Satz steht groß im Balken (vor dem ersten Satz als „Seit Start“), die Gesamttrainingszeit klein daneben.
+
 ## Neu in 3.17.2
 - **Pause betrifft nur die Gesamtzeit:** Drückst du Pause, hält die Gesamttrainingszeit an; die Zeit „Seit letztem Satz“ läuft unabhängig davon weiter.
 

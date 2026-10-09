@@ -567,3 +567,13 @@ body{padding:0;background:var(--app)}
 /* Cardio-Timer: Fortschrittsbalken bis zur Zielzeit */
 .tprog{height:8px;border-radius:4px;background:var(--surface-2);margin-top:10px;overflow:hidden}
 .tprog i{display:block;height:100%;background:var(--ink);border-radius:4px;transition:width .25s linear}
+
+/* Zeitbalken oben fixiert: Zeit seit letztem Satz groß, Gesamtzeit klein */
+.restbn{position:sticky;top:6px;z-index:4;overflow:visible;box-shadow:0 8px 18px rgba(0,0,0,.28)}
+.restbn .rl{gap:12px}
+.restbn .rt.big small{font-size:10px;letter-spacing:.04em;max-width:none;white-space:nowrap}
+.restbn .rt.big b{font-size:42px;opacity:1}
+.restbn .rt.sm small{font-size:9.5px;max-width:64px}
+.restbn .rt.sm b{font-size:20px}
+.restbn.paused .rt b{opacity:1}
+.restbn.paused .rt.sm b{opacity:.55}
