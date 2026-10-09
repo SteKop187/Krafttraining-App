@@ -730,8 +730,12 @@ function libList(){
  UGROUPS.forEach(function(g,gi){
   var l=items.filter(function(e){return ukPart(tagKey(e))===gi}).map(function(e,i){return {e:e,i:i,k:UCATS.indexOf(tagKey(e))}}).sort(function(a,b){return a.k-b.k||a.i-b.i}).map(function(x){return x.e});
   if(!l.length)return;nSec++;
-  var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+g[0]+'</b><span class="hr"></span><small>'+l.length+' Übungen</small></div>';
-  out+=(gi===1?'<div class="blk">':'')+h+'<div class="group">'+l.map(row).join('')+'</div>'+(gi===1?'</div>':'')});
+  var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+g[0]+'</b><span class="hr"></span><small>'+l.length+' Übungen</small></div>',inner='';
+  /* jeder Bereich zuerst nur als Oberbegriff, die Übungen klappen beim Antippen auf (bei Suche oder gewähltem Filter offen) */
+  g[1].forEach(function(c){var lc=l.filter(function(e){return tagKey(e)===c});if(!lc.length)return;
+   var open=!!q||S.lib.cat===c||!!(S.libOpen&&S.libOpen[c]);
+   inner+='<div class="xgrp"><button class="xhead k-'+kcls(c)+'" data-act="libgrp" data-c="'+c+'" aria-expanded="'+open+'"><b>'+ukLabel(c)+'</b><span class="mut">'+lc.length+'</span>'+ic(open?'chevd':'next',16)+'</button>'+(open?'<div class="group" style="margin-bottom:8px">'+lc.map(row).join('')+'</div>':'')+'</div>'});
+  out+=(gi===1?'<div class="blk">':'')+h+inner+(gi===1?'</div>':'')});
  return out;
 }
 function libChips(){
@@ -1427,6 +1431,7 @@ document.addEventListener('click',function(e){
   case 'selex':S.stats.ex=d.n;render();break;
   case 'tbl':S.stats.table=!S.stats.table;render();break;
   case 'libcat':S.lib.cat=d.c;render();break;
+  case 'libgrp':S.libOpen=S.libOpen||{};S.libOpen[d.c]=!S.libOpen[d.c];render();break;
   case 'open':go('detail',{n:d.n});break;
   case 'wz':{var wq0=S.wiz;wq0[d.f]=d.v;if(d.f==='cat'){if(d.v==='praev'){wq0.cat='zusatz';wq0[d.f]='zusatz';if(['as','schulter'].indexOf(wq0.sg)<0)wq0.sg='as'}else if(d.v==='zusatz'){wq0.cat='zusatz';if(wq0.sg==='as'||wq0.sg==='schulter')wq0.sg='hand'}else if((SG_OF[d.v]||[]).indexOf(wq0.sg)<0)wq0.sg='';wizDefaults(wq0)}if(d.f==='meas')wq0.repsTxt=d.v==='time'?'45':'8';render();break}
   case 'wzn':S.wiz[d.f]=+d.v;render();break;
