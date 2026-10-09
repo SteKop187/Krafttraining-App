@@ -479,7 +479,7 @@ function sHeute(){
  /* Abgeschlossene Übungen sind unter einem Punkt gesammelt, nur offene stehen in der Liste */
  if(doneL){
   out+='<button class="donebtn" data-act="toggledone" aria-expanded="'+S.showDone+'"><span class="ck">'+ic('check',16)+'</span><span class="txt"><b>Abgeschlossen · '+doneL+(doneL===1?' Übung':' Übungen')+'</b><small>'+(S.showDone?'Tippen zum Einklappen':'Tippen zum Anzeigen')+'</small></span>'+ic(S.showDone?'chevd':'next',16)+'</button>';
-  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt"><b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button>':''}).join('')+'</div>';
+  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<div class="item k-'+kcls(p)+'"><button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button></div>':''}).join('')+'</div>';
  }
  out+='<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>'+
  '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button>'+(tplCount()>1?'<button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Variante wechseln</button>':'')+'</div>'+
