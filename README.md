@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.17.5
+- **Gliederung auch in Rückschau und Abschluss:** Die Rückschau auf das letzte Training und der Abschluss-Bildschirm teilen die Übungen wie der Plan in Vorbereitung, Hauptteil (mit dicken Linien) und Ergänzung ein. Im Abschluss stehen dazu alle Übungen mit Farbstreifen und Bereichs-Schild in einer Liste; nicht gemachte Übungen sind als „nicht gemacht“ vermerkt.
+
 ## Neu in 3.17.4
 - **Abgeschlossene Übungen mit Farbe:** In der aufgeklappten Liste „Abgeschlossen“ stehen wieder der farbige Streifen und das Bereichs-Schild (Squat, Hinge, Prehab usw.) vor jeder Übung.
 

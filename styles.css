@@ -577,3 +577,10 @@ body{padding:0;background:var(--app)}
 .restbn .rt.sm b{font-size:20px}
 .restbn.paused .rt b{opacity:1}
 .restbn.paused .rt.sm b{opacity:.55}
+
+/* Rückschau und Abschluss: gleiche Gliederung wie im Plan */
+.item .logrow{padding-left:21px;gap:10px}
+.blk .item .logrow{padding:14px 16px 14px 24px}
+.blk .item .logrow b{font-size:16px}
+.item .logrow .txt{display:flex;flex-direction:column;min-width:0}
+.blk .rcard{background:var(--surface)}

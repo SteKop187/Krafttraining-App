@@ -980,7 +980,7 @@ function sRueck(){
  out+='<div class="eyebrow">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</div><h1 class="h1">'+esc(nm)+'</h1>'+
   '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
   '<div class="chips"><span class="chip">'+ic('up',14)+'Mehr '+ls.cnt.m+'</span><span class="chip">'+ic('eq',14)+'Passt '+ls.cnt.p+'</span><span class="chip">'+ic('down',14)+'Weniger '+ls.cnt.w+'</span></div></div>';
- ls.list.forEach(function(e){
+ out+=sectList(ls.list,function(e){var out='';
   var warm=e.cat==='warm',on=!!open[e.name],n=e.sl.length;
   out+='<div class="card rcard k-'+kcls(e)+'"><button class="rhead" data-act="rtoggle" data-n="'+esc(e.name)+'" aria-expanded="'+(warm?'true':on)+'"'+(warm?' disabled':'')+'><span class="rtx">'+slotTag(e)+'<h3>'+esc(e.name)+'</h3></span><span class="rn">'+n+(n===1?' Satz':' Sätze')+'</span>'+(warm?'':ic(on?'chevd':'next',16))+'</button>';
   if(warm){
@@ -996,7 +996,7 @@ function sRueck(){
     var v=h.sec?fmtSec(h.sec):fmt(h.kg)+' kg × '+h.reps+(h.rir!=null?' · '+h.rir+' RIR':'');
     return '<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+v+'</span><span class="ic">'+ic(h.r==='m'?'up':(h.r==='w'?'down':'eq'),18)+'</span></div>'}).join('')+'</div>';
   }
-  out+='</div>'});
+  out+='</div>';return out},false);
  return out+'</div>';
 }
 var SCREENS={start:sStart,rueck:sRueck,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};
@@ -1168,14 +1168,29 @@ function exMenu(){
   row('up','Nach oben','mv','data-i="'+i+'" data-d="-1"',moveTarget(i,-1)<0)+row('down','Nach unten','mv','data-i="'+i+'" data-d="1"',moveTarget(i,1)<0)+
   row('plus','Übung hinzufügen','sheet','data-s="add"')+row('edit','Bearbeiten','editex','data-n="'+esc(ex.name)+'" data-i="'+i+'"')+row('trash','Übung streichen','del','data-i="'+i+'"')+(isLive()?'':row('check','Training abschließen','finish',''))+'</div>';
 }
-function sSummary(){
- var done=[],open=[],sets=0,ton=0;
+/* Gliederung wie im Plan (Vorbereitung, Hauptteil mit dicken Linien, Ergänzung) für Rückschau und Abschluss; ohne Hauptübungen bleibt es eine einfache Liste */
+function sectList(items,rowFn,grouped){
+ var rank={vor:0,haupt:1,'':1,erg:2},ttl={vor:'Vorbereitung',haupt:'Hauptteil',erg:'Ergänzung'},cnt={},out='',cur=null,n=0;
+ var list=items.map(function(x,i){return {x:x,i:i,k:partOf(x)}}),g0=grouped?'<div class="group">':'',g1=grouped?'</div>':'';
+ if(!list.some(function(o){return o.k==='haupt'}))return g0+items.map(rowFn).join('')+g1;
+ list.sort(function(a,b){return rank[a.k]-rank[b.k]||a.i-b.i});
+ list.forEach(function(o){cnt[o.k]=(cnt[o.k]||0)+1});
+ list.forEach(function(o){
+  if(o.k!==cur){
+   if(cur!==null)out+=g1+(cur==='haupt'?'</div>':'');
+   if(o.k==='')out+=g0;
+   else{n++;out+=(o.k==='haupt'?'<div class="blk">':'')+'<div class="psec"><span class="n">'+n+'</span><b>'+ttl[o.k]+'</b><span class="hr"></span><small>'+cnt[o.k]+(cnt[o.k]===1?' Übung':' Übungen')+'</small></div>'+g0}
+   cur=o.k}
+  out+=rowFn(o.x)});
+ return out+g1+(cur==='haupt'?'</div>':'');
+}
+function sSummary(){ var done=[],open=[],sets=0,ton=0;
  S.plan.forEach(function(p){var n=setsDone(p);sets+=n;todaySets(p).forEach(function(h){ton+=(h.kg||0)*(h.reps||0)});if(isDone(p))done.push(p);else open.push(p)});
- var row=function(p){return '<div class="logrow"><span><b>'+esc(p.name)+'</b></span><span class="mut">'+esc(progP(p).replace(' · alles erledigt',''))+'</span></div>'};
+ var row=function(p){return '<div class="item k-'+kcls(p)+'"><div class="logrow"><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+'</b></span><span class="mut">'+esc(isDone(p)?progP(p).replace(' · alles erledigt',''):(setsDone(p)?progP(p):'nicht gemacht'))+'</span></div></div>'};
  return '<div class="pad"><div class="eyebrow">Training abgeschlossen</div><h1 class="h1">Gut gemacht</h1><p class="sub">'+esc(TPL[S.tpl].name)+(S.sumDur?' · '+S.sumDur+' min':'')+'</p>'+
   '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+done.length+' von '+S.plan.length+'</b></div><div><small>Sätze</small><b>'+sets+'</b></div>'+(ton>0?'<div><small>Volumen</small><b>'+fmt(ton,0)+' kg</b></div>':'')+'</div></div>'+
-  (done.length?'<div class="sec">Erledigt</div><div class="group">'+done.map(row).join('')+'</div>':'')+
-  (open.length?'<div class="sec">Übersprungen oder offen</div><div class="group">'+open.map(row).join('')+'</div><p class="mut" style="margin:8px 0 0;font-size:12px">Sie bleiben im heutigen Plan. Ein weiteres Training am selben Tag setzt dort fort.</p>':'')+
+  '<div class="sec">Übungen</div>'+sectList(S.plan,row,true)+
+  (open.length?'<p class="mut" style="margin:8px 0 0;font-size:12px">'+open.length+(open.length===1?' Übung bleibt':' Übungen bleiben')+' offen oder übersprungen und im heutigen Plan. Ein weiteres Training am selben Tag setzt dort fort.</p>':'')+
   '<button class="btn primary wide" style="margin-top:14px" data-act="tab" data-t="start">Zum Start</button><button class="btn wide" style="margin-top:8px" data-act="tab" data-t="heute">Zurück zum Plan</button></div>';
 }
 function overlay(){
