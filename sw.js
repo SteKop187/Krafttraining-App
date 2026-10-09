@@ -2,7 +2,7 @@
    Die Versionsnummer kommt aus kt-version.js (eine Änderung dort lädt auf den Geräten die neue Fassung). */
 importScripts('kt-version.js');
 var VERSION = 'krafttraining-v' + self.KT_VERSION;
-var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-version.js', 'kt-i18n.js', 'kt-i18n-data.js', 'kt-voice.js', 'kt-classify.js', 'kt-stats.js', 'kt-media.js', 'manifest.webmanifest',
+var CORE = ['./', 'index.html', 'styles.css', 'app.js', 'kt-version.js', 'kt-i18n.js', 'kt-i18n-data.js', 'kt-info.js', 'kt-voice.js', 'kt-classify.js', 'kt-stats.js', 'kt-media.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {

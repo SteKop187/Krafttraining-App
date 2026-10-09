@@ -466,9 +466,9 @@ body{padding:0;background:var(--app)}
 .tacard.new .tat{flex:none;text-align:center}
 .state{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--font-b);letter-spacing:.07em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);margin-bottom:8px}
 /* Übungen per Griff verschieben */
-.dh{width:42px;border:0;background:none;color:var(--ink-3);display:grid;place-items:center;touch-action:none;cursor:grab;flex:none}
+.dh{width:46px;border:0;background:none;color:var(--ink-3);display:grid;place-items:center;touch-action:none;cursor:grab;flex:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .item.dragging{position:relative;z-index:5;box-shadow:0 12px 26px rgba(0,0,0,.28);background:var(--surface);transition:none}
-.item.dragging *{pointer-events:none}
+.item.dragging{touch-action:none}
 .dragr{display:flex;gap:6px;margin-top:8px}
 .dragr button{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font:700 15px var(--font-b);color:var(--ink)}
 .dragr button[aria-pressed="true"]{background:var(--ink);color:var(--inv);border-color:var(--ink)}

@@ -44,6 +44,12 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.15.0
+- **Übungskatalog („Übung hinzufügen“ und „Ersetzen“) im Layout des Plans:** Die Gruppen stehen unter 1 Vorbereitung, 2 Hauptteil (auf getönter Fläche mit Linie vor Squat und nach Ziehen) und 3 Ergänzung, dazu Aufrichtung.
+- **Verschieben per Ziehen neu gebaut:** Der Griff mit den zwei Strichen reagiert jetzt auf Touch (Handy) und Maus. Die gegriffene Übung folgt dem Finger, die anderen weichen aus; losgelassen rutscht sie an die neue Stelle, nur innerhalb ihres Teils.
+- **Übungsbeschreibung (Info):** Bei jeder Übung gibt es unter den Aktionen die Taste „Info“ (auch im Training als „Beschreibung“ und im Katalog als Symbol). Alle eingebauten Übungen haben eine kurze Beschreibung. Du kannst sie bearbeiten, speichern und auf den Standardtext zurücksetzen.
+- **Neue Übungen:** Im Assistenten gibt es ein Feld „Beschreibung“. Bleibt es leer, sucht die App beim Speichern eine kurze Beschreibung in Wikipedia (deutsch, sonst mit dem englischen Namen). Gefundene Texte sind bearbeitbar und mit der Quelle markiert; wird nichts Passendes gefunden, schreibst du sie selbst. Über „Aus Wikipedia“ und „Im Netz nachschlagen“ kannst du jederzeit neu suchen.
+
 ## Neu in 3.14.0
 - **Cardio-Geräte ohne laufende Uhr:** Bei Ruder-, Ski- und anderen Cardio-Geräten trägst du nur die fertige Zeit (vorbelegt mit 5 min) und die Werte vom Display ein. Bei Ruder- und Skiergometer berechnet die App den Schnitt pro 500 m.
 - **Drag-Faktor als Rädchen:** statt der Zahlen 1 bis 10 drehst du ein kleines Rädchen (Voreinstellung: Wert vom letzten Mal).
