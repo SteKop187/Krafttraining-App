@@ -2,7 +2,7 @@
    Farbe: neutrale kühle Flächen, Tinte als Primärfarbe; Farbe tragen nur die sechs Bewegungsmuster (aus den Workshop-Folien). */
 :root{
   --bg:#E8EBEE; --app:#F5F6F8; --surface:#FFFFFF; --surface-2:#EDEFF2;
-  --ink:#12161C; --ink-2:#48515D; --ink-3:#6E7885; --line:#DCE0E5; --inv:#FFFFFF;
+  --ink:#12161C; --ink-2:#48515D; --ink-3:#5A6470; --line:#DCE0E5; --inv:#FFFFFF;
   --c-schnell:#7E7770; --c-squat:#3F4F86; --c-push:#E2662B; --c-hinge:#4FA0D2; --c-pull:#F2B02B; --c-rumpf:#B9B0AA; --c-aufricht:#2E8F74;
   --shadow:0 1px 2px rgba(18,22,28,.06),0 12px 32px rgba(18,22,28,.10);
   --font-d:'Barlow Condensed','Arial Narrow',sans-serif;
@@ -489,7 +489,7 @@ body{padding:0;background:var(--app)}
 .restbn .rl{display:flex;align-items:flex-end;gap:16px;min-width:0}
 .restbn .rt.sm small{font-size:9.5px;line-height:1.15;max-width:76px}
 .restbn .rt.sm b{font-size:22px;opacity:.92}
-.restbn .ib{width:40px;height:40px}
+.restbn .ib{width:44px;height:44px}
 .restbn .rctl{gap:6px}
 /* Cardio-Eingabe: Zeit in min und s, Drag-Faktor als Rädchen, Belastung als farbige Zahlenreihe */
 .tin2{display:flex;gap:10px;margin-top:6px}
@@ -544,3 +544,23 @@ body{padding:0;background:var(--app)}
 .irow .item-main{padding-left:8px}
 .blk .lcol{margin-left:14px}
 .blk .item-main{padding-left:8px}
+
+/* Design-Prüfung: Tippflächen mindestens 44 px, Zusammenfassungszeilen beim Einrichten, Hilfe-Knopf, Einstieg */
+.dots .dotb{padding:19px 0;margin:-19px 0}
+.seg button{min-height:44px}
+.chip,.fchip{min-height:44px}
+.lcol .dh{height:44px;width:44px}
+.srows{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.srow{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;text-align:left;background:none;border:0;padding:10px 14px;color:var(--ink)}
+.srow+.srow,.sopen+.srow{border-top:1px solid var(--line)}
+.srow .sl{font:700 11px/1 var(--font-b);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);width:92px;flex:none}
+.srow b{flex:1;min-width:0;font-weight:600;font-size:15px}
+.sopen{padding:4px 12px 12px;background:var(--surface-2);border-top:1px solid var(--line)}
+.sopen .group{margin-top:8px}
+.hbtn{display:inline-grid;place-items:center;width:44px;height:44px;margin:-14px -8px -14px 0;border:0;background:none;color:var(--ink-3);font:700 15px var(--font-b);vertical-align:middle}
+.hbtn::before{content:"?";display:grid;place-items:center;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;font-size:12px;line-height:1}
+.hbtn{font-size:0}
+.psec .hbtn{margin:-14px -12px -14px -6px}
+.onb ol{margin:6px 0 12px;padding-left:20px;color:var(--ink-2);font-size:14px;line-height:1.45}
+.onb li{margin-bottom:6px}
+.onb b{color:var(--ink)}

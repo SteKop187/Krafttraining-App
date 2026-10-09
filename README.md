@@ -44,6 +44,17 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.17.0
+Umsetzung der Design-Prüfung (Apple Human Interface Guidelines, Material Design, Nielsens Heuristiken):
+- **Tippflächen:** Alle Knöpfe messen mindestens 44 Pixel (gemessen auf allen Hauptseiten). Der Sprachumschalter wandert aus der Kopfzeile nach Mehr › Einstellungen.
+- **Kontrast:** Die graue Hilfsschrift ist dunkler (4,5:1 und mehr auf allen Flächen).
+- **Einheitliche Begriffe:** „Training“ statt „Einheit“, der Tab „Heute“ heißt jetzt **Plan**, „Einheit wechseln“ heißt „Variante wechseln“ und erscheint nur, wenn es mehrere Varianten gibt.
+- **Einrichten kürzer:** Ort, Trainingsart und Bestandteile stehen als drei Zusammenfassungszeilen da; ein Tipp klappt nur die gewählte Zeile auf. Darunter steht der Plan.
+- **Heute meiden** steht jetzt bei den Bestandteilen beim Einrichten (nicht mehr in den Einstellungen).
+- **Ein Weg zum Abschließen:** Während des Trainings gibt es das Häkchen im Zeitbalken; die doppelten „Training abschließen“-Knöpfe im Plan und im Übungsmenü entfallen. Nach der letzten Übung fragt die App direkt nach dem Abschluss.
+- **Fachbegriffe erklärt:** Ein „?“ an Plan-Aufbau, RIR, RPE und Drag-Faktor öffnet eine kurze Erklärung; alle Begriffe stehen auch unter Mehr › Begriffe.
+- **Einstieg:** Beim ersten Öffnen erklärt eine kurze Karte die drei Schritte Einrichten, Prüfen, Trainieren (mit „Verstanden“ wegklickbar).
+
 ## Neu in 3.16.3
 - **Neu einrichten mit Rückfrage:** Ist das nächste Training eingerichtet, fragt „Neu einrichten“ auf der Startseite erst nach („Wirklich neu einrichten?“). Mit „Abbrechen“ bleibt der eingerichtete Plan unverändert.
 

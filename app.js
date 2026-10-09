@@ -198,13 +198,13 @@ function usesOf(name){var d={};S.hist.forEach(function(h){if(h.name===name)d[h.d
 function mediaCount(name,t){return (S.media[name]||[]).filter(function(m){return m.type===t}).length}
 /* Orte merken: letzter gewählter Ort ist beim nächsten Öffnen Standard (nur in diesem Browser) */
 var LSKEY='krafttraining-app-v1';
-function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
+function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,onb:!!S.onb,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
 function applyData(d){
  if(!d)return;
  if(Array.isArray(d.machines)&&d.machines.length)S.machines=d.machines.filter(function(m){return typeof m==='string'&&m});
  if(Array.isArray(d.cardios)&&d.cardios.length)S.cardios=d.cardios.filter(function(m){return typeof m==='string'&&m});
  if(d.eqPick&&typeof d.eqPick==='object')S.eqPick=d.eqPick;
- if(d.setup&&typeof d.setup==='object'){['cardio','allg','as','hand','schulter','aufr'].forEach(function(k){if(k in d.setup)S.setup[k]=!!d.setup[k]});if(d.focus&&typeof d.focus==='object')S.focus=d.focus;if(d.info&&typeof d.info==='object')S.info=d.info;if(d.infoSrc&&typeof d.infoSrc==='object')S.infoSrc=d.infoSrc;S.planReady=!!d.planReady}
+ if(d.setup&&typeof d.setup==='object'){['cardio','allg','as','hand','schulter','aufr'].forEach(function(k){if(k in d.setup)S.setup[k]=!!d.setup[k]});if(d.focus&&typeof d.focus==='object')S.focus=d.focus;if(d.info&&typeof d.info==='object')S.info=d.info;S.onb=!!d.onb;if(d.infoSrc&&typeof d.infoSrc==='object')S.infoSrc=d.infoSrc;S.planReady=!!d.planReady}
  if(Array.isArray(d.removed)){S.removed=d.removed.filter(function(n){return typeof n==='string'});S.removed.forEach(removeEx)}
  if(d.live&&d.live.start)S.live=d.live;
  if(Array.isArray(d.types)){S.types.forEach(unregisterType);S.types=d.types.filter(function(t){return t&&t.id&&t.name&&Array.isArray(t.cats)});S.types.forEach(registerType)}
@@ -445,7 +445,7 @@ function planList(preview){
  var curSec='-',nSec=0,secCnt={},secTitle={vor:'Vorbereitung',haupt:'Hauptteil',erg:'Ergänzung'};
  S.plan.forEach(function(p){var k=partKey(p);secCnt[k]=(secCnt[k]||0)+1});
  var closeSec=function(k){return k==='-'?'':'</div>'+(k==='haupt'?'</div>':'')};
- var openSec=function(k){if(k==='')return '<div class="group">';nSec++;var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+secTitle[k]+'</b><span class="hr"></span><small>'+secCnt[k]+' Übungen</small></div>';return (k==='haupt'?'<div class="blk">':'')+h+'<div class="group">'};
+ var openSec=function(k){if(k==='')return '<div class="group">';nSec++;var h='<div class="psec"><span class="n">'+nSec+'</span><b>'+secTitle[k]+'</b>'+(nSec===1?helpBtn('teile'):'')+'<span class="hr"></span><small>'+secCnt[k]+' Übungen</small></div>';return (k==='haupt'?'<div class="blk">':'')+h+'<div class="group">'};
  S.plan.forEach(function(p,i){
   if(isDone(p))return;
   var sc=partKey(p);if(sc!==curSec){out+=closeSec(curSec)+openSec(sc);curSec=sc}
@@ -471,7 +471,7 @@ function planList(preview){
 function sHeute(){
  var openL=openIdx(),doneL=S.plan.length-openL.length,anySets=S.plan.some(function(p){return setsDone(p)>0}),live=isLive();
  var out='<div class="pad"><div class="eyebrow">'+(live?'Training läuft · seit '+new Date(S.live.start).toTimeString().slice(0,5):new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'}))+'</div><h1 class="h1">'+esc(TPL[S.tpl].name)+'</h1>'+
- '<p class="sub">Einheit '+weekCount()+' dieser Woche · '+S.plan.length+' Übungen'+(doneL?' · '+doneL+' erledigt':'')+' · ca. '+planMinutes()+' min</p>'+
+ '<p class="sub">'+weekCount()+'. Training dieser Woche · '+S.plan.length+' Übungen'+(doneL?' · '+doneL+' erledigt':'')+' · ca. '+planMinutes()+' min</p>'+
  restBanner()+
  '<button class="locrow" data-act="sheet" data-s="loc" aria-label="Trainingsort wechseln"><span class="pin">'+ic('pin',20)+'</span><span class="txt"><small>Trainingsort · '+eqCount()+' Geräte</small><b>'+esc(curLoc().name)+'</b></span><span class="mut" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px">wechseln'+ic('next',14)+'</span></button>'+
  (openL.length?'':'<div class="hint">'+ic('check',18)+'<span><b>Alle '+S.plan.length+' Übungen sind erledigt.</b> Gut gemacht. Unten findest du sie unter „Abgeschlossen“.</span></div>');
@@ -482,8 +482,8 @@ function sHeute(){
   if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt"><b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button>':''}).join('')+'</div>';
  }
  out+='<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>'+
- '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button><button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Einheit wechseln</button></div>'+
- ((live||anySets)?'<button class="btn wide" style="margin-top:10px" data-act="finish">'+ic('check',18)+'Training abschließen</button><p class="mut" style="margin:8px 0 0;font-size:12px">Jederzeit möglich, auch wenn noch Übungen oder Sätze offen sind.</p>':'')+'</div>'+
+ '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button>'+(tplCount()>1?'<button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Variante wechseln</button>':'')+'</div>'+
+ ((!live&&anySets)?'<button class="btn wide" style="margin-top:10px" data-act="finish">'+ic('check',18)+'Training abschließen</button><p class="mut" style="margin:8px 0 0;font-size:12px">Jederzeit möglich, auch wenn noch Übungen oder Sätze offen sind.</p>':'')+'</div>'+
  '<div class="cta">'+(openL.length?(live?'':((S.planReady||anySets)?'<button class="btn primary big" data-act="start">'+ic('play',18)+(anySets?'Training fortsetzen':'Training starten')+'</button>':'<button class="btn primary big" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button>')):'<button class="btn primary big" data-act="finish">'+ic('check',18)+'Training abschließen</button>')+'<button class="fab" data-act="voice" aria-label="Plan per Sprache ändern">'+ic('mic',24)+'</button></div>';
  return out;
 }
@@ -520,7 +520,7 @@ function sTrain(){
   out+='</div>'+(warm?'':'<div class="hint">'+ic('info',18)+'<span>Nächstes Mal: <b>'+nx+'</b> (abgeleitet aus deiner letzten Bewertung).</span></div>');
   var nxi=t.over?-1:nextOpenIdx(t.i),nxt=nxi>=0?S.plan[nxi]:null;
   if(!warm)out+='<button class="btn wide" data-act="addset" style="margin-bottom:8px">'+ic('plus',18)+'Satz hinzufügen</button>';
-  out+='</div><div class="cta"><button class="btn primary big" data-act="nextex">'+(nxt?'Weiter: '+esc(nxt.name):'Einheit abschließen')+ic('next',18)+'</button></div>';
+  out+='</div><div class="cta"><button class="btn primary big" data-act="nextex">'+(nxt?'Weiter: '+esc(nxt.name):'Training abschließen')+ic('next',18)+'</button></div>';
   return out;
  }
  if(t.phase==='rate'){
@@ -551,8 +551,8 @@ function sTrain(){
    '<div class="field"><small>Zeit</small><div class="tin2"><label><input class="inp" id="cmin" type="number" inputmode="numeric" min="0" max="999" value="'+Math.floor(t.el/60)+'" aria-label="Minuten"><span>min</span></label><label><input class="inp" id="csec" type="number" inputmode="numeric" min="0" max="59" value="'+(t.el%60)+'" aria-label="Sekunden"><span>s</span></label></div></div>'+
    '<div class="field"><small>'+par.l+' ('+par.u+')</small><input class="inp" id="warmval" inputmode="decimal" value="'+esc(t.pv)+'" placeholder="'+(lw&&lw.pv!=null?fmt(lw.pv):'')+'" aria-label="'+esc(par.l)+'"></div>';
    if(par.u==='m')out+='<div class="goal"><div><small>Ø pro 500 m</small><b id="avg500">'+avg500(t.el,hv)+'</b></div><div><small>Gesamtstrecke</small><b id="sum500">'+(hv>0?fmt(hv,0)+' m':'–')+'</b></div></div>'+
-    '<div class="field"><small>Drag-Faktor (Windrad): am Rädchen drehen</small><div class="wheelbox"><div class="wheel" data-w="drag" data-v="'+(t.drag||5)+'" aria-label="Drag-Faktor"><i class="wpad"></i>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){return '<i class="wi">'+n+'</i>'}).join('')+'<i class="wpad"></i></div><div class="wmark"></div></div></div>';
-   out+='<div class="field"><small>Belastungsempfinden (RPE, optional)</small><div class="rpe'+(t.rpe?' has':'')+'">'+[1,2,3,4,5,6,7,8,9,10].map(function(n){var c=rpeColor(n);return '<button class="rpeb" data-act="rpe" data-v="'+n+'" style="--rc:'+c+';--rt:'+textOn(c)+'" aria-pressed="'+(t.rpe===n)+'" aria-label="'+n+' '+RPE_L[n]+'">'+n+'</button>'}).join('')+'</div><p class="rpel">'+(t.rpe?'<b>'+t.rpe+'</b> · '+RPE_L[t.rpe]:'Tippe auf eine Zahl: 1 sehr locker bis 10 maximal anstrengend')+'</p></div>';
+    '<div class="field"><small>Drag-Faktor (Windrad): am Rädchen drehen'+helpBtn('drag')+'</small><div class="wheelbox"><div class="wheel" data-w="drag" data-v="'+(t.drag||5)+'" aria-label="Drag-Faktor"><i class="wpad"></i>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){return '<i class="wi">'+n+'</i>'}).join('')+'<i class="wpad"></i></div><div class="wmark"></div></div></div>';
+   out+='<div class="field"><small>Belastungsempfinden (RPE, optional)'+helpBtn('rpe')+'</small><div class="rpe'+(t.rpe?' has':'')+'">'+[1,2,3,4,5,6,7,8,9,10].map(function(n){var c=rpeColor(n);return '<button class="rpeb" data-act="rpe" data-v="'+n+'" style="--rc:'+c+';--rt:'+textOn(c)+'" aria-pressed="'+(t.rpe===n)+'" aria-label="'+n+' '+RPE_L[n]+'">'+n+'</button>'}).join('')+'</div><p class="rpel">'+(t.rpe?'<b>'+t.rpe+'</b> · '+RPE_L[t.rpe]:'Tippe auf eine Zahl: 1 sehr locker bis 10 maximal anstrengend')+'</p></div>';
   }else{
   out+='<div class="hint">'+ic('info',18)+'<span><b>'+(lw?'Letztes Mal '+mmss(lw.sec)+(warmVal(lw)?' · '+warmVal(lw):''):'Noch keine Einträge')+'.</b>'+(av.n?' Ø aller Erwärmungen: '+mmss(av.avg)+' ('+av.n+'×).':' Der Timer läuft hoch, stoppe ihn, wenn du fertig bist.')+'</span></div>';
   canDone=!t.running&&t.el>0;
@@ -574,7 +574,7 @@ function sTrain(){
    if(ch.length>1)out+='<div class="field"><small>Gerät</small><div class="seg">'+ch.map(function(q){return '<button data-act="seteq" data-v="'+esc(q)+'" aria-pressed="'+(q===eqSel)+'">'+esc(q)+'</button>'}).join('')+'</div></div>';
    out+='<div class="field"><small>Gewicht</small><div class="stepper"><button class="sb" data-act="adj" data-f="kg" data-d="-'+ws+'" aria-label="Gewicht verringern">'+ic('minus',22)+'</button><div class="val">'+fmt(t.kg)+'<em>kg</em></div><button class="sb" data-act="adj" data-f="kg" data-d="'+ws+'" aria-label="Gewicht erhöhen">'+ic('plus',22)+'</button></div></div>'+
    '<div class="field"><small>Wiederholungen</small><div class="stepper"><button class="sb" data-act="adj" data-f="reps" data-d="-1" aria-label="Eine Wiederholung weniger">'+ic('minus',22)+'</button><div class="val">'+t.reps+'</div><button class="sb" data-act="adj" data-f="reps" data-d="1" aria-label="Eine Wiederholung mehr">'+ic('plus',22)+'</button></div></div>'+
-   '<div class="field"><small>Wiederholungen in Reserve (optional)</small><div class="seg">'+[0,1,2,3].map(function(v){return '<button data-act="rir" data-v="'+v+'" aria-pressed="'+(t.rir===v)+'">'+v+(v===3?'+':'')+' RIR</button>'}).join('')+'</div></div>';
+   '<div class="field"><small>Wiederholungen in Reserve (optional)'+helpBtn('rir')+'</small><div class="seg">'+[0,1,2,3].map(function(v){return '<button data-act="rir" data-v="'+v+'" aria-pressed="'+(t.rir===v)+'">'+v+(v===3?'+':'')+' RIR</button>'}).join('')+'</div></div>';
   }
  }
  if(!warm)out+='<div class="row2" style="margin-bottom:8px"><button class="btn" style="flex:1" data-act="addset">'+ic('plus',18)+'Satz hinzufügen</button><button class="btn" style="flex:1" data-act="finex"'+(nLog?'':' disabled')+'>'+ic('check',18)+'Übung abschließen</button></div>';
@@ -667,13 +667,13 @@ function sStats(){
  '<div class="seg" style="margin-bottom:14px"><button data-act="sub" data-v="ueber" aria-pressed="'+(st.sub==='ueber')+'">Überblick</button><button data-act="sub" data-v="ex" aria-pressed="'+(st.sub==='ex')+'">Übungen</button></div>';
  if(st.sub==='ueber'){
   var rows=src.rows(range),tot=0,n=0;rows.forEach(function(r){tot+=r.t;n+=r.n});
-  out+='<div class="card"><h3>Sätze pro Woche</h3><p class="cap">Ø '+fmt(tot/rows.length,0)+' Sätze und '+fmt(n/rows.length)+' Einheiten pro Woche, nach Bewegungsmuster</p><div class="chart" data-ch="stk">'+stackChart(range,'stk')+'<div class="tip" hidden></div></div>'+
+  out+='<div class="card"><h3>Sätze pro Woche</h3><p class="cap">Ø '+fmt(tot/rows.length,0)+' Sätze und '+fmt(n/rows.length)+' Trainings pro Woche, nach Bewegungsmuster</p><div class="chart" data-ch="stk">'+stackChart(range,'stk')+'<div class="tip" hidden></div></div>'+
   '<div class="legend">'+STATCATS.map(function(c){return '<span><i class="dot" style="--c:var('+SLOT[c].c+')"></i>'+SLOT[c].l+'</span>'}).join('')+'</div></div>';
-  out+='<div class="card"><h3>Konsistenz</h3><p class="cap">Einheiten pro Woche, letzte 12 Wochen</p><div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end">';
+  out+='<div class="card"><h3>Konsistenz</h3><p class="cap">Trainings pro Woche, letzte 12 Wochen</p><div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end">';
   src.rows(12).forEach(function(r){out+='<div style="display:flex;flex-direction:column;gap:3px;align-items:center"><div style="display:flex;flex-direction:column-reverse;gap:3px;width:100%">'+[1,2,3].map(function(k){return '<i style="height:12px;border-radius:4px;background:'+(k<=r.n?'var(--ink)':'var(--line)')+'"></i>'}).join('')+'</div><span class="mut" style="font-size:10px">'+kwOf(r.w)+'</span></div>'});
   out+='</div></div>';
   var tn=KT.tendencies(src.series);
-  out+='<div class="card"><h3>Tendenzen</h3><p class="cap">Hinweise aus deinen letzten Einheiten</p>'+(tn.length?tn.map(function(x){return '<div class="note">'+ic(x.icon,18)+'<span>'+x.text+'</span></div>'}).join(''):'<div class="note">'+ic('info',18)+'<span>Noch keine Auffälligkeiten. Ab etwa vier Einheiten pro Übung erscheinen hier Hinweise zu Stagnation und Fortschritt.</span></div>')+'</div>';
+  out+='<div class="card"><h3>Tendenzen</h3><p class="cap">Hinweise aus deinen letzten Trainings</p>'+(tn.length?tn.map(function(x){return '<div class="note">'+ic(x.icon,18)+'<span>'+x.text+'</span></div>'}).join(''):'<div class="note">'+ic('info',18)+'<span>Noch keine Auffälligkeiten. Ab etwa vier Trainings pro Übung erscheinen hier Hinweise zu Stagnation und Fortschritt.</span></div>')+'</div>';
   var un=src.demo?[{name:'Hip Thrust'},{name:'Roll-Out'},{name:'Kurzhantel Rudern'}]:KT.unused(LIB,S.hist).slice(0,12);
   out+='<div class="card"><h3>Nicht genutzt</h3><p class="cap">Seit mehr als 8 Wochen nicht trainiert oder noch nie</p><div class="chips">'+(un.length?un.map(function(u){return '<span class="chip ex">'+esc(u.name)+(u.never?' · neu':'')+'</span>'}).join(''):'<span class="mut">Alles in Benutzung.</span>')+'</div></div>';
  }else{
@@ -682,19 +682,19 @@ function sStats(){
   if(!r){out+='<div class="card"><h3>'+esc(st.ex)+'</h3><p class="cap">Im gewählten Zeitraum keine Einträge. Wähle einen längeren Zeitraum.</p></div>'}
   else{
    var first=r.pts[0],lastp=r.last,mon=r.tr.b*4.345,sign=mon>=0?'+':'−',enough=r.pts.length>=3;
-   out+='<div class="card"><h3>'+esc(st.ex)+'</h3><p class="cap">'+(sr.unit==='s'?'Längste Haltezeit':(sr.unit==='kg'?'Bestes Satzgewicht':'Meiste Wiederholungen'))+' pro Einheit</p><div class="kpis"><div><small>Start</small><b>'+fmt(first.v)+' '+sr.unit+'</b></div><div><small>Aktuell</small><b>'+fmt(lastp.v)+' '+sr.unit+'</b></div><div><small>Trend</small><b>'+(enough?sign+fmt(Math.abs(mon))+' '+sr.unit+'/Monat':'noch offen')+'</b></div></div>';
+   out+='<div class="card"><h3>'+esc(st.ex)+'</h3><p class="cap">'+(sr.unit==='s'?'Längste Haltezeit':(sr.unit==='kg'?'Bestes Satzgewicht':'Meiste Wiederholungen'))+' pro Training</p><div class="kpis"><div><small>Start</small><b>'+fmt(first.v)+' '+sr.unit+'</b></div><div><small>Aktuell</small><b>'+fmt(lastp.v)+' '+sr.unit+'</b></div><div><small>Trend</small><b>'+(enough?sign+fmt(Math.abs(mon))+' '+sr.unit+'/Monat':'noch offen')+'</b></div></div>';
    if(st.table){
     out+='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Datum</th><th>Wert</th><th>Bewertung</th></tr></thead><tbody>'+r.pts.slice(-8).reverse().map(function(p){return '<tr><td>'+dateOf(p.w)+'</td><td>'+fmt(p.v)+' '+sr.unit+'</td><td>'+(p.r==='m'?'Mehr':(p.r==='w'?'Weniger':'Passt'))+'</td></tr>'}).join('')+'</tbody></table></div>';
    }else{
     out+='<div class="chart" data-ch="ln">'+r.svg+'<div class="tip" hidden></div></div><div class="legend"><span><svg width="22" height="8" aria-hidden="true"><path d="M1 4h20" stroke="var(--ink)" stroke-width="2"/></svg>Verlauf</span><span><svg width="22" height="8" aria-hidden="true"><path d="M1 4h20" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="4 3"/></svg>Trend</span><span><i class="dot" style="--c:var(--c-push)"></i>Bestleistung</span></div>';
    }
-   out+='<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1;height:40px" data-act="tbl">'+ic('table',16)+(st.table?'Diagramm':'Tabelle')+'</button></div></div>';
+   out+='<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1;height:44px" data-act="tbl">'+ic('table',16)+(st.table?'Diagramm':'Tabelle')+'</button></div></div>';
   }
   out+='<div class="group">';
   names.sort(function(a,b){return src.series[b].uses-src.series[a].uses}).forEach(function(nm){var s=src.series[nm],pp=seriesSlice(nm,range);
    if(!pp.length){out+='<button class="xrow" data-act="selex" data-n="'+esc(nm)+'" aria-pressed="'+(nm===st.ex)+'"><span><b>'+esc(nm)+'</b><small>keine Einträge im Zeitraum</small></span><span></span><span class="rng"></span><span></span></button>';return}
    var tt=KT.trend(pp).b*4.345;
-   out+='<button class="xrow" data-act="selex" data-n="'+esc(nm)+'" aria-pressed="'+(nm===st.ex)+'"><span><b>'+esc(nm)+'</b><small>'+pp.length+' Einheit'+(pp.length>1?'en':'')+'</small></span>'+spark(nm)+'<span class="rng">'+fmt(pp[0].v)+' → '+fmt(pp[pp.length-1].v)+' '+s.unit+'</span><span class="ic">'+ic(pp.length<3?'eq':(tt>0.4?'up':(tt<-0.4?'down':'eq')),18)+'</span></button>'});
+   out+='<button class="xrow" data-act="selex" data-n="'+esc(nm)+'" aria-pressed="'+(nm===st.ex)+'"><span><b>'+esc(nm)+'</b><small>'+pp.length+' Training'+(pp.length>1?'s':'')+'</small></span>'+spark(nm)+'<span class="rng">'+fmt(pp[0].v)+' → '+fmt(pp[pp.length-1].v)+' '+s.unit+'</span><span class="ic">'+ic(pp.length<3?'eq':(tt>0.4?'up':(tt<-0.4?'down':'eq')),18)+'</span></button>'});
   out+='</div>';
  }
  return out+'</div>';
@@ -752,7 +752,7 @@ function sLib(){
 }
 function sDetail(){
  var n=S.detail,e=LIB.filter(function(x){return x.name===n})[0]||{name:n,cat:'push',eq:'Langhantel',sub:''},sx=stepsOf(n),med=S.media[n]||[],out;
- out='<div class="top-bar"><button class="iconbtn" data-act="back" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Übung</span><span style="width:44px"></span></div><div class="pad">'+slotTag(e)+'<h1 class="h1" style="font-size:36px">'+esc(e.name)+'</h1><p class="sub">'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+' · '+usesOf(n)+' Einheit'+(usesOf(n)===1?'':'en')+'</p>'+
+ out='<div class="top-bar"><button class="iconbtn" data-act="back" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Übung</span><span style="width:44px"></span></div><div class="pad">'+slotTag(e)+'<h1 class="h1" style="font-size:36px">'+esc(e.name)+'</h1><p class="sub">'+esc(e.sub?e.sub+' · '+eqLabel(e):eqLabel(e))+' · '+usesOf(n)+' Training'+(usesOf(n)===1?'':'s')+'</p>'+
  '<div class="sec" style="margin-top:4px">Medien</div>';
  if(med.length)out+='<div class="media">'+med.map(mediaTile).join('')+'</div>';
  else out+='<p class="mut" style="margin:0 0 10px">Noch keine Medien. Füge Fotos, Videos oder Links hinzu, zum Beispiel eine Aufnahme deiner Technik.</p>';
@@ -766,7 +766,7 @@ function sDetail(){
 }
 function wizSummary(){
  var w=S.wiz,c=w.cat,defs={mechanisch:'3–4 × 6–12 · 1–2 RIR · 1,5–3 min Pause','neuronal-schwer':'3–6 × unter 6 · 1–3 RIR · über 3 min Pause','neuronal-schnell':'3–6 × unter 6 · weit weg vom Versagen · über 3 min Pause'};
- var where={warm:'am Anfang jedes Krafttrainings (Cardio-Gerät nach Verfügbarkeit)',push:'Ganzkörper A und B, Oberkörper (2×)',pull:'Ganzkörper A und B, Oberkörper (2×)',squat:'Ganzkörper A und B, Unterkörper (2×)',hinge:'Ganzkörper A und B, Unterkörper (2×)',schnell:'allen Einheiten, jeweils am Anfang',rumpf:'allen Einheiten, jeweils am Ende (seitlich und gerade)',assist:'am Ende der Einheit (optional)',zusatz:'am Ende jedes Krafttrainings (Waden, Handstand-Vorbereitung)',haltung:'den Aufrichtungs-Einheiten A und B',huefte:'den Aufrichtungs-Einheiten A und B',mobil:'den Aufrichtungs-Einheiten A und B'}[c];
+ var where={warm:'am Anfang jedes Krafttrainings (Cardio-Gerät nach Verfügbarkeit)',push:'Ganzkörper A und B, Oberkörper (2×)',pull:'Ganzkörper A und B, Oberkörper (2×)',squat:'Ganzkörper A und B, Unterkörper (2×)',hinge:'Ganzkörper A und B, Unterkörper (2×)',schnell:'allen Trainings, jeweils am Anfang',rumpf:'allen Trainings, jeweils am Ende (seitlich und gerade)',assist:'am Ende des Trainings (optional)',zusatz:'am Ende jedes Krafttrainings (Waden, Handstand-Vorbereitung)',haltung:'den Aufrichtungs-Einheiten A und B',huefte:'den Aufrichtungs-Einheiten A und B',mobil:'den Aufrichtungs-Einheiten A und B'}[c];
  var pat=SLOT[c].l+(w.sg&&SG[w.sg]?' · '+SG[w.sg]:'')+((c==='push'||c==='pull')?' · '+(w.dir==='horizontal'?'horizontal':'vertikal'):'');
  var aufr=AUFR_CATS.indexOf(c)>-1,rule=aufr?'2–3 × 8–15 oder 20–60 s · kontrolliert, ohne Muskelversagen · 20–45 s Pause':((c==='rumpf'||c==='assist'||c==='zusatz'||c==='warm')?'wie unten eingestellt':defs[w.focus]);
  return '<p><b>'+esc(w.name)+'</b> wird einsortiert als <b>'+pat+' · '+w.side+' · '+w.cx+'</b>.</p><p>Erscheint in: <b>'+where+'</b>.</p><p>Vorgabe: <b>'+w.sets+' × '+esc(w.meas==='time'?fmtSec(wizSecs()):(w.repsTxt||'8'))+(w.both&&w.meas==='time'?' je Seite':'')+(w.rest?' · '+fmtRest(w.rest)+' Pause':'')+'</b> (<span>'+rule+'</span>).</p><p>Reihenfolge: '+(w.cx==='komplex'?'vor isolierten Übungen':'nach den komplexen Übungen')+', '+(w.side==='unilateral'?'nach bilateralen.':'vor unilateralen.')+'</p>';
@@ -859,14 +859,16 @@ function sMore(){
  var ver='<p class="mut" style="margin:14px 0 0;font-size:12px">Version '+esc(self.KT_VERSION||'?')+(self.KT_BUILD?' · Stand '+esc(self.KT_BUILD.split('-').reverse().join('.')):'')+'</p>';
  if(sub==='loc')return bar('Orte und Equipment')+'<div class="pad">'+sLocs()+'</div>';
  if(sub==='types')return bar('Trainingsarten')+'<div class="pad">'+sTypes()+'</div>';
- if(sub==='settings')return bar('Einstellungen')+'<div class="pad"><div class="sec" style="margin-top:0">Heute meiden</div><div class="chips" style="margin-bottom:6px">'+Object.keys(S.set.avoid).map(function(k){return '<button class="chip" data-act="tg" data-k="avoid" data-v="'+k+'" aria-pressed="'+!!S.set.avoid[k]+'">'+k+'</button>'}).join('')+'</div><p class="mut" style="margin:6px 0 0;font-size:13px">Der Generator schließt belastende Übungen aus, bis du die Markierung löschst.</p>'+
+ if(sub==='settings')return bar('Einstellungen')+'<div class="pad">'+
+  '<div class="sec" style="margin-top:0">Sprache</div><div class="seg"><button data-act="setlang" data-v="de" aria-pressed="'+!isEn()+'" data-nt="1">Deutsch</button><button data-act="setlang" data-v="en" aria-pressed="'+isEn()+'" data-nt="1">English</button></div>'+
   '<div class="sec">Spracheingabe</div><div class="group"><button class="tg" data-act="tg" data-k="voice" data-v="x" aria-pressed="'+!!S.set.voice+'"><span>Spracheingabe<small>Befehle für den Tagesplan, nutzt die Spracherkennung des Browsers</small></span><i class="sw"></i></button></div>'+
   (S.removed.length?'<div class="sec">Gelöschte Übungen</div><div class="group">'+S.removed.map(function(n){return '<div class="logrow"><span><b>'+esc(n)+'</b></span><button class="btn" style="height:38px" data-act="restoreex" data-n="'+esc(n)+'">Wiederherstellen</button></div>'}).join('')+'</div>':'')+'</div>';
+ if(sub==='help')return bar('Begriffe')+'<div class="pad">'+Object.keys(HELP).map(function(k){return '<div class="card"><h3 style="font-size:22px">'+HELP[k].t+'</h3><p class="cap" style="margin:4px 0 0;font-size:14px;line-height:1.45">'+HELP[k].h+'</p></div>'}).join('')+'</div>';
  if(sub==='data')return bar('Daten und Sicherung')+'<div class="pad"><p class="mut" style="margin:0 0 10px;font-size:13px">'+S.hist.length+' Sätze gespeichert, nur auf diesem Gerät. Exportiere regelmäßig als Sicherung.</p><div class="row2"><button class="btn" style="flex:1" data-act="export" data-f="json">JSON</button><button class="btn" style="flex:1" data-act="export" data-f="csv">CSV</button><button class="btn" style="flex:1" data-act="import">Import</button></div><input type="file" id="importfile" accept=".json,application/json" hidden>'+
   '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p>'+
   '<div class="sec">App aufs Handy</div><div class="card qrcard"><div class="qrbox">'+qrSvg()+'</div><p class="url">'+esc(APP_URL)+'</p><p class="mut" style="margin:6px 0 0;font-size:13px">Kamera des Handys auf den Code halten und den Link öffnen. Android: im Chrome-Menü „App installieren“. iPhone: in Safari Teilen, dann „Zum Home-Bildschirm“.</p></div>'+
   ver+'</div>';
- var rows=[['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV) und Import']];
+ var rows=[['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV), Import und QR-Code'],['help','info','Begriffe','Was Hinge, Prehab, RIR, RPE und Drag-Faktor bedeuten']];
  return '<div class="pad"><h1 class="h1">Mehr</h1><p class="sub">Orte, Trainingsarten, Einstellungen und Daten.</p><div class="group">'+rows.map(function(r){return '<button class="mrow" data-act="moresub" data-v="'+r[0]+'"><span class="mi">'+ic(r[1],22)+'</span><span class="txt"><b>'+r[2]+'</b><small>'+esc(r[3])+'</small></span>'+ic('next',16)+'</button>'}).join('')+'</div>'+ver+'</div>';
 }
 /* ---------- Startbildschirm ---------- */
@@ -889,56 +891,63 @@ function locSection(title){
  /* nur der zuletzt genutzte Ort ist sichtbar und angehakt, die anderen klappen als Auswahl auf */
  var locs=recentLocs(),vis=locs.slice(0,1),more=locs.slice(1),locRow=function(l){var on=l.id===S.loc;
   return '<button class="lrow" data-act="startloc" data-v="'+l.id+'" aria-pressed="'+on+'"><span class="radio">'+(on?ic('check',14):'')+'</span><span class="txt"><b>'+esc(l.name)+'</b><small>'+eqList(l).length+' Geräte'+(on?' · zuletzt genutzt':'')+'</small></span></button>'};
- return '<div class="sec" style="margin-top:6px">'+title+'</div><div class="group">'+vis.map(locRow).join('')+'</div>'+
+ return (title?'<div class="sec" style="margin-top:6px">'+title+'</div>':'')+'<div class="group">'+vis.map(locRow).join('')+'</div>'+
  (more.length?'<button class="donebtn" style="margin-top:8px" data-act="moreloc" aria-expanded="'+S.moreLocs+'"><span class="txt"><b>Weitere Orte ('+more.length+')</b><small>'+(S.moreLocs?'Tippen zum Einklappen':'Tippen zum Auswählen')+'</small></span>'+ic(S.moreLocs?'chevd':'next',16)+'</button>'+(S.moreLocs?'<div class="group" style="margin-top:8px">'+more.map(locRow).join('')+'</div>':''):'')+
- '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="manageloc">'+ic('more',16)+'Orte und Equipment verwalten</button>';
+ '<button class="btn ghost" style="margin-top:8px;height:44px" data-act="manageloc">'+ic('more',16)+'Orte und Equipment verwalten</button>';
 }
 /* Trainingsarten als Kacheln: Ganzkörper über die ganze Breite, Mikrotrainings kleiner; die Wahl zeigt nur ein kräftiger Rahmen, graue Fläche und Häkchen, ohne weitere Farben */
 function typeSection(){
- var cur=curTA(),out='<div class="sec">Welche Trainingsart?</div>';
+ var cur=curTA(),out=arguments[0]===false?'':'<div class="sec">Welche Trainingsart?</div>';
  var tile=function(t,cls){var on=!!cur&&cur.id===t.id;return '<button class="tacard '+cls+'" data-act="setta" data-v="'+esc(t.id)+'" aria-pressed="'+on+'"><span class="tai">'+ic(t.icon||'dumbbell',cls==='wide'?30:22)+'</span><span class="tat"><b>'+esc(t.name)+'</b><small>'+esc(t.sub||'')+'</small></span><span class="tack">'+(on?ic('check',16):'')+'</span></button>'};
  ['kraft','mikro'].forEach(function(g){var l=visTA().filter(function(t){return t.group===g}),wide=l.filter(function(t){return t.fixed}),rest=l.filter(function(t){return !t.fixed});
   out+='<div class="taGrp"><div class="eyebrow">'+TAG[g].name+'<small>'+TAG[g].sub+'</small></div>'+wide.map(function(t){return tile(t,'wide')}).join('')+
    '<div class="tagrid">'+rest.map(function(t){return tile(t,'sm')}).join('')+'<button class="tacard sm new" data-act="newtypego" data-g="'+g+'" aria-label="Neue Trainingsart anlegen"><span class="tai">'+ic('plus',22)+'</span><span class="tat"><small>Neu</small></span></button></div></div>'});
- return out+'<button class="btn ghost" style="margin-top:8px;height:40px" data-act="managetype">'+ic('more',16)+'Trainingsarten verwalten</button>';
+ return out+'<button class="btn ghost" style="margin-top:8px;height:44px" data-act="managetype">'+ic('more',16)+'Trainingsarten verwalten</button>';
 }
 /* Nächstes Training einrichten: Ort, Trainingsart, Schwerpunkt, Bestandteile, dann der gewürfelte Plan zum Prüfen und Ändern, zuletzt das Abschließen */
 function sSetup(){
- var kraft=S.type==='kraft',o=S.setup,l=curLoc(),anySets=S.plan.some(function(p){return setsDone(p)>0});
+ var kraft=S.type==='kraft',hs=S.type==='handstand',o=S.setup,l=curLoc(),anySets=S.plan.some(function(p){return setsDone(p)>0});
  var devs=l.eq&&l.eq.Cardio?S.cardios.filter(function(m){return l.card&&l.card[m]}):[];
  var tgRow=function(k,t,sub){return '<button class="tg" data-act="setopt" data-k="'+k+'" aria-pressed="'+!!o[k]+'"><span>'+t+'<small>'+sub+'</small></span><i class="sw"></i></button>'};
- var cta=curTA(),foci=cta&&FOCI[cta.id]?FOCI[cta.id]:null;
- var out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Nächstes Training</span><span style="width:44px"></span></div><div class="pad"><h1 class="h1" style="font-size:36px">Nächstes Training einrichten</h1><p class="sub">Wähle Ort, Trainingsart und Bestandteile. Der Plan wird passend gewürfelt, du prüfst ihn weiter unten.</p>';
- out+=locSection('Wo trainierst du?')+typeSection();
- if(foci)out+='<div class="sec">Welcher Schwerpunkt?</div><div class="chips">'+foci.map(function(f){return '<button class="chip" data-act="tgfocus" data-t="'+cta.id+'" data-k="'+f[0]+'" aria-pressed="'+(focusOf(cta.id).indexOf(f[0])>-1)+'">'+esc(f[1])+'</button>'}).join('')+'</div>';
- if(kraft){
-  out+='<div class="sec">Bestandteile</div><div class="group">'+
-  tgRow('cardio','Cardio-Gerät zur Erwärmung',devs.length?esc(devs.join(', ')):'Kein Cardio-Gerät am Ort eingeschaltet')+
-  tgRow('allg','Allgemeine Erwärmung','Gehen, Mobilisieren, Körpergewicht')+
-  tgRow('as','Prehab · Achillessehne','Wadenheben exzentrisch, einbeinig')+
-  tgRow('hand','Spezial · Handstand','Schulter, Handgelenke, Körperspannung')+
-  tgRow('schulter','Prehab · Schulterstabilität','Schulterblattkontrolle')+
-  tgRow('aufr','Aufrichtung','Eine Übung für Haltung, Hüfte oder Mobilisation')+'</div>';
- }else if(S.type==='handstand'){
-  out+='<div class="sec">Bestandteile</div><div class="group">'+tgRow('allg','Allgemeine Erwärmung','Gehen, Mobilisieren, Körpergewicht')+'</div>';
+ var cta=curTA(),foci=cta&&FOCI[cta.id]?FOCI[cta.id]:null,sec=S.setupSec||'';
+ var teile=kraft?[['cardio','Cardio'],['allg','Erwärmung'],['as','Prehab Achillessehne'],['hand','Spezial Handstand'],['schulter','Prehab Schulter'],['aufr','Aufrichtung']].filter(function(x){return o[x[0]]}).map(function(x){return x[1]}):(hs&&o.allg?['Erwärmung']:[]);
+ var avoid=Object.keys(S.set.avoid).filter(function(k){return S.set.avoid[k]});
+ var foc=foci?foci.filter(function(f){return focusOf(cta.id).indexOf(f[0])>-1}).map(function(f){return f[1]}):[];
+ /* eine Zeile je Bereich mit der aktuellen Wahl; Antippen klappt nur diesen Bereich auf */
+ var row=function(k,label,val){return '<button class="srow" data-act="setsec" data-k="'+k+'" aria-expanded="'+(sec===k)+'"><span class="sl">'+label+'</span><b>'+val+'</b>'+ic(sec===k?'chevd':'next',16)+'</button>'};
+ var out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Nächstes Training</span><span style="width:44px"></span></div><div class="pad"><h1 class="h1" style="font-size:36px">Nächstes Training einrichten</h1><p class="sub">Deine letzte Wahl ist übernommen. Tippe auf eine Zeile, um sie zu ändern.</p>';
+ out+='<div class="srows">'+row('ort','Ort',esc(l.name));
+ if(sec==='ort')out+='<div class="sopen">'+locSection('')+'</div>';
+ out+=row('art','Trainingsart',esc(cta?cta.name:typeName(S.type))+(foc.length?' · '+esc(foc.join(', ')):''));
+ if(sec==='art'){out+='<div class="sopen">'+typeSection(false);
+  if(foci)out+='<div class="sec">Welcher Schwerpunkt?</div><div class="chips">'+foci.map(function(f){return '<button class="chip" data-act="tgfocus" data-t="'+cta.id+'" data-k="'+f[0]+'" aria-pressed="'+(focusOf(cta.id).indexOf(f[0])>-1)+'">'+esc(f[1])+'</button>'}).join('')+'</div>';
+  out+='</div>'}
+ if(kraft||hs){
+  out+=row('teile','Bestandteile',(teile.length?esc(teile.join(', ')):'keine')+(avoid.length?' · meiden: '+esc(avoid.join(', ')):''));
+  if(sec==='teile'){out+='<div class="sopen"><div class="group">'+
+   (kraft?tgRow('cardio','Cardio-Gerät zur Erwärmung',devs.length?esc(devs.join(', ')):'Kein Cardio-Gerät am Ort eingeschaltet'):'')+
+   tgRow('allg','Allgemeine Erwärmung','Gehen, Mobilisieren, Körpergewicht')+
+   (kraft?tgRow('as','Prehab · Achillessehne','Wadenheben exzentrisch, einbeinig')+tgRow('hand','Spezial · Handstand','Schulter, Handgelenke, Körperspannung')+tgRow('schulter','Prehab · Schulterstabilität','Schulterblattkontrolle')+tgRow('aufr','Aufrichtung','Eine Übung für Haltung, Hüfte oder Mobilisation'):'')+'</div>'+
+   '<div class="sec">Heute meiden</div><div class="chips">'+Object.keys(S.set.avoid).map(function(k){return '<button class="chip" data-act="tg" data-k="avoid" data-v="'+k+'" aria-pressed="'+!!S.set.avoid[k]+'">'+k+'</button>'}).join('')+'</div><p class="mut" style="margin:6px 0 0;font-size:13px">Belastende Übungen für diese Gelenke werden ausgetauscht, bis du die Markierung löschst.</p></div>'}
  }
+ out+='</div>';
  if(anySets)out+='<div class="hint" style="margin-top:12px">'+ic('info',18)+'<span>Heute sind schon Sätze geloggt. Sie bleiben im Verlauf, auch wenn du den Plan änderst.</span></div>';
- out+='<div class="row2" style="align-items:center;margin-top:20px"><div class="sec" style="margin:0;flex:1">Plan-Vorschau</div><button class="btn" style="height:40px;padding:0 14px" data-act="rerollall">'+ic('dice',18)+'Neu würfeln</button></div>'+
-  '<p class="sub" style="margin:6px 0 0">'+esc(TPL[S.tpl].name)+' · '+S.plan.length+' Übungen · ca. '+planMinutes()+' min. Tippe auf eine Übung zum Ersetzen, Behalten oder Streichen, ziehe sie am Griff an eine andere Stelle.</p>'+
+ out+='<div class="row2" style="align-items:center;margin-top:20px"><div class="sec" style="margin:0;flex:1">Plan</div><button class="btn" style="height:44px;padding:0 14px" data-act="rerollall">'+ic('dice',18)+'Neu würfeln</button></div>'+
+  '<p class="sub" style="margin:6px 0 0">'+esc(TPL[S.tpl].name)+' · '+S.plan.length+' Übungen · ca. '+planMinutes()+' min. Tippe auf eine Übung für Info, Ersetzen oder Streichen, ziehe sie links am Griff an eine andere Stelle.</p>'+
   planList(true)+
   '<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>';
- out+='<div class="hint" style="margin-top:14px">'+ic('info',18)+'<span>Fertig? Mit „Trainingsplanung abschließen“ bestätigst du den Plan. Danach findest du ihn auf der Startseite als „Eingerichtet“ und kannst ihn jederzeit ansehen und ändern.</span></div>';
  return out+'</div><div class="cta"><button class="btn primary big" data-act="makeplan">'+ic('check',18)+'Trainingsplanung abschließen</button></div>';
 }
 function sStart(){
  var ls=lastSession(),out='<div class="pad"><div class="eyebrow">'+new Date().toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'})+'</div><h1 class="h1">Start</h1>';
+ if(!S.onb)out+='<div class="card onb"><h3>So geht es</h3><ol><li><b>Einrichten:</b> Ort, Trainingsart und Bestandteile wählen. Der Plan wird passend gewürfelt.</li><li><b>Prüfen:</b> Übungen ersetzen, verschieben oder streichen, dann „Trainingsplanung abschließen“.</li><li><b>Trainieren:</b> „Training starten“, Sätze eintragen, am Ende das Häkchen im Zeitbalken.</li></ol><button class="btn wide" data-act="onbok">Verstanden</button></div>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card last tap" role="button" tabindex="0" data-act="go" data-s="rueck" aria-label="Rückschau auf die letzte Einheit öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letzte Einheit<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Rückschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last tap" role="button" tabindex="0" data-act="go" data-s="rueck" aria-label="Rückschau auf das letzte Training öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letztes Training<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Rückschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
   '</div>';
  }else{
-  out+='<div class="card"><div class="eyebrow">Letzte Einheit</div><h3 style="margin-top:4px">Noch keine Einheit</h3><p class="cap" style="margin:0">Starte dein erstes Training. Danach siehst du hier eine kurze Zusammenfassung.</p></div>';
+  out+='<div class="card"><div class="eyebrow">Letztes Training</div><h3 style="margin-top:4px">Noch kein Training</h3><p class="cap" style="margin:0">Starte dein erstes Training. Danach siehst du hier eine kurze Zusammenfassung.</p></div>';
  }
  if(isLive()){
   /* Training läuft schon: ein Tipp führt zurück in den Plan */
@@ -950,17 +959,17 @@ function sStart(){
   /* eingerichtet: Vorschau (Plan ansehen und ändern) und Training starten */
   out+='<div class="card hero"><span class="state">'+ic('check',13)+'Eingerichtet</span><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">'+esc(TPL[S.tpl]?TPL[S.tpl].name:typeName(S.type))+'</h3><p class="cap">'+esc(curLoc().name)+' · '+S.plan.length+' Übungen · ca. '+planMinutes()+' min</p>'+
   '<div class="row2"><button class="btn big" style="flex:1" data-act="startplan">Vorschau</button><button class="btn primary big" style="flex:1.2" data-act="start">'+ic('play',18)+'Training starten</button></div>'+
-  '<button class="btn ghost" style="margin-top:8px;height:40px" data-act="resetupask">Neu einrichten</button></div></div>';
+  '<button class="btn ghost" style="margin-top:8px;height:44px" data-act="resetupask">Neu einrichten</button></div></div>';
   return out;
  }
  out+='<div class="card hero"><div class="eyebrow">Nächstes Training</div><h3 style="margin-top:4px">Noch nicht eingerichtet</h3><p class="cap">Wähle Ort, Trainingsart und Bestandteile, dann siehst du den Plan.</p>'+
  '<button class="btn primary big wide" data-act="setup">'+ic('play',18)+'Nächstes Training einrichten</button></div></div>';
  return out;
 }
-/* Rückschauau: die letzte Einheit mit allen Sätzen, nur zum Ansehen */
+/* Rückschau: die letzte Einheit mit allen Sätzen, nur zum Ansehen */
 function sRueck(){
  var ls=lastSession(),out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Rückschau</span><span style="width:44px"></span></div><div class="pad">';
- if(!ls)return out+'<h1 class="h1">Noch keine Einheit</h1><p class="sub">Nach deinem ersten Training siehst du hier alle Sätze.</p></div>';
+ if(!ls)return out+'<h1 class="h1">Noch kein Training</h1><p class="sub">Nach deinem ersten Training siehst du hier alle Sätze.</p></div>';
  var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
  var open=S.rOpen||{};
  out+='<div class="eyebrow">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</div><h1 class="h1">'+esc(nm)+'</h1>'+
@@ -989,7 +998,7 @@ var SCREENS={start:sStart,rueck:sRueck,heute:sHeute,train:sTrain,stats:sStats,li
 
 function tabbar(){
  var cur={start:'start',heute:'heute',train:'heute',stats:'stats',lib:'lib',detail:'lib',wizard:'lib',more:'more',summary:'start',setup:'start',rueck:'start'}[S.screen];
- return [['start','home','Start'],['heute','today','Heute'],['lib','book','Bibliothek'],['stats','chart','Auswertung'],['more','more','Mehr']].map(function(t){return '<button class="tab" data-act="tab" data-t="'+t[0]+'" aria-current="'+(cur===t[0])+'"><i>'+ic(t[1],22)+'</i>'+t[2]+'</button>'}).join('');
+ return [['start','home','Start'],['heute','today','Plan'],['lib','book','Bibliothek'],['stats','chart','Auswertung'],['more','more','Mehr']].map(function(t){return '<button class="tab" data-act="tab" data-t="'+t[0]+'" aria-current="'+(cur===t[0])+'"><i>'+ic(t[1],22)+'</i>'+t[2]+'</button>'}).join('');
 }
 
 /* ---------- Overlay ---------- */
@@ -1096,7 +1105,7 @@ function hydrateMedia(){
 }
 function sheetExtra(sh){
  var n=S.detail,out='';
- if(sh.type==='tpl'){return '<h3>Einheit wechseln</h3><p>Der Plan wird neu zusammengestellt.</p><div class="group">'+Object.keys(TPL).filter(function(k){return TPL[k].type===S.type}).map(function(k){return '<button class="lrow" data-act="settpl" data-v="'+k+'" aria-pressed="'+(k===S.tpl)+'"><span class="radio">'+(k===S.tpl?ic('check',14):'')+'</span><span class="txt"><b>'+TPL[k].name+'</b><small>'+TPL[k].slots.map(slotLabel).join(' · ')+'</small></span></button>'}).join('')+'</div>'}
+ if(sh.type==='tpl'){return '<h3>Variante wechseln</h3><p>Der Plan wird neu zusammengestellt.</p><div class="group">'+Object.keys(TPL).filter(function(k){return TPL[k].type===S.type}).map(function(k){return '<button class="lrow" data-act="settpl" data-v="'+k+'" aria-pressed="'+(k===S.tpl)+'"><span class="radio">'+(k===S.tpl?ic('check',14):'')+'</span><span class="txt"><b>'+TPL[k].name+'</b><small>'+TPL[k].slots.map(slotLabel).join(' · ')+'</small></span></button>'}).join('')+'</div>'}
  if(sh.type==='link'){return '<h3>Link hinzufügen</h3><p>YouTube, Instagram, Vimeo oder jede andere Adresse. Der Link öffnet im Browser.</p><div class="q"><small>Adresse</small><input class="inp" id="linkurl" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></div><div class="q"><small>Titel (optional)</small><input class="inp" id="linktitle" placeholder="z. B. Technik von der Seite" autocomplete="off"></div><div class="row2"><button class="btn" style="flex:1" data-act="sheetclose">Abbrechen</button><button class="btn primary" style="flex:1.4" data-act="addlink">'+ic('plus',18)+'Hinzufügen</button></div>'}
  if(sh.type==='steps'){var sx=stepsOf(n)||{st:[],cues:''},ta='height:auto;padding:12px 14px;line-height:1.4;font-weight:500;font-size:15px';
   return '<h3>Ablauf bearbeiten</h3><p>'+esc(n)+'. Ein Schritt pro Zeile.</p><div class="q"><small>Ablauf</small><textarea data-nt="1" class="inp" id="stepstext" rows="6" style="'+ta+'">'+esc(sx.st.join('\n'))+'</textarea></div><div class="q"><small>Technikhinweis</small><textarea data-nt="1" class="inp" id="cuestext" rows="3" style="'+ta+'">'+esc(sx.cues||'')+'</textarea></div><div class="row2"><button class="btn" style="flex:1" data-act="sheetclose">Abbrechen</button><button class="btn primary" style="flex:1.4" data-act="savesteps">Speichern</button></div>'}
@@ -1132,6 +1141,15 @@ function exSheet(sh){
  '<div class="row2" style="margin-bottom:10px"><label class="search" style="flex:1;margin:0">'+ic('search',18)+'<input id="exq" type="search" placeholder="Übung suchen" value="'+esc(sh.q||'')+'" aria-label="Übung suchen" autocomplete="off"></label><button class="btn primary" data-act="newex" data-m="'+(replace?'replace':'add')+'" data-i="'+(replace?sh.i:'')+'" aria-label="Neue Übung anlegen" style="padding:0 14px;height:46px">'+ic('plus',18)+'Neu</button></div><div id="exlist">'+exListHtml(sh)+'</div>';
 }
 /* Menü der laufenden Übung: ersetzen, würfeln, verschieben, streichen, hinzufügen, Training abschließen */
+/* Kurze Erklärungen der Fachbegriffe (Fragezeichen und Mehr › Begriffe) */
+var HELP={
+ teile:{t:'Aufbau des Plans',h:'<b>Vorbereitung:</b> Erwärmung und Schnellkraft (Sprünge, Würfe). <b>Hauptteil:</b> die vier Grundmuster Squat (kniedominant, Beinvorderseite), Hinge (hüftdominant, Rückseite), Drücken (vom Körper weg) und Ziehen (zum Körper hin). <b>Ergänzung:</b> Rumpf, Assistenz (kleine Zusatzübungen), Spezial (z. B. Handstand) und Prehab (Prävention und Rehabilitation, z. B. Achillessehne und Schulter).'},
+ rir:{t:'RIR: Wiederholungen in Reserve',h:'Wie viele Wiederholungen du nach dem Satz noch geschafft hättest. 0 heißt, es ging nichts mehr, 1 heißt, eine wäre noch gegangen, 3+ heißt, es war noch viel Luft. Die App nutzt den Wert, um das Gewicht für den nächsten Satz vorzuschlagen.'},
+ rpe:{t:'RPE: Belastungsempfinden',h:'Wie anstrengend sich die Einheit insgesamt angefühlt hat, nach der angepassten Borg-Skala: 1 sehr locker, 2 locker, 3 kaum anstrengend, 4 etwas anstrengend, 5 und 6 anstrengend, 7 und 8 sehr anstrengend, 9 extrem anstrengend, 10 maximal anstrengend.'},
+ drag:{t:'Drag-Faktor',h:'Die Stellung der Luftklappe (Windrad) am Ruder- oder Skiergometer, von 1 bis 10. Höher heißt mehr Widerstand pro Zug. Mit dem Wert lassen sich Zeiten und Strecken später vergleichen.'}
+};
+function helpBtn(k){return '<button class="hbtn" data-act="help" data-k="'+k+'" aria-label="Erklärung">?</button>'}
+function tplCount(){return Object.keys(TPL).filter(function(k){return TPL[k].type===S.type}).length}
 /* Rückfrage vor Abbruch und Abschluss des Trainings */
 function confirmSheet(sh){
  if(sh.k==='resetup')return '<h3>Wirklich neu einrichten?</h3><p>Der eingerichtete Plan wird verworfen, und du stellst das nächste Training neu zusammen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Abbrechen</button><button class="btn primary" style="flex:1" data-act="setup">Ja, neu einrichten</button></div>'; '<h3>Training abbrechen?</h3><p>Das Training endet ohne Zusammenfassung. Bereits geloggte Sätze bleiben im Verlauf gespeichert.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, weiter trainieren</button><button class="btn primary" style="flex:1" data-act="confirmstop">Ja, abbrechen</button></div>';
@@ -1143,7 +1161,7 @@ function exMenu(){
  return '<h3>'+esc(ex.name)+'</h3><p>Dein Training läuft weiter, der Timer auch.</p><div class="group">'+
   row('swap','Ersetzen','pick','data-i="'+i+'"')+row('dice','Würfeln','dice','data-i="'+i+'"')+
   row('up','Nach oben','mv','data-i="'+i+'" data-d="-1"',moveTarget(i,-1)<0)+row('down','Nach unten','mv','data-i="'+i+'" data-d="1"',moveTarget(i,1)<0)+
-  row('plus','Übung hinzufügen','sheet','data-s="add"')+row('edit','Bearbeiten','editex','data-n="'+esc(ex.name)+'" data-i="'+i+'"')+row('trash','Übung streichen','del','data-i="'+i+'"')+row('check','Training abschließen','finish','')+'</div>';
+  row('plus','Übung hinzufügen','sheet','data-s="add"')+row('edit','Bearbeiten','editex','data-n="'+esc(ex.name)+'" data-i="'+i+'"')+row('trash','Übung streichen','del','data-i="'+i+'"')+(isLive()?'':row('check','Training abschließen','finish',''))+'</div>';
 }
 function sSummary(){
  var done=[],open=[],sets=0,ton=0;
@@ -1166,7 +1184,7 @@ function overlay(){
     return '<button class="lrow" data-act="pickloc" data-v="'+l.id+'" aria-pressed="'+on+'"><span class="radio">'+(on?ic('check',14):'')+'</span><span class="txt"><b>'+esc(l.name)+'</b><small>'+ls.length+' Geräte · '+esc(eqNames(l).join(', '))+'</small></span>'+(on?'<span class="badge">Zuletzt</span>':'')+'</button>'}).join('')+'</div>'+
    '<button class="btn wide" style="margin-top:10px" data-act="manageloc">'+ic('more',18)+'Orte und Equipment verwalten</button>';
   }else if(sh.type==='pick'||sh.type==='add'){out+=exSheet(sh)
-  }else if(sh.type==='exmenu'){out+=exMenu()}else if(sh.type==='confirm'){out+=confirmSheet(sh)}else if(sh.type==='info'){out+=infoSheet(sh)}
+  }else if(sh.type==='exmenu'){out+=exMenu()}else if(sh.type==='confirm'){out+=confirmSheet(sh)}else if(sh.type==='info'){out+=infoSheet(sh)}else if(sh.type==='help'){var hp=HELP[sh.k]||{t:'',h:''};out+='<h3>'+hp.t+'</h3><p style="line-height:1.45">'+hp.h+'</p><button class="btn primary wide" data-act="sheetclose">Schließen</button>'}
   out+='</div></div>';
  }
  if(S.toast){out+='<div class="toast" role="status"><span>'+esc(S.toast.m)+'</span>'+(S.toast.undo?'<button data-act="undo">Rückgängig</button>':'')+'</div>'}
@@ -1355,6 +1373,10 @@ document.addEventListener('click',function(e){
   case 'moresub':S.moreSub=d.v||'';scrollKey='';render();break;
   case 'toggleeq':S.eqOpen=!S.eqOpen;render();break;
   case 'lang':I18N.setLang(isEn()?'de':'en');render();break;
+  case 'setlang':I18N.setLang(d.v==='en'?'en':'de');render();break;
+  case 'setsec':S.setupSec=S.setupSec===d.k?'':d.k;render();break;
+  case 'help':S.sheet={type:'help',k:d.k};render();break;
+  case 'onbok':S.onb=true;saveLocs();render();break;
   case 'go':go(d.s,{n:d.n});break;
   case 'back':backStep();break;
   case 'exp':S.exp=S.exp===+d.i?-1:+d.i;render();break;
@@ -1426,7 +1448,7 @@ document.addEventListener('click',function(e){
   case 'wustop':wuStop();break;
   case 'wuadj':{var tw=S.tr;if(tw.running)break;tw.el=Math.max(0,tw.el+(+d.d));render();break}
   case 'exnav':{var ni=(S.tr.over?S.plan.length-1:S.tr.i)+(+d.d);if(ni<0||ni>=S.plan.length)break;enterTrain(ni);break}
-  case 'nextex':{var nx2=S.tr.over?-1:nextOpenIdx(S.tr.i);if(nx2<0){go('start');toast('Einheit abgeschlossen. Gut gemacht.');render()}else enterTrain(nx2);break}
+  case 'nextex':{var nx2=S.tr.over?-1:nextOpenIdx(S.tr.i);if(nx2<0){S.sheet={type:'confirm',k:'finish'};render()}else enterTrain(nx2);break}
   case 'range':S.stats.range=+d.r;render();break;
   case 'sub':S.stats.sub=d.v;render();break;
   case 'selex':S.stats.ex=d.n;render();break;
@@ -1457,7 +1479,7 @@ document.addEventListener('click',function(e){
   case 'moreloc':S.moreLocs=!S.moreLocs;render();break;
   case 'setta':setTA(d.v);render();break;
   /* Einrichten startet mit einem frisch gewürfelten Plan; erst „Trainingsplanung abschließen“ bestätigt ihn */
-  case 'setup':{S.planReady=false;S.setupTpl='';S.tpl=nextTpl();S.plan=generatePlan(S.tpl);S.planDate=todayStr();S.exp=-1;relabel();adaptPlan();saveLocs();go('setup');break}
+  case 'setup':{S.setupSec='';S.planReady=false;S.setupTpl='';S.tpl=nextTpl();S.plan=generatePlan(S.tpl);S.planDate=todayStr();S.exp=-1;relabel();adaptPlan();saveLocs();go('setup');break}
   case 'setopt':S.setup[d.k]=!S.setup[d.k];syncPlan();render();break;
   case 'exinfo':{S.sheet={type:'info',n:d.n,edit:false};render();break}
   case 'infoedit':{if(S.sheet&&S.sheet.type==='info'){S.sheet.edit=true;render()}break}
@@ -1662,7 +1684,7 @@ document.addEventListener('mouseup',endDrag);
 document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest('.dh'))e.preventDefault()});
 /* Sprungleiste */
 if($('#jump'))$('#jump').innerHTML=JUMPS.map(function(j){return '<button data-j="'+j[0]+'">'+j[1]+'</button>'}).join('');
-function renderVbar(){var vb=$('#vbar');if(!vb)return;vb.innerHTML='<span>Version '+esc(self.KT_VERSION||'?')+'</span><button class="langbtn" data-act="lang" aria-label="Sprache wechseln / Switch language" data-nt="1"><b>'+(isEn()?'':'')+'DE</b><i></i><b>EN</b></button>';var bs=vb.querySelectorAll('.langbtn b');bs[0].className=isEn()?'':'on';bs[1].className=isEn()?'on':''}
+function renderVbar(){var vb=$('#vbar');if(!vb)return;vb.innerHTML='<span>Version '+esc(self.KT_VERSION||'?')+'</span>'}
 if(isLive())ensureTick();
 relabel();render();
 })();
