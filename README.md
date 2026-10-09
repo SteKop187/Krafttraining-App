@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.17.2
+- **Pause betrifft nur die Gesamtzeit:** Drückst du Pause, hält die Gesamttrainingszeit an; die Zeit „Seit letztem Satz“ läuft unabhängig davon weiter.
+
 ## Neu in 3.17.1
 - **Airbike mit Timer:** Die Uhr läuft hoch bis zur Zielzeit (voreingestellt 5 Minuten, mit − und + um 30 Sekunden änderbar). Beim Erreichen ertönt ein langer Ton mit Vibration, der Timer hält an. Danach trägst du optional die Kalorien ein und schätzt mit der farbigen Skala (RPE 1 bis 10), wie anstrengend es war. Ruder- und Skiergerät behalten die Eingabe der fertigen Zeit; weitere Geräte lassen sich über die Liste `TIMER_CARDIO` in `app.js` auf Timer umstellen.
 
