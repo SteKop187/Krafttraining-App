@@ -499,7 +499,7 @@ function resetInputs(){
  var ex=curEx(),ch=eqChoices(ex),pk=S.eqPick[ex.name],t=S.tr;
  t.eq=ch.indexOf(pk)>-1?pk:ch[0];
  var rf=getRef(ex.name,t.eq);
- t.kg=rf.sug;t.reps=parseInt(ex.reps,10)||8;t.rir=1;t.sec=ex.mode==='time'?(rf.hist?rf.sug:secOf(ex)):0;t.running=false;t.held=[];t.secLog=0;t.el=0;t.pv='';t.drag=(lastWarm(ex.name)||{}).dr||5;t.rpe=0;if(ex.cat==='warm'&&paramOf(ex))t.el=secOf(ex)||300;t.peek=-1;t.ra='';t.phase='input';
+ t.kg=rf.sug;t.reps=parseInt(ex.reps,10)||8;t.rir=1;t.sec=ex.mode==='time'?(rf.hist?rf.sug:secOf(ex)):0;t.running=false;t.held=[];t.secLog=0;t.el=0;t.pv='';t.drag=(lastWarm(ex.name)||{}).dr||5;t.rpe=0;if(ex.cat==='warm'&&paramOf(ex)){t.goal=timerCardio(ex)?(secOf(ex)||300):0;t.el=t.goal?0:(secOf(ex)||300)}t.peek=-1;t.ra='';t.phase='input';
 }
 function sTrain(){
  var t=S.tr,ex=curEx(),eqSel=t.eq||ex.eq,rf=getRef(ex.name,eqSel),time=ex.mode==='time',warm=ex.cat==='warm',total=ex.sets,out='',ch=eqChoices(ex),ss=secStep(ex.name);
@@ -546,10 +546,15 @@ function sTrain(){
   if(par){
    /* Cardio-Gerät: keine laufende Uhr, nur die fertige Zeit und die Werte vom Display eintragen (Zeit steht auf 5 Minuten vor) */
    var hv=parseFloat(String(t.pv).replace(',','.'))||0;
-   canDone=t.el>0;
-   out+='<div class="hint">'+ic('info',18)+'<span><b>'+(lw?'Letztes Mal '+warmLine(lw):'Noch keine Einträge')+'.</b> Trage ein, was das Gerät am Ende anzeigt.</span></div>'+
-   '<div class="field"><small>Zeit</small><div class="tin2"><label><input class="inp" id="cmin" type="number" inputmode="numeric" min="0" max="999" value="'+Math.floor(t.el/60)+'" aria-label="Minuten"><span>min</span></label><label><input class="inp" id="csec" type="number" inputmode="numeric" min="0" max="59" value="'+(t.el%60)+'" aria-label="Sekunden"><span>s</span></label></div></div>'+
-   '<div class="field"><small>'+par.l+' ('+par.u+')</small><input class="inp" id="warmval" inputmode="decimal" value="'+esc(t.pv)+'" placeholder="'+(lw&&lw.pv!=null?fmt(lw.pv):'')+'" aria-label="'+esc(par.l)+'"></div>';
+   canDone=t.goal?(!t.running&&t.el>0):t.el>0;
+   out+='<div class="hint">'+ic('info',18)+'<span><b>'+(lw?'Letztes Mal '+warmLine(lw):'Noch keine Einträge')+'.</b> '+(t.goal?'Der Timer läuft bis zur Zielzeit hoch.':'Trage ein, was das Gerät am Ende anzeigt.')+'</span></div>';
+   if(t.goal){
+    var tg=t.running?Math.max(0,Math.floor((Date.now()-t.start)/1000)):t.el;
+    out+='<div class="field"><small>'+(t.running?'läuft':'Zeit')+' · Ziel '+mmss(t.goal)+'</small><div class="stepper"><button class="sb" data-act="goaladj" data-d="-30" aria-label="Zielzeit 30 Sekunden kürzer"'+(t.running?' disabled':'')+'>'+ic('minus',22)+'</button><div class="val" id="secv">'+mmss(tg)+'</div><button class="sb" data-act="goaladj" data-d="30" aria-label="Zielzeit 30 Sekunden länger"'+(t.running?' disabled':'')+'>'+ic('plus',22)+'</button></div><div class="tprog"><i id="tprg" style="width:'+Math.min(100,Math.round(100*tg/t.goal))+'%"></i></div></div>'+
+    (t.running?'<button class="btn wide" data-act="wustop" style="height:56px;margin-bottom:10px">'+ic('stop',20)+'Stopp</button>':'<button class="btn primary wide" data-act="wustart" style="height:56px;margin-bottom:10px">'+ic('timer',20)+(t.el>0?'Weiter':'Start')+'</button>');
+   }else out+=
+   '<div class="field"><small>Zeit</small><div class="tin2"><label><input class="inp" id="cmin" type="number" inputmode="numeric" min="0" max="999" value="'+Math.floor(t.el/60)+'" aria-label="Minuten"><span>min</span></label><label><input class="inp" id="csec" type="number" inputmode="numeric" min="0" max="59" value="'+(t.el%60)+'" aria-label="Sekunden"><span>s</span></label></div></div>';
+   out+='<div class="field"><small>'+par.l+' ('+par.u+(t.goal?', optional':'')+')</small><input class="inp" id="warmval" inputmode="decimal" value="'+esc(t.pv)+'" placeholder="'+(lw&&lw.pv!=null?fmt(lw.pv):'')+'" aria-label="'+esc(par.l)+'"></div>';
    if(par.u==='m')out+='<div class="goal"><div><small>Ø pro 500 m</small><b id="avg500">'+avg500(t.el,hv)+'</b></div><div><small>Gesamtstrecke</small><b id="sum500">'+(hv>0?fmt(hv,0)+' m':'–')+'</b></div></div>'+
     '<div class="field"><small>Drag-Faktor (Windrad): am Rädchen drehen'+helpBtn('drag')+'</small><div class="wheelbox"><div class="wheel" data-w="drag" data-v="'+(t.drag||5)+'" aria-label="Drag-Faktor"><i class="wpad"></i>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){return '<i class="wi">'+n+'</i>'}).join('')+'<i class="wpad"></i></div><div class="wmark"></div></div></div>';
    out+='<div class="field"><small>Belastungsempfinden (RPE, optional)'+helpBtn('rpe')+'</small><div class="rpe'+(t.rpe?' has':'')+'">'+[1,2,3,4,5,6,7,8,9,10].map(function(n){var c=rpeColor(n);return '<button class="rpeb" data-act="rpe" data-v="'+n+'" style="--rc:'+c+';--rt:'+textOn(c)+'" aria-pressed="'+(t.rpe===n)+'" aria-label="'+n+' '+RPE_L[n]+'">'+n+'</button>'}).join('')+'</div><p class="rpel">'+(t.rpe?'<b>'+t.rpe+'</b> · '+RPE_L[t.rpe]:'Tippe auf eine Zahl: 1 sehr locker bis 10 maximal anstrengend')+'</p></div>';
@@ -1285,7 +1290,9 @@ function cdStart(){
 /* Erwärmung: Timer läuft hoch, Stopp, danach die Messgröße (z. B. Meter) eintragen */
 function wuStart(){
  var t=S.tr;if(t.running)return;t.running=true;t.start=Date.now()-t.el*1000;
- clearInterval(S.tmr);S.tmr=setInterval(function(){t.el=Math.floor((Date.now()-t.start)/1000);var e=$('#secv');if(e)e.textContent=mmss(t.el)},250);
+ audioCtx();clearInterval(S.tmr);S.tmr=setInterval(function(){t.el=Math.floor((Date.now()-t.start)/1000);
+  if(t.goal&&t.el>=t.goal){t.el=t.goal;wuStop();beep(900,660);try{if(navigator.vibrate)navigator.vibrate([300,100,300])}catch(e){}return}
+  var e=$('#secv');if(e)e.textContent=mmss(t.el);var pg=document.getElementById('tprg');if(pg&&t.goal)pg.style.width=Math.min(100,Math.round(100*t.el/t.goal))+'%'},250);
  render();
 }
 function wuStop(){
@@ -1329,6 +1336,8 @@ var RPE_L=['','sehr locker','locker','kaum anstrengend','etwas anstrengend','ans
 var RPE_C=['','#1F7A3A','#3F9A3C','#7CB342','#B5C42F','#E8C619','#F0A81A','#EB7A1C','#E2481C','#C0211C','#8A1018'];
 function rpeColor(n){return RPE_C[n]||'#999999'}
 function textOn(hex){function L(h){var c=[1,3,5].map(function(i){var v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]}var l=L(hex);return (1.05/(l+.05))>=((l+.05)/.0575)?'#FFFFFF':'#12161C'}
+var TIMER_CARDIO=['Airbike'];
+function timerCardio(ex){return !!ex&&TIMER_CARDIO.indexOf(ex.name)>-1}
 function avg500(sec,m){return sec>0&&m>0?mmss(Math.round(sec/(m/500))):'–'}
 function warmLine(l){var s=mmss(l.sec);if(l.pv!=null){s+=' · '+fmt(l.pv)+' '+l.pu;if(l.pu==='m')s+=' · Ø '+avg500(l.sec,l.pv)+' pro 500 m'}if(l.dr)s+=' · Drag '+l.dr;if(l.rpe)s+=' · Belastung '+l.rpe;return s}
 function lastWarm(name){for(var i=S.hist.length-1;i>=0;i--){var h=S.hist[i];if(h.name===name&&h.sec>0)return h}return null}
@@ -1488,6 +1497,7 @@ document.addEventListener('click',function(e){
   case 'inforeset':{var irn=S.sheet&&S.sheet.n;if(irn){delete S.info[irn];delete S.infoSrc[irn];saveLocs();toast('Standardtext wiederhergestellt');render()}break}
   case 'infofetch':{var ifn=d.n;toast('Suche in Wikipedia …');render();fetchInfo(ifn,I18N.CUSTOM[ifn]||EXEN[ifn]||'').then(function(res){if(res){S.info[ifn]=res.text;S.infoSrc[ifn]=res.src;saveLocs();toast('Beschreibung aus '+res.src+' übernommen, du kannst sie bearbeiten.')}else toast('Nichts Passendes gefunden. Schreibe die Beschreibung selbst oder schlage sie im Netz nach.');render()});break}
   case 'rtoggle':{S.rOpen=S.rOpen||{};S.rOpen[d.n]=!S.rOpen[d.n];render();break}
+  case 'goaladj':{var tt=S.tr;if(tt.running||!tt.goal)break;tt.goal=Math.max(30,tt.goal+(+d.d));render();break}
   case 'rpe':{S.tr.rpe=S.tr.rpe===+d.v?0:+d.v;render();break}
   case 'tgfocus':{var fl=focusOf(d.t).slice(),fi=fl.indexOf(d.k);if(fi>-1){if(fl.length<2){toast('Mindestens ein Schwerpunkt bleibt gewählt');render();break}fl.splice(fi,1)}else fl.push(d.k);S.focus[d.t]=fl;syncPlan();render();break}
   case 'newtypego':{var ntid='typ'+Date.now(),ntt={id:ntid,name:'Neue Trainingsart',cats:['squat','push','pull'],group:d.g==='mikro'?'mikro':'kraft'};S.types.push(ntt);registerType(ntt);S.editType=ntid;S.moreSub='types';saveLocs();go('more');break}

@@ -564,3 +564,6 @@ body{padding:0;background:var(--app)}
 .onb ol{margin:6px 0 12px;padding-left:20px;color:var(--ink-2);font-size:14px;line-height:1.45}
 .onb li{margin-bottom:6px}
 .onb b{color:var(--ink)}
+/* Cardio-Timer: Fortschrittsbalken bis zur Zielzeit */
+.tprog{height:8px;border-radius:4px;background:var(--surface-2);margin-top:10px;overflow:hidden}
+.tprog i{display:block;height:100%;background:var(--ink);border-radius:4px;transition:width .25s linear}
