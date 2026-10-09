@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.16.0
+- **QR-Code in der App:** Unter Mehr › Daten und Sicherung steht ein QR-Code zur Adresse der App, dazu die Kurzanleitung für Android (Chrome-Menü „App installieren“) und iPhone (Safari, Teilen, „Zum Home-Bildschirm“). Der Code entsteht ohne Internet mit der mitgelieferten Datei `kt-qr.js` (qrcode-generator, MIT-Lizenz).
+- **Ältere Apple-Geräte:** Ersatzfarben für Browser ohne `color-mix` (iOS vor 16.2) und Ersatzhöhe für Browser ohne `100dvh`.
+- **Kachel Ganzkörper:** Symbol links, Text rechts, wie im Entwurf.
+
 ## Neu in 3.15.1
 - **Einrichten:** Der Griff zum Verschieben in der Plan-Vorschau hat jetzt Abstand zum Bildschirmrand, damit die Rückwärtsgeste von Android das Ziehen nicht abfängt.
 

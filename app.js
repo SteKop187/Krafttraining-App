@@ -847,7 +847,10 @@ function sTypes(){
  var hid=all.filter(function(t){return S.hiddenTA.indexOf(t.id)>-1});
  if(hid.length)out+='<div class="eyebrow" style="margin:16px 0 6px">Gelöschte Trainingsarten</div><div class="fchips">'+hid.map(function(t){return '<button class="chip ex" data-act="restoreta" data-v="'+esc(t.id)+'">'+ic('plus',14)+esc(t.name)+' wiederherstellen</button>'}).join('')+'</div>';
  return out;
-}function sMore(){
+}/* QR-Code zur App-Adresse, ohne Internet erzeugt */
+var APP_URL='https://stekop187.github.io/Krafttraining-App/';
+function qrSvg(){try{var q=qrcode(0,'M');q.addData(APP_URL);q.make();return q.createSvgTag({cellSize:4,margin:3,scalable:true,alt:'QR-Code zur Adresse der App',title:'QR-Code'})}catch(e){return ''}}
+function sMore(){
  var sub=S.moreSub||'',bar=function(title){return '<div class="top-bar"><button class="iconbtn" data-act="moresub" data-v="" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">'+title+'</span><span style="width:44px"></span></div>'};
  var ver='<p class="mut" style="margin:14px 0 0;font-size:12px">Version '+esc(self.KT_VERSION||'?')+(self.KT_BUILD?' · Stand '+esc(self.KT_BUILD.split('-').reverse().join('.')):'')+'</p>';
  if(sub==='loc')return bar('Orte und Equipment')+'<div class="pad">'+sLocs()+'</div>';
@@ -856,7 +859,9 @@ function sTypes(){
   '<div class="sec">Spracheingabe</div><div class="group"><button class="tg" data-act="tg" data-k="voice" data-v="x" aria-pressed="'+!!S.set.voice+'"><span>Spracheingabe<small>Befehle für den Tagesplan, nutzt die Spracherkennung des Browsers</small></span><i class="sw"></i></button></div>'+
   (S.removed.length?'<div class="sec">Gelöschte Übungen</div><div class="group">'+S.removed.map(function(n){return '<div class="logrow"><span><b>'+esc(n)+'</b></span><button class="btn" style="height:38px" data-act="restoreex" data-n="'+esc(n)+'">Wiederherstellen</button></div>'}).join('')+'</div>':'')+'</div>';
  if(sub==='data')return bar('Daten und Sicherung')+'<div class="pad"><p class="mut" style="margin:0 0 10px;font-size:13px">'+S.hist.length+' Sätze gespeichert, nur auf diesem Gerät. Exportiere regelmäßig als Sicherung.</p><div class="row2"><button class="btn" style="flex:1" data-act="export" data-f="json">JSON</button><button class="btn" style="flex:1" data-act="export" data-f="csv">CSV</button><button class="btn" style="flex:1" data-act="import">Import</button></div><input type="file" id="importfile" accept=".json,application/json" hidden>'+
-  '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p>'+ver+'</div>';
+  '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p>'+
+  '<div class="sec">App aufs Handy</div><div class="card qrcard"><div class="qrbox">'+qrSvg()+'</div><p class="url">'+esc(APP_URL)+'</p><p class="mut" style="margin:6px 0 0;font-size:13px">Kamera des Handys auf den Code halten und den Link öffnen. Android: im Chrome-Menü „App installieren“. iPhone: in Safari Teilen, dann „Zum Home-Bildschirm“.</p></div>'+
+  ver+'</div>';
  var rows=[['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV) und Import']];
  return '<div class="pad"><h1 class="h1">Mehr</h1><p class="sub">Orte, Trainingsarten, Einstellungen und Daten.</p><div class="group">'+rows.map(function(r){return '<button class="mrow" data-act="moresub" data-v="'+r[0]+'"><span class="mi">'+ic(r[1],22)+'</span><span class="txt"><b>'+r[2]+'</b><small>'+esc(r[3])+'</small></span>'+ic('next',16)+'</button>'}).join('')+'</div>'+ver+'</div>';
 }

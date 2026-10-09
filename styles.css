@@ -203,8 +203,8 @@ svg.ic{flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:r
 /* PWA: Vollbild statt Handy-Rahmen */
 html,body{height:100%;overscroll-behavior:none}
 body{padding:0;background:var(--app)}
-.stage{padding:0;height:100dvh}
-.frame{max-width:640px;max-height:none;height:100dvh;border:0;border-radius:0;box-shadow:none;padding-top:env(safe-area-inset-top,0px)}
+.stage{padding:0;height:100vh;height:100dvh}
+.frame{max-width:640px;max-height:none;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none;padding-top:env(safe-area-inset-top,0px)}
 .tabbar{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 .cta{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 @media (min-width:660px){body{background:var(--bg)}.frame{border-inline:1px solid var(--line)}}
@@ -516,3 +516,26 @@ body{padding:0;background:var(--app)}
 /* Beim Einrichten steht der Griff am Rand: Abstand, damit die Rückwärtsgeste von Android nicht dazwischenfunkt */
 .item.pv .irow{padding-right:26px}
 .item.pv .dh{width:56px}
+/* QR-Code unter Daten und Sicherung */
+.qrcard{text-align:center}
+.qrbox{display:grid;place-items:center;padding:12px;background:#fff;border-radius:16px;border:1px solid var(--line)}
+.qrbox svg{width:100%;max-width:230px;height:auto}
+.qrcard .url{word-break:break-all;font-weight:600;margin:10px 0 0}
+
+/* Ersatzfarben für ältere Browser ohne color-mix (z. B. iOS vor 16.2) */
+@supports not (background:color-mix(in srgb,red 50%,blue)){
+ .tband .iconbtn.nav{background:rgba(255,255,255,.18)}
+ .tband .dots .dotb i{background:rgba(128,128,128,.45)}
+ .tband .dots .dotb.cur i{background:rgba(128,128,128,.85)}
+ .restbn .ib{border-color:rgba(128,128,128,.6)}
+ .restbn .ib:active{background:rgba(128,128,128,.25)}
+ .restbn .rsub{border-top-color:rgba(128,128,128,.4)}
+ .fchip{border-color:var(--line)}
+ .tacard{border-color:var(--line)}
+ .tacard[aria-pressed="true"]{box-shadow:none}
+ .tacard[aria-pressed="true"] .tai{background:rgba(255,255,255,.25)}
+}
+/* Kachel Ganzkörper: Symbol links, Text rechts */
+.tacard{flex-direction:row}
+.tacard.sm,.tacard.new{flex-direction:column}
+.tacard.wide .tat{text-align:left}
