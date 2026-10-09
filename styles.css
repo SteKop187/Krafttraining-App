@@ -513,9 +513,6 @@ body{padding:0;background:var(--app)}
 .rpel b{font:700 20px var(--font-d);color:var(--ink)}
 .rmet .rpet{grid-column:1/-1}
 .rmet .rpet small{color:inherit;opacity:.85}
-/* Beim Einrichten steht der Griff am Rand: Abstand, damit die Rückwärtsgeste von Android nicht dazwischenfunkt */
-.item.pv .irow{padding-right:26px}
-.item.pv .dh{width:56px}
 /* QR-Code unter Daten und Sicherung */
 .qrcard{text-align:center}
 .qrbox{display:grid;place-items:center;padding:12px;background:#fff;border-radius:16px;border:1px solid var(--line)}
@@ -539,3 +536,11 @@ body{padding:0;background:var(--app)}
 .tacard{flex-direction:row}
 .tacard.sm,.tacard.new{flex-direction:column}
 .tacard.wide .tat{text-align:left}
+/* Griff zum Verschieben links unter dem Gruppenbuchstaben, weg von der Hauptfläche und vom Start-Dreieck */
+.lcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:40px;flex:none;margin-left:12px}
+.lcol .grp{width:auto;text-align:center}
+.lcol .dh{width:38px;height:34px;border-radius:10px}
+.lcol .dh:active{background:var(--surface-2)}
+.irow .item-main{padding-left:8px}
+.blk .lcol{margin-left:14px}
+.blk .item-main{padding-left:8px}
