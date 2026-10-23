@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.18.0
+- **Beendetes Training fortsetzen:** Nach „Training abschließen“ (oder Abbrechen) gibt es am selben Tag die Taste „Training fortsetzen“, im Abschluss-Bildschirm, auf dem Start und in der Rückschau. Die Gesamtzeit läuft dort weiter, wo sie aufgehört hat.
+- **Trainingseinheiten:** Unter Mehr → Trainingseinheiten stehen alle gespeicherten Einheiten, neueste zuerst. Eine Einheit öffnet die Rückschau; dort lässt sich jeder Satz antippen und ändern (Gewicht, Wiederholungen, RIR, Bewertung, bei Erwärmung Zeit und Wert) oder löschen. „Einheit löschen“ entfernt die ganze Einheit nach Rückfrage. Die Liste erreichst du auch über das Listen-Symbol oben rechts in der Rückschau.
+- **Fehler behoben:** „Training abbrechen“ zeigte versehentlich den Text von „Training abschließen“. Jetzt erscheint die richtige Rückfrage.
+
 ## Neu in 3.17.5
 - **Gliederung auch in Rückschau und Abschluss:** Die Rückschau auf das letzte Training und der Abschluss-Bildschirm teilen die Übungen wie der Plan in Vorbereitung, Hauptteil (mit dicken Linien) und Ergänzung ein. Im Abschluss stehen dazu alle Übungen mit Farbstreifen und Bereichs-Schild in einer Liste; nicht gemachte Übungen sind als „nicht gemacht“ vermerkt.
 

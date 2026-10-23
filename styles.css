@@ -584,3 +584,8 @@ body{padding:0;background:var(--app)}
 .blk .item .logrow b{font-size:16px}
 .item .logrow .txt{display:flex;flex-direction:column;min-width:0}
 .blk .rcard{background:var(--surface)}
+
+/* Trainingseinheiten: Sätze antippen und ändern */
+button.logrow{width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;font-size:15px;min-height:44px}
+.rmet[data-act]{position:relative;cursor:pointer}
+.rmet .ed{position:absolute;right:12px;top:12px;color:var(--ink-3)}

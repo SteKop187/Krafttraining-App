@@ -157,7 +157,7 @@ var S={
  ],
  hist:[],custom:[],media:{},stepsX:{},demo:false,planDate:'',tpl:'gka',
  tr:null,lib:{cat:'alle',q:''},detail:'Bankdrücken',
- wiz:null,wizCtx:{mode:'lib'},wizHint:'Gib einen Namen ein, dann schlage ich die Einordnung vor.',cardios:CARD_DEFAULT.slice(),eqPick:{},live:null,removed:[],sumDur:0,setup:{cardio:true,allg:true,as:true,hand:true,schulter:false,aufr:false},focus:{},planReady:false,locOpen:false,info:{},infoSrc:{},setupTpl:'',confirmDel:'',
+ wiz:null,wizCtx:{mode:'lib'},wizHint:'Gib einen Namen ein, dann schlage ich die Einordnung vor.',cardios:CARD_DEFAULT.slice(),eqPick:{},live:null,removed:[],sumDur:0,lastEnd:null,rsel:null,rfrom:'',setup:{cardio:true,allg:true,as:true,hand:true,schulter:false,aufr:false},focus:{},planReady:false,locOpen:false,info:{},infoSrc:{},setupTpl:'',confirmDel:'',
  stats:{range:12,sub:'ueber',ex:'Bankdrücken',table:false},
  locs:[
   {id:'potsdam',name:'Potsdam Ruderzentrum',eq:{'Körpergewicht':1,'Langhantel':1,'Kurzhantel':1,'Kettlebell':0,'Maschine':1,'Seilzug':1,'Band':0,'Medizinball':1,'Box':1}},
@@ -198,7 +198,7 @@ function usesOf(name){var d={};S.hist.forEach(function(h){if(h.name===name)d[h.d
 function mediaCount(name,t){return (S.media[name]||[]).filter(function(m){return m.type===t}).length}
 /* Orte merken: letzter gewählter Ort ist beim nächsten Öffnen Standard (nur in diesem Browser) */
 var LSKEY='krafttraining-app-v1';
-function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,onb:!!S.onb,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
+function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,lastEnd:S.lastEnd,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,onb:!!S.onb,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
 function applyData(d){
  if(!d)return;
  if(Array.isArray(d.machines)&&d.machines.length)S.machines=d.machines.filter(function(m){return typeof m==='string'&&m});
@@ -206,7 +206,7 @@ function applyData(d){
  if(d.eqPick&&typeof d.eqPick==='object')S.eqPick=d.eqPick;
  if(d.setup&&typeof d.setup==='object'){['cardio','allg','as','hand','schulter','aufr'].forEach(function(k){if(k in d.setup)S.setup[k]=!!d.setup[k]});if(d.focus&&typeof d.focus==='object')S.focus=d.focus;if(d.info&&typeof d.info==='object')S.info=d.info;S.onb=!!d.onb;if(d.infoSrc&&typeof d.infoSrc==='object')S.infoSrc=d.infoSrc;S.planReady=!!d.planReady}
  if(Array.isArray(d.removed)){S.removed=d.removed.filter(function(n){return typeof n==='string'});S.removed.forEach(removeEx)}
- if(d.live&&d.live.start)S.live=d.live;
+ if(d.live&&d.live.start)S.live=d.live;if(d.lastEnd&&d.lastEnd.start)S.lastEnd=d.lastEnd;
  if(Array.isArray(d.types)){S.types.forEach(unregisterType);S.types=d.types.filter(function(t){return t&&t.id&&t.name&&Array.isArray(t.cats)});S.types.forEach(registerType)}
  if(Array.isArray(d.locRecent))S.locRecent=d.locRecent;
  if(d.locs&&d.locs.length){S.locs=d.locs;S.loc=locById(d.loc)?d.loc:d.locs[0].id}
@@ -422,7 +422,11 @@ function partOf(p){var c=p.cat;return (c==='warm'||c==='schnell')?'vor':((c==='s
 
 /* Training läuft: die Übersicht bleibt die Basis, der Timer läuft weiter, wenn man zwischen Übungen wechselt */
 function isLive(){return !!(S.live&&S.live.date===todayStr())}
-function startLive(){if(!isLive()){S.live={start:Date.now(),t0:Date.now(),date:todayStr(),last:0};saveLocs()}ensureTick()}
+/* Beendetes Training merken, damit es am selben Tag wieder aufgenommen werden kann (Gesamtzeit läuft dann dort weiter) */
+function rememberEnd(){if(isLive())S.lastEnd={start:S.live.start,el:Math.max(0,(S.live.pausedAt||Date.now())-S.live.start),date:S.live.date||todayStr(),typ:S.type,tpl:S.tpl}}
+function resumable(){var e=S.lastEnd;return !!e&&!isLive()&&e.date===todayStr()&&e.typ===S.type&&e.tpl===S.tpl&&S.plan.length>0}
+function resumeLast(){if(!resumable())return false;var n=Date.now();S.live={start:n-S.lastEnd.el,t0:n,date:todayStr(),last:0};S.lastEnd=null;S.planReady=true;saveLocs();ensureTick();return true}
+function startLive(){if(!isLive()){S.live={start:Date.now(),t0:Date.now(),date:todayStr(),last:0};S.lastEnd=null;saveLocs()}ensureTick()}
 /* Timer oben: Gesamtdauer des Trainings (läuft ab der ersten Übung bis „Training beenden“) und, daneben, die Zeit seit dem letzten Satz (zählt hoch, kein Countdown) */
 function nowT(){return isLive()&&S.live.pausedAt?S.live.pausedAt:Date.now()}
 function sinceLast(){return isLive()?Math.max(0,Math.floor((Date.now()-(S.live.last||S.live.t0||S.live.start))/1000)):-1}
@@ -862,6 +866,7 @@ function qrSvg(){try{var q=qrcode(0,'M');q.addData(APP_URL);q.make();return q.cr
 function sMore(){
  var sub=S.moreSub||'',bar=function(title){return '<div class="top-bar"><button class="iconbtn" data-act="moresub" data-v="" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">'+title+'</span><span style="width:44px"></span></div>'};
  var ver='<p class="mut" style="margin:14px 0 0;font-size:12px">Version '+esc(self.KT_VERSION||'?')+(self.KT_BUILD?' · Stand '+esc(self.KT_BUILD.split('-').reverse().join('.')):'')+'</p>';
+ if(sub==='sessions'){var ss=sessionsAll();return bar('Trainingseinheiten')+'<div class="pad"><p class="mut" style="margin:0 0 10px;font-size:13px">'+ss.length+(ss.length===1?' Einheit':' Einheiten')+'. Tippe eine Einheit an, um ihre Sätze zu sehen und zu ändern.</p>'+(ss.length?'<div class="group">'+ss.map(function(s){var nm=(TPL[s.tpl]&&TPL[s.tpl].name)||typeName(s.typ),dt=parseDay(s.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short',year:'numeric'}),ne=Object.keys(s.names).length;return '<button class="lrow" data-act="opensess" data-d="'+esc(s.date)+'" data-t="'+esc(s.typ)+'"><span class="txt"><b>'+esc(nm)+'</b><small>'+esc(dt)+(s.loc?' · '+esc(s.loc):'')+'</small><small>'+ne+(ne===1?' Übung':' Übungen')+' · '+s.sets+(s.sets===1?' Satz':' Sätze')+(s.ton>0?' · '+fmt(s.ton,0)+' kg':'')+'</small></span>'+ic('next',16)+'</button>'}).join('')+'</div>':'<p class="mut">Noch kein Training gespeichert.</p>')+'</div>'}
  if(sub==='loc')return bar('Orte und Equipment')+'<div class="pad">'+sLocs()+'</div>';
  if(sub==='types')return bar('Trainingsarten')+'<div class="pad">'+sTypes()+'</div>';
  if(sub==='settings')return bar('Einstellungen')+'<div class="pad">'+
@@ -873,15 +878,19 @@ function sMore(){
   '<p class="mut" style="margin:10px 0 0;font-size:12px">Fotos und Videos aus der Bibliothek bleiben auf diesem Gerät und sind nicht im Export enthalten. Links und Abläufe sind enthalten.</p>'+
   '<div class="sec">App aufs Handy</div><div class="card qrcard"><div class="qrbox">'+qrSvg()+'</div><p class="url">'+esc(APP_URL)+'</p><p class="mut" style="margin:6px 0 0;font-size:13px">Kamera des Handys auf den Code halten und den Link öffnen. Android: im Chrome-Menü „App installieren“. iPhone: in Safari Teilen, dann „Zum Home-Bildschirm“.</p></div>'+
   ver+'</div>';
- var rows=[['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV), Import und QR-Code'],['help','info','Begriffe','Was Hinge, Prehab, RIR, RPE und Drag-Faktor bedeuten']];
+ var rows=[['sessions','list','Trainingseinheiten',sessionsAll().length+' gespeichert · ansehen, bearbeiten, löschen'],['loc','pin','Orte und Equipment',S.locs.length+(S.locs.length===1?' Ort':' Orte')+' · '+curLoc().name],['types','dumbbell','Trainingsarten',visTA().length+' Trainingsarten in Krafttraining und Mikrotraining'],['settings','edit','Einstellungen','Heute meiden, Spracheingabe, gelöschte Übungen'],['data','list','Daten und Sicherung','Export (JSON, CSV), Import und QR-Code'],['help','info','Begriffe','Was Hinge, Prehab, RIR, RPE und Drag-Faktor bedeuten']];
  return '<div class="pad"><h1 class="h1">Mehr</h1><p class="sub">Orte, Trainingsarten, Einstellungen und Daten.</p><div class="group">'+rows.map(function(r){return '<button class="mrow" data-act="moresub" data-v="'+r[0]+'"><span class="mi">'+ic(r[1],22)+'</span><span class="txt"><b>'+r[2]+'</b><small>'+esc(r[3])+'</small></span>'+ic('next',16)+'</button>'}).join('')+'</div>'+ver+'</div>';
 }
 /* ---------- Startbildschirm ---------- */
 function parseDay(s){var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function relDay(s){var n=Math.round((TODAY-parseDay(s))/864e5);return n<=0?'heute':(n===1?'gestern':'vor '+n+' Tagen')}
-function lastSession(){
+function lastSession(){return sessionOf(null)}
+/* Einheit nach Datum und Trainingsart; ohne Angabe die zuletzt gespeicherte */
+function sessionOf(sel){
  if(!S.hist.length)return null;
- var l=S.hist[S.hist.length-1],sets=S.hist.filter(function(h){return h.date===l.date&&typOf(h)===typOf(l)}),ex={},order=[],ton=0,cnt={m:0,p:0,w:0};
+ var l=null;if(sel){for(var i=S.hist.length-1;i>=0;i--){if(S.hist[i].date===sel.date&&typOf(S.hist[i])===sel.typ){l=S.hist[i];break}}}
+ if(!l)l=S.hist[S.hist.length-1];
+ var sets=S.hist.filter(function(h){return h.date===l.date&&typOf(h)===typOf(l)}),ex={},order=[],ton=0,cnt={m:0,p:0,w:0};
  sets.forEach(function(h){
   var e=ex[h.name];if(!e){e=ex[h.name]={name:h.name,cat:h.cat,n:0,kg:0,reps:0,sec:0,sl:[]};order.push(h.name)}
   e.n++;e.sl.push(h);
@@ -890,6 +899,8 @@ function lastSession(){
  });
  return {date:l.date,typ:typOf(l),tpl:l.tpl,loc:l.loc,sets:sets.length,list:order.map(function(n){return ex[n]}),ton:ton,cnt:cnt};
 }
+/* Alle gespeicherten Einheiten (ein Tag und eine Trainingsart), neueste zuerst */
+function sessionsAll(){var m={},o=[];S.hist.forEach(function(h,i){var k=h.date+'|'+typOf(h),s=m[k];if(!s){s=m[k]={date:h.date,typ:typOf(h),tpl:h.tpl,loc:h.loc,sets:0,ton:0,names:{},last:i};o.push(s)}s.sets++;s.ton+=(h.kg||0)*(h.reps||0);s.names[h.name]=1;s.last=i});o.sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:b.last-a.last)});return o}
 function exBest(e){return e.sec?e.sec+' s':(e.kg?fmt(e.kg)+' kg × '+e.reps:(e.reps?e.reps+' Wdh.':'–'))}
 /* Orte (die drei zuletzt genutzten vorn, weitere hinter „Weitere Orte“) und Trainingsart: Startbildschirm und Einrichtung teilen sich das */
 function locSection(title){
@@ -948,8 +959,9 @@ function sStart(){
  if(!S.onb)out+='<div class="card onb"><h3>So geht es</h3><ol><li><b>Einrichten:</b> Ort, Trainingsart und Bestandteile wählen. Der Plan wird passend gewürfelt.</li><li><b>Prüfen:</b> Übungen ersetzen, verschieben oder streichen, dann „Trainingsplanung abschließen“.</li><li><b>Trainieren:</b> „Training starten“, Sätze eintragen, am Ende das Häkchen im Zeitbalken.</li></ol><button class="btn wide" data-act="onbok">Verstanden</button></div>';
  if(ls){
   var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
-  out+='<div class="card last tap" role="button" tabindex="0" data-act="go" data-s="rueck" aria-label="Rückschau auf das letzte Training öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letztes Training<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Rückschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
+  out+='<div class="card last tap" role="button" tabindex="0" data-act="openlast" aria-label="Rückschau auf das letzte Training öffnen"><div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center">Letztes Training<span class="mut" style="display:flex;align-items:center;gap:2px;text-transform:none;letter-spacing:0;font-weight:600">Rückschau'+ic('next',14)+'</span></div><h3 style="margin-top:4px">'+esc(nm)+'</h3><p class="cap">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</p>'+
   '<div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
+  (resumable()?'<button class="btn primary wide" style="margin-top:10px" data-act="resumelast">'+ic('play',18)+'Training fortsetzen</button>':'')+
   '</div>';
  }else{
   out+='<div class="card"><div class="eyebrow">Letztes Training</div><h3 style="margin-top:4px">Noch kein Training</h3><p class="cap" style="margin:0">Starte dein erstes Training. Danach siehst du hier eine kurze Zusammenfassung.</p></div>';
@@ -973,13 +985,15 @@ function sStart(){
 }
 /* Rückschau: die letzte Einheit mit allen Sätzen, nur zum Ansehen */
 function sRueck(){
- var ls=lastSession(),out='<div class="top-bar"><button class="iconbtn" data-act="tab" data-t="start" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Rückschau</span><span style="width:44px"></span></div><div class="pad">';
+ var ls=sessionOf(S.rsel),out='<div class="top-bar"><button class="iconbtn" data-act="rueckback" aria-label="Zurück">'+ic('back',22)+'</button><span class="cnt">Rückschau</span><button class="iconbtn" data-act="sessions" aria-label="Alle Trainingseinheiten">'+ic('list',22)+'</button></div><div class="pad">';
  if(!ls)return out+'<h1 class="h1">Noch kein Training</h1><p class="sub">Nach deinem ersten Training siehst du hier alle Sätze.</p></div>';
  var nm=(TPL[ls.tpl]&&TPL[ls.tpl].name)||typeName(ls.typ),dt=parseDay(ls.date).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
  var open=S.rOpen||{};
  out+='<div class="eyebrow">'+relDay(ls.date)+' · '+esc(dt)+(ls.loc?' · '+esc(ls.loc):'')+'</div><h1 class="h1">'+esc(nm)+'</h1>'+
   '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+ls.list.length+'</b></div><div><small>Sätze</small><b>'+ls.sets+'</b></div>'+(ls.ton>0?'<div><small>Volumen</small><b>'+fmt(ls.ton,0)+' kg</b></div>':'')+'</div>'+
-  '<div class="chips"><span class="chip">'+ic('up',14)+'Mehr '+ls.cnt.m+'</span><span class="chip">'+ic('eq',14)+'Passt '+ls.cnt.p+'</span><span class="chip">'+ic('down',14)+'Weniger '+ls.cnt.w+'</span></div></div>';
+  '<div class="chips"><span class="chip">'+ic('up',14)+'Mehr '+ls.cnt.m+'</span><span class="chip">'+ic('eq',14)+'Passt '+ls.cnt.p+'</span><span class="chip">'+ic('down',14)+'Weniger '+ls.cnt.w+'</span></div></div>'+
+  (ls.date===todayStr()&&ls.typ===S.type&&resumable()?'<button class="btn primary wide" style="margin-bottom:12px" data-act="resumelast">'+ic('play',18)+'Training fortsetzen</button>':'')+
+  '<p class="mut" style="margin:0 0 10px;font-size:12px">Tippe auf einen Satz, um ihn zu ändern oder zu löschen.</p>';
  out+=sectList(ls.list,function(e){var out='';
   var warm=e.cat==='warm',on=!!open[e.name],n=e.sl.length;
   out+='<div class="card rcard k-'+kcls(e)+'"><button class="rhead" data-act="rtoggle" data-n="'+esc(e.name)+'" aria-expanded="'+(warm?'true':on)+'"'+(warm?' disabled':'')+'><span class="rtx">'+slotTag(e)+'<h3>'+esc(e.name)+'</h3></span><span class="rn">'+n+(n===1?' Satz':' Sätze')+'</span>'+(warm?'':ic(on?'chevd':'next',16))+'</button>';
@@ -990,19 +1004,19 @@ function sRueck(){
     else if(h.pv!=null)c+='<div><small>Wert</small><b>'+fmt(h.pv)+' '+esc(h.pu)+'</b></div>';
     if(h.dr)c+='<div><small>Drag-Faktor</small><b>'+h.dr+'</b></div>';
     if(h.rpe)c+='<div class="rpet" style="background:'+rpeColor(h.rpe)+';color:'+textOn(rpeColor(h.rpe))+'"><small>Belastung (RPE)</small><b>'+h.rpe+' · '+RPE_L[h.rpe]+'</b></div>';
-    return '<div class="rmet">'+c+'</div>'}).join('');
+    return '<div class="rmet" role="button" tabindex="0" data-act="editset" data-hi="'+S.hist.indexOf(h)+'" aria-label="Satz bearbeiten">'+c+'<span class="ed">'+ic('edit',16)+'</span></div>'}).join('');
   }else if(on){
    out+='<div class="group" style="margin-top:8px">'+e.sl.map(function(h,k){
     var v=h.sec?fmtSec(h.sec):fmt(h.kg)+' kg × '+h.reps+(h.rir!=null?' · '+h.rir+' RIR':'');
-    return '<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+v+'</span><span class="ic">'+ic(h.r==='m'?'up':(h.r==='w'?'down':'eq'),18)+'</span></div>'}).join('')+'</div>';
+    return '<button class="logrow" data-act="editset" data-hi="'+S.hist.indexOf(h)+'" aria-label="Satz '+(k+1)+' bearbeiten"><span><b>Satz '+(k+1)+'</b> &nbsp;'+v+'</span><span class="ic">'+ic(h.r==='m'?'up':(h.r==='w'?'down':'eq'),18)+' &nbsp;'+ic('edit',16)+'</span></button>'}).join('')+'</div>';
   }
   out+='</div>';return out},false);
- return out+'</div>';
+ return out+'<button class="btn ghost" style="margin-top:16px" data-act="delsess" data-d="'+esc(ls.date)+'" data-t="'+esc(ls.typ)+'" data-n="'+ls.sets+'">'+ic('trash',18)+'Einheit löschen</button></div>';
 }
 var SCREENS={start:sStart,rueck:sRueck,heute:sHeute,train:sTrain,stats:sStats,lib:sLib,detail:sDetail,wizard:sWizard,more:sMore,summary:sSummary,setup:sSetup};
 
 function tabbar(){
- var cur={start:'start',heute:'heute',train:'heute',stats:'stats',lib:'lib',detail:'lib',wizard:'lib',more:'more',summary:'start',setup:'start',rueck:'start'}[S.screen];
+ var cur={start:'start',heute:'heute',train:'heute',stats:'stats',lib:'lib',detail:'lib',wizard:'lib',more:'more',summary:'start',setup:'start',rueck:S.rfrom==='sessions'?'more':'start'}[S.screen];
  return [['start','home','Start'],['heute','today','Plan'],['lib','book','Bibliothek'],['stats','chart','Auswertung'],['more','more','Mehr']].map(function(t){return '<button class="tab" data-act="tab" data-t="'+t[0]+'" aria-current="'+(cur===t[0])+'"><i>'+ic(t[1],22)+'</i>'+t[2]+'</button>'}).join('');
 }
 
@@ -1156,8 +1170,22 @@ var HELP={
 function helpBtn(k){return '<button class="hbtn" data-act="help" data-k="'+k+'" aria-label="Erklärung">?</button>'}
 function tplCount(){return Object.keys(TPL).filter(function(k){return TPL[k].type===S.type}).length}
 /* Rückfrage vor Abbruch und Abschluss des Trainings */
+function editSheet(sh){
+ var h=S.hist[sh.hi];if(!h)return '<h3>Satz</h3><p>Nicht gefunden.</p><button class="btn wide" data-act="sheetclose">Schließen</button>';
+ var warm=h.cat==='warm',time=!warm&&h.sec>0&&!(h.reps>0)&&!(h.kg>0),q=function(id,lab,val,mode){return '<div class="q" style="flex:1"><small>'+lab+'</small><input class="inp" id="'+id+'" inputmode="'+(mode||'decimal')+'" autocomplete="off" value="'+esc(val==null?'':String(val).replace('.',','))+'"></div>'};
+ var out='<h3>'+esc(h.name)+'</h3><p>Satz '+esc(h.set)+' · '+esc(parseDay(h.date).toLocaleDateString(LOC(),{day:'numeric',month:'short',year:'numeric'}))+(h.time?' · '+esc(h.time):'')+'</p>';
+ if(warm){out+='<div class="row2">'+q('esMin','Minuten',Math.floor((h.sec||0)/60),'numeric')+q('esSec','Sekunden',(h.sec||0)%60,'numeric')+'</div>';
+  if(h.pv!=null)out+='<div class="row2">'+q('esPv','Wert ('+esc(h.pu||'')+')',h.pv)+'</div>';
+  if(h.rpe)out+='<div class="row2">'+q('esRpe','Belastung (RPE, 1 bis 10)',h.rpe,'numeric')+'</div>'}
+ else if(time)out+='<div class="row2">'+q('esSec','Sekunden',h.sec,'numeric')+'</div>';
+ else out+='<div class="row2">'+q('esKg','Gewicht (kg)',h.kg)+q('esReps','Wiederholungen',h.reps,'numeric')+q('esRir','RIR (optional)',h.rir,'numeric')+'</div>';
+ if(!warm)out+='<div class="field"><small>Bewertung</small><div class="seg">'+[['m','Mehr'],['p','Passt'],['w','Weniger']].map(function(r){return '<button data-act="esr" data-v="'+r[0]+'" aria-pressed="'+((sh.r||h.r)===r[0])+'">'+r[1]+'</button>'}).join('')+'</div></div>';
+ return out+'<div class="row2" style="margin-top:12px"><button class="btn" style="flex:1" data-act="sheetclose">Abbrechen</button><button class="btn primary" style="flex:1.4" data-act="esave">Speichern</button></div><button class="btn ghost" style="margin-top:8px" data-act="edelset">'+ic('trash',18)+(sh.confirm?'Wirklich löschen?':'Satz löschen')+'</button>';
+}
 function confirmSheet(sh){
- if(sh.k==='resetup')return '<h3>Wirklich neu einrichten?</h3><p>Der eingerichtete Plan wird verworfen, und du stellst das nächste Training neu zusammen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Abbrechen</button><button class="btn primary" style="flex:1" data-act="setup">Ja, neu einrichten</button></div>'; '<h3>Training abbrechen?</h3><p>Das Training endet ohne Zusammenfassung. Bereits geloggte Sätze bleiben im Verlauf gespeichert.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, weiter trainieren</button><button class="btn primary" style="flex:1" data-act="confirmstop">Ja, abbrechen</button></div>';
+ if(sh.k==='resetup')return '<h3>Wirklich neu einrichten?</h3><p>Der eingerichtete Plan wird verworfen, und du stellst das nächste Training neu zusammen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Abbrechen</button><button class="btn primary" style="flex:1" data-act="setup">Ja, neu einrichten</button></div>';
+ if(sh.k==='delsess')return '<h3>Einheit löschen?</h3><p>Alle '+sh.n+' Sätze dieser Einheit werden endgültig gelöscht. Das lässt sich nicht rückgängig machen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Abbrechen</button><button class="btn primary" style="flex:1" data-act="confirmdelsess" data-d="'+esc(sh.date)+'" data-t="'+esc(sh.typ)+'">Ja, löschen</button></div>';
+ if(sh.k==='stop')return '<h3>Training abbrechen?</h3><p>Das Training endet ohne Zusammenfassung. Bereits geloggte Sätze bleiben im Verlauf gespeichert.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, weiter trainieren</button><button class="btn primary" style="flex:1" data-act="confirmstop">Ja, abbrechen</button></div>';
  return '<h3>Training abschließen?</h3><p>Alle geloggten Sätze werden gespeichert und du siehst die Zusammenfassung. Offene Übungen und Sätze bleiben offen.</p><div class="row2"><button class="btn" style="flex:1" data-act="confirmno">Nein, zurück</button><button class="btn primary" style="flex:1" data-act="confirmfinish">Ja, abschließen</button></div>';
 }
 function exMenu(){
@@ -1191,7 +1219,7 @@ function sSummary(){ var done=[],open=[],sets=0,ton=0;
   '<div class="card"><div class="kpis"><div><small>Übungen</small><b>'+done.length+' von '+S.plan.length+'</b></div><div><small>Sätze</small><b>'+sets+'</b></div>'+(ton>0?'<div><small>Volumen</small><b>'+fmt(ton,0)+' kg</b></div>':'')+'</div></div>'+
   '<div class="sec">Übungen</div>'+sectList(S.plan,row,true)+
   (open.length?'<p class="mut" style="margin:8px 0 0;font-size:12px">'+open.length+(open.length===1?' Übung bleibt':' Übungen bleiben')+' offen oder übersprungen und im heutigen Plan. Ein weiteres Training am selben Tag setzt dort fort.</p>':'')+
-  '<button class="btn primary wide" style="margin-top:14px" data-act="tab" data-t="start">Zum Start</button><button class="btn wide" style="margin-top:8px" data-act="tab" data-t="heute">Zurück zum Plan</button></div>';
+  '<button class="btn primary wide" style="margin-top:14px" data-act="tab" data-t="start">Zum Start</button>'+(resumable()?'<button class="btn wide" style="margin-top:8px" data-act="resumelast">'+ic('play',18)+'Training fortsetzen</button>':'')+'<button class="btn wide" style="margin-top:8px" data-act="tab" data-t="heute">Zurück zum Plan</button></div>';
 }
 function overlay(){
  var out='';
@@ -1203,6 +1231,7 @@ function overlay(){
    out+='<h3>Wo trainierst du?</h3><p>Die Übungen richten sich nach dem Equipment vor Ort. Deine Wahl bleibt als Standard gespeichert.</p><div class="group">'+S.locs.map(function(l){var on=l.id===S.loc,ls=eqList(l);
     return '<button class="lrow" data-act="pickloc" data-v="'+l.id+'" aria-pressed="'+on+'"><span class="radio">'+(on?ic('check',14):'')+'</span><span class="txt"><b>'+esc(l.name)+'</b><small>'+ls.length+' Geräte · '+esc(eqNames(l).join(', '))+'</small></span>'+(on?'<span class="badge">Zuletzt</span>':'')+'</button>'}).join('')+'</div>'+
    '<button class="btn wide" style="margin-top:10px" data-act="manageloc">'+ic('more',18)+'Orte und Equipment verwalten</button>';
+  }else if(sh.type==='editset'){out+=editSheet(sh)
   }else if(sh.type==='pick'||sh.type==='add'){out+=exSheet(sh)
   }else if(sh.type==='exmenu'){out+=exMenu()}else if(sh.type==='confirm'){out+=confirmSheet(sh)}else if(sh.type==='info'){out+=infoSheet(sh)}else if(sh.type==='help'){var hp=HELP[sh.k]||{t:'',h:''};out+='<h3>'+hp.t+'</h3><p style="line-height:1.45">'+hp.h+'</p><button class="btn primary wide" data-act="sheetclose">Schließen</button>'}
   out+='</div></div>';
@@ -1261,6 +1290,7 @@ function appBack(){
  var sc=S.screen;
  if(sc==='more'&&S.moreSub){S.moreSub='';scrollKey='';render();return true}
  if(sc==='detail'||sc==='wizard'){backStep();return true}
+ if(sc==='rueck'&&S.rfrom==='sessions'){S.moreSub='sessions';go('more');return true}
  if(sc==='train'||sc==='summary'){go('heute');return true}
  if(sc!=='start'){go('start');return true}
  return false;
@@ -1422,9 +1452,9 @@ document.addEventListener('click',function(e){
   /* Stopp und Häkchen fragen erst nach; mit „Nein“ geht das Training unverändert weiter */
   case 'resetupask':{S.sheet={type:'confirm',k:'resetup'};render();break}
   case 'livestop':{if(!isLive())break;S.sheet={type:'confirm',k:'stop'};render();break}
-  case 'confirmstop':{S.sheet=null;S.live=null;S.planReady=false;endRest();stopTimers();saveLocs();toast('Training abgebrochen. Bereits geloggte Sätze bleiben gespeichert.');go('heute');break}
+  case 'confirmstop':{rememberEnd();S.sheet=null;S.live=null;S.planReady=false;endRest();stopTimers();saveLocs();toast('Training abgebrochen. Bereits geloggte Sätze bleiben gespeichert.');go('heute');break}
   case 'finish':{S.sheet={type:'confirm',k:'finish'};render();break}
-  case 'confirmfinish':{S.sheet=null;S.sumDur=isLive()?Math.max(1,Math.round((nowT()-S.live.start)/60000)):0;S.live=null;S.planReady=false;endRest();stopTimers();saveLocs();go('summary');break}
+  case 'confirmfinish':{rememberEnd();S.sheet=null;S.sumDur=isLive()?Math.max(1,Math.round((nowT()-S.live.start)/60000)):0;S.live=null;S.planReady=false;endRest();stopTimers();saveLocs();go('summary');break}
   case 'confirmno':{S.sheet=null;render();break}
   case 'cdstart':cdStart();break;
   case 'cdstop':{var tc=S.tr;if(tc.running)cdFinish(Math.round((Date.now()-tc.start)/1000));break}
@@ -1511,6 +1541,23 @@ document.addEventListener('click',function(e){
   case 'infosave':{if(!S.sheet||S.sheet.type!=='info')break;var itx=document.getElementById('infotext'),iv=itx?itx.value.trim():'';S.info[S.sheet.n]=iv;S.infoSrc[S.sheet.n]='';S.sheet.edit=false;saveLocs();toast('Beschreibung gespeichert');render();break}
   case 'inforeset':{var irn=S.sheet&&S.sheet.n;if(irn){delete S.info[irn];delete S.infoSrc[irn];saveLocs();toast('Standardtext wiederhergestellt');render()}break}
   case 'infofetch':{var ifn=d.n;toast('Suche in Wikipedia …');render();fetchInfo(ifn,I18N.CUSTOM[ifn]||EXEN[ifn]||'').then(function(res){if(res){S.info[ifn]=res.text;S.infoSrc[ifn]=res.src;saveLocs();toast('Beschreibung aus '+res.src+' übernommen, du kannst sie bearbeiten.')}else toast('Nichts Passendes gefunden. Schreibe die Beschreibung selbst oder schlage sie im Netz nach.');render()});break}
+  case 'openlast':S.rsel=null;S.rfrom='';go('rueck');break;
+  case 'sessions':S.moreSub='sessions';scrollKey='';go('more');break;
+  case 'opensess':S.rsel={date:d.d,typ:d.t};S.rfrom='sessions';go('rueck');break;
+  case 'rueckback':if(S.rfrom==='sessions'){S.moreSub='sessions';go('more')}else go('start');break;
+  case 'resumelast':if(resumeLast()){toast('Training läuft weiter');go('heute')}break;
+  case 'editset':S.sheet={type:'editset',hi:+d.hi,r:(S.hist[+d.hi]||{}).r||'p'};render();break;
+  case 'esr':{if(S.sheet&&S.sheet.type==='editset'){S.sheet.r=d.v;document.querySelectorAll('[data-act=esr]').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-v')===d.v))})}break}
+  case 'esave':{var sh2=S.sheet,h2=sh2&&S.hist[sh2.hi];if(!h2)break;
+   var gv=function(id){var el=document.getElementById(id),v=el?parseFloat(String(el.value).replace(',','.')):NaN;return isFinite(v)?v:null};
+   if(h2.cat==='warm'){var mi=gv('esMin'),se=gv('esSec');if(mi===null&&se===null){toast('Bitte eine Zeit eingeben');break}h2.sec=Math.max(0,Math.round((mi||0)*60+(se||0)));if(document.getElementById('esPv')){var pv2=gv('esPv');if(pv2!==null)h2.pv=pv2}if(document.getElementById('esRpe')){var rp2=gv('esRpe');h2.rpe=rp2===null?0:Math.max(0,Math.min(10,Math.round(rp2)))}}
+   else if(document.getElementById('esSec')){var s2=gv('esSec');if(s2===null||s2<0){toast('Bitte Sekunden eingeben');break}h2.sec=Math.round(s2)}
+   else{var kg2=gv('esKg'),re2=gv('esReps');if(kg2===null||re2===null||kg2<0||re2<0){toast('Bitte Gewicht und Wiederholungen eingeben');break}h2.kg=kg2;h2.reps=Math.round(re2);var ri2=gv('esRir');h2.rir=ri2===null?null:Math.max(0,Math.min(10,Math.round(ri2)))}
+   if(h2.cat!=='warm')h2.r=sh2.r||h2.r;
+   S.sheet=null;toast('Satz gespeichert');render();break}
+  case 'edelset':{var s3=S.sheet;if(!s3||!S.hist[s3.hi])break;if(!s3.confirm){s3.confirm=true;render();break}S.hist.splice(s3.hi,1);S.sheet=null;toast('Satz gelöscht');render();break}
+  case 'delsess':S.sheet={type:'confirm',k:'delsess',date:d.d,typ:d.t,n:+d.n};render();break;
+  case 'confirmdelsess':{S.hist=S.hist.filter(function(h){return !(h.date===d.d&&typOf(h)===d.t)});if(S.lastEnd&&S.lastEnd.date===d.d&&S.lastEnd.typ===d.t)S.lastEnd=null;S.sheet=null;S.rsel=null;toast('Einheit gelöscht');if(S.rfrom==='sessions'){S.moreSub='sessions';go('more')}else go('start');break}
   case 'rtoggle':{S.rOpen=S.rOpen||{};S.rOpen[d.n]=!S.rOpen[d.n];render();break}
   case 'goaladj':{var tt=S.tr;if(tt.running||!tt.goal)break;tt.goal=Math.max(30,tt.goal+(+d.d));render();break}
   case 'rpe':{S.tr.rpe=S.tr.rpe===+d.v?0:+d.v;render();break}
