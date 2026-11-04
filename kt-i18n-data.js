@@ -70,6 +70,13 @@
     'Stopp': 'Stop', 'Start': 'Start', 'Zielzeit': 'Target time', 'läuft': 'running', 'Zeit': 'Time', 'Weiter': 'Resume',
     'Der Timer läuft hoch, stoppe ihn, wenn du fertig bist.': 'The timer counts up, stop it when you are done.', 'Noch keine Einträge.': 'No entries yet.',
     'Dein Training läuft weiter, der Timer auch.': 'Your workout keeps going, and so does the timer.', 'Übung streichen': 'Remove exercise',
+    'An diesem Ort noch keine Einträge. Maschinen unterscheiden sich je Ort, daher ein Startwert als Vorschlag.': 'No entries at this location yet. Machines differ between locations, so this is a starting value.',
+    'Unterstützung (Band)': 'Assistance (band)', 'Zusatzgewicht': 'Added weight', 'Zusatzgewicht (kg)': 'Added weight (kg)', 'Ohne': 'None', 'Dick': 'Thick', 'Mittel': 'Medium', 'Dünn': 'Thin', 'Ganz dünn': 'Extra thin',
+    'Unterstützung mit Bändern': 'Band assistance', 'Ja': 'Yes', 'Nein': 'No',
+    'Im Training wählst du ein Band (Dick, Mittel, Dünn, Ganz dünn) oder Zusatzgewicht. „Mehr“ führt zum nächstdünneren Band, nach dem dünnsten ohne Band und dann mit Zusatzgewicht.': 'During the workout you choose a band (thick, medium, thin, extra thin) or added weight. "More" moves to the next thinner band, after the thinnest to no band and then to added weight.',
+    'Letzte Bewertung „Mehr“, daher ein dünneres Band.': 'Last rating "More", so a thinner band.', 'Letzte Bewertung „Mehr“, daher ohne Band.': 'Last rating "More", so no band.',
+    'Letzte Bewertung „Weniger“, daher ein dickeres Band.': 'Last rating "Less", so a thicker band.', 'Letzte Bewertung „Weniger“, daher wieder mit Band.': 'Last rating "Less", so back to a band.',
+    'Letzte Bewertung „Passt“, Einstellung bleibt.': 'Last rating "Just right", setting stays.',
     /* Zusammenfassung */
     /* Orte, Auswahl, Sheets */
     'Wo trainierst du?': 'Where are you training?', 'Die Übungen richten sich nach dem Equipment vor Ort. Deine Wahl bleibt als Standard gespeichert.': 'Exercises follow the equipment at the location. Your choice is saved as the default.',
@@ -165,7 +172,7 @@
     ['Letzte Bewertung „Mehr“, daher +{1} kg.', 'Last rating "More", so +{1} kg.'], ['Letzte Bewertung „Weniger“, daher −{1} kg.', 'Last rating "Less", so −{1} kg.'],
     ['Letzte Bewertung „Mehr“, daher +{1} s.', 'Last rating "More", so +{1} s.'], ['Letzte Bewertung „Weniger“, daher −{1} s.', 'Last rating "Less", so −{1} s.'],
     ['Letzte Bewertung „Mehr“, daher +{1}.', 'Last rating "More", so +{1}.'], ['Zuletzt dreimal „Weniger“, daher −{1} kg.', 'Last three ratings "Less", so −{1} kg.'],
-    ['Letztes Mal 3 × 42 s, Bewertung „Mehr“.', 'Last time 3 × 42 s, rated "More".'],
+    ['Letztes Mal 3 × 42 s, Bewertung „Mehr“.', 'Last time 3 × 42 s, rated "More".'], ['Band {1} × {#2}', '{1} band × {2}'], ['Band {1}', '{1} band'],
     ['stagniert seit {1} Einheiten bei {2}. Deload (−30 % Volumen) oder Variation prüfen.', 'has plateaued for {1} sessions at {2}. Consider a deload (−30 % volume) or a variation.'],
     ['steigt seit mehreren Wochen, aktuell {1} pro Monat.', 'has been rising for several weeks, currently {1} per month.'],
     /* Toasts */

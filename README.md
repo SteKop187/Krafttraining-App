@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.19.0
+- **Maschinengewichte je Ort:** Bei Übungen an einer Maschine (z. B. Beinstrecker, Beinbeuger) richtet sich der Vorschlag nur nach den Sätzen am aktuellen Ort. Im Hinweis steht der Ort dabei („Letztes Mal 45 kg × 12 · Potsdam Ruderzentrum“). Gibt es am Ort noch keine Einträge, schlägt die App einen Startwert vor. Neue Sätze speichern dafür die Kennung des Orts, ältere werden über den Ortsnamen zugeordnet.
+- **Klimmzug mit Band oder Zusatzgewicht:** Im Training wählst du die Unterstützung (Ohne, Dick, Mittel, Dünn, Ganz dünn), darunter das Zusatzgewicht. „Mehr“ führt zum nächstdünneren Band, nach „Ganz dünn“ ohne Band und danach zu mehr Zusatzgewicht; „Weniger“ geht denselben Weg zurück. Mit Band wird ohne Mengenwahl genau ein Band weitergeschaltet. Das Band lässt sich auch in der Rückschau beim Satz ändern.
+- **Eigene Übungen mit Bändern:** Im Assistenten gibt es den Schalter „Unterstützung mit Bändern“ (bei Klimmzug, Chin-up und Dips schon vorausgewählt). Der CSV-Export hat eine Spalte „Band“.
+
 ## Neu in 3.18.0
 - **Beendetes Training fortsetzen:** Nach „Training abschließen“ (oder Abbrechen) gibt es am selben Tag die Taste „Training fortsetzen“, im Abschluss-Bildschirm, auf dem Start und in der Rückschau. Die Gesamtzeit läuft dort weiter, wo sie aufgehört hat.
 - **Trainingseinheiten:** Unter Mehr → Trainingseinheiten stehen alle gespeicherten Einheiten, neueste zuerst. Eine Einheit öffnet die Rückschau; dort lässt sich jeder Satz antippen und ändern (Gewicht, Wiederholungen, RIR, Bewertung, bei Erwärmung Zeit und Wert) oder löschen. „Einheit löschen“ entfernt die ganze Einheit nach Rückfrage. Die Liste erreichst du auch über das Listen-Symbol oben rechts in der Rückschau.
