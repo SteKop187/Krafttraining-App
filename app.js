@@ -60,8 +60,8 @@ function ukLabel(k){return k==='praev'?'Prehab':SLOT[k].l}
 function ukPart(k){for(var i=0;i<UGROUPS.length;i++){if(UGROUPS[i][1].indexOf(k)>-1)return i}return 2}
 var KRAFT_CATS=['warm','schnell','squat','push','hinge','pull','rumpf','assist','zusatz'],AUFR_CATS=['haltung','huefte','mobil'];
 /* Untergruppen: Rumpf seitlich/gerade/Rotation, Zusatz AS-Prävention/Handstand/Schulterstabilität */
-var SG={seit:'seitlich',ger:'gerade',rot:'Rotation',as:'AS-Prävention',hand:'Handstand-Vorbereitung',schulter:'Schulterstabilität',cardio:'Cardio',allg:'allgemein'};
-var SG_OF={warm:['cardio','allg'],rumpf:['seit','ger','rot'],zusatz:['as','hand','schulter']};
+var SG={seit:'seitlich',ger:'gerade',rot:'Rotation',as:'AS-Prävention',hand:'Handstand-Vorbereitung',schulter:'Schulterstabilität',cardio:'Cardio',allg:'allgemein',hyrox:'HYROX'};
+var SG_OF={warm:['cardio','allg'],rumpf:['seit','ger','rot'],zusatz:['as','hand','schulter','hyrox']};
 /* Messgröße je Cardio-Übung (wählbar), wird nach der Erwärmung eingetragen */
 var PARAMS={m:{u:'m',l:'Meter'},km:{u:'km',l:'Kilometer'},kcal:{u:'kcal',l:'Kalorien'},w:{u:'W',l:'Watt'},bpm:{u:'bpm',l:'Herzfrequenz'}};
 /* Plätze in einer Vorlage: „rumpf“ oder „rumpf:seit“ (Muster plus Untergruppe) */
@@ -70,7 +70,7 @@ function slotSg(s){return String(s).split(':')[1]||''}
 function slotLabel(s){var c=slotCat(s),g=slotSg(s);return SLOT[c].l+(g?' '+SG[g]:'')}
 /* Kategorien der Statistik: die drei Aufrichtungs-Muster werden zusammengefasst, Erwärmung zählt nicht mit */
 var STATCATS=['schnell','squat','push','hinge','pull','rumpf','zusatz','aufricht'];
-var TYPES={kraft:{name:'Krafttraining',sub:'Ganzkörper-, Unter- und Oberkörpereinheiten',icon:'dumbbell'},aufricht:{name:'Aufrichtung',sub:'Haltung, Hüfte und Mobilisation',icon:'spine'},handstand:{name:'Handstand-Vorbereitung',sub:'Schulter, Handgelenke und Körperspannung',icon:'spine'}};
+var TYPES={kraft:{name:'Krafttraining',sub:'Ganzkörper-, Unter- und Oberkörpereinheiten',icon:'dumbbell'},aufricht:{name:'Aufrichtung',sub:'Haltung, Hüfte und Mobilisation',icon:'spine'},hyrox:{name:'HYROX',sub:'Die acht Stationen in Wettkampf-Reihenfolge',icon:'dumbbell'},handstand:{name:'Handstand-Vorbereitung',sub:'Schulter, Handgelenke und Körperspannung',icon:'spine'}};
 function typeName(t){return TYPES[t]?TYPES[t].name:'Gelöschte Trainingsart'}
 /* x: sg (Untergruppe), both (beidseitig, je Seite ein Durchgang), eqs (mehrere mögliche Geräte), param (Messgröße bei Cardio) */
 function P(name,eq,sets,reps,rest,sub,mode,machine,x){var p={name:name,eq:eq,sets:sets,reps:reps,rest:rest,sub:sub||'',mode:mode||'reps',machine:machine||''};if(x){if(x.sg)p.sg=x.sg;if(x.both)p.both=true;if(x.eqs&&x.eqs.length>1)p.eqs=x.eqs;if(x.param)p.param=x.param;if(x.bands)p.bands=true}return p}
@@ -87,13 +87,18 @@ var POOL={
  assist:[P('Face Pull','Seilzug',3,'12',90,'Schulterblatt'),P('Wadenheben','Maschine',3,'12',60,'Waden','reps','Wadenmaschine'),P('Hammer Curl','Kurzhantel',3,'10',60,'Arme')],
  zusatz:[P('Wadenheben einbeinig exzentrisch','Kurzhantel',3,'8–12/Bein',90,'AS-Prävention · exzentrisch · einbeinig','reps','',{sg:'as',eqs:['Kurzhantel','Kettlebell']}),P('Wadenheben einbeinig exzentrisch, Knie gebeugt','Kurzhantel',3,'8–12/Bein',90,'AS-Prävention · exzentrisch · Soleus','reps','',{sg:'as',eqs:['Kurzhantel','Kettlebell']}),P('Wadenheben exzentrisch an der Maschine','Maschine',3,'8–12',90,'AS-Prävention · exzentrisch','reps','Wadenmaschine',{sg:'as'}),P('Wadenheben zwei Beine hoch, ein Bein runter','Körpergewicht',3,'10/Bein',60,'AS-Prävention · exzentrisch','reps','',{sg:'as'}),P('Wadenhalten isometrisch','Körpergewicht',3,'30 s',60,'AS-Prävention · isometrisch','time','',{sg:'as'}),
   P('Schulterflexion an der Wand','Körpergewicht',3,'45 s',30,'Handstand · Arm-Rumpf-Winkel öffnen','time','',{sg:'hand'}),P('Scapular Wall Slide','Körpergewicht',3,'10',45,'Handstand · Schulterblatt hochschieben','reps','',{sg:'hand'}),P('Scapular Shrug im Stütz','Körpergewicht',3,'10',45,'Handstand · Schulterblatt hochschieben','reps','',{sg:'hand'}),P('Hollow-Body-Halten','Körpergewicht',3,'30 s',45,'Handstand · Körperspannung','time','',{sg:'hand'}),P('Brust-zur-Wand-Handstand halten','Körpergewicht',3,'20 s',90,'Handstand · Haltung','time','',{sg:'hand'}),P('Handgelenk-Vorbereitung','Körpergewicht',2,'45 s',20,'Handstand · Handgelenke','time','',{sg:'hand'}),
-  P('Serratus Wall Slide','Körpergewicht',3,'10',45,'Schulterstabilität · Serratus','reps','',{sg:'schulter'}),P('Band-Außenrotation','Band',3,'12/Seite',45,'Schulterstabilität · Rotatorenmanschette','reps','',{sg:'schulter'}),P('Scapula Push-up','Körpergewicht',3,'10',45,'Schulterstabilität · Schulterblattkontrolle','reps','',{sg:'schulter'}),P('Face Pull mit Außenrotation','Seilzug',3,'12',60,'Schulterstabilität · Außenrotation','reps','',{sg:'schulter'}),P('Y-T-W-Heben','Körpergewicht',3,'8',45,'Schulterstabilität · Schulterblatt','reps','',{sg:'schulter'})],
+  P('Serratus Wall Slide','Körpergewicht',3,'10',45,'Schulterstabilität · Serratus','reps','',{sg:'schulter'}),P('Band-Außenrotation','Band',3,'12/Seite',45,'Schulterstabilität · Rotatorenmanschette','reps','',{sg:'schulter'}),P('Scapula Push-up','Körpergewicht',3,'10',45,'Schulterstabilität · Schulterblattkontrolle','reps','',{sg:'schulter'}),P('Face Pull mit Außenrotation','Seilzug',3,'12',60,'Schulterstabilität · Außenrotation','reps','',{sg:'schulter'}),P('Y-T-W-Heben','Körpergewicht',3,'8',45,'Schulterstabilität · Schulterblatt','reps','',{sg:'schulter'}),
+  /* HYROX-Stationen in Wettkampf-Reihenfolge; Vorgabe mit „m“ = Strecke in Metern */
+  P('Skiergometer 1000 m','Cardio',1,'1000 m',0,'HYROX · Station 1','reps','Skiergometer',{sg:'hyrox'}),P('Schlitten schieben (Sled Push)','Schlitten',1,'50 m',0,'HYROX · Station 2','reps','',{sg:'hyrox'}),
+  P('Schlitten ziehen (Sled Pull)','Schlitten',1,'50 m',0,'HYROX · Station 3','reps','',{sg:'hyrox'}),P('Burpee Broad Jump','Körpergewicht',1,'100 m',0,'HYROX · Station 4','reps','',{sg:'hyrox'}),
+  P('Ruderergometer 1000 m','Cardio',1,'1000 m',0,'HYROX · Station 5','reps','Ruderergometer',{sg:'hyrox'}),P('Farmers Carry 100 m','Kurzhantel',1,'100 m',0,'HYROX · Station 6','reps','',{sg:'hyrox',eqs:['Kurzhantel','Kettlebell']}),
+  P('Ausfallschritte mit Sandsack (Sandbag Lunges)','Sandsack',1,'100 m',0,'HYROX · Station 7','reps','',{sg:'hyrox',eqs:['Sandsack','Kurzhantel']}),P('Wall Balls','Medizinball',1,'100',0,'HYROX · Station 8','reps','',{sg:'hyrox'})],
  haltung:[P('Wall Angels','Körpergewicht',3,'10',45,'Schulterblatt'),P('Band Pull-Apart','Band',3,'15',45,'Schulterblatt'),P('Y-T-W-Heben','Körpergewicht',3,'8',45,'Schulterblatt · Rückenstrecker'),P('Schulterblatt-Liegestütz','Körpergewicht',3,'10',45,'Schulterblatt')],
  huefte:[P('Dead Bug','Körpergewicht',3,'8/Seite',45,'Rumpf · Hüfte'),P('Bird Dog','Körpergewicht',3,'8/Seite',45,'Rumpf · Hüfte'),P('Glute Bridge','Körpergewicht',3,'12',45,'Gesäß'),P('Clamshell mit Band','Band',3,'12/Seite',45,'Gesäß · seitlich'),P('Hüftbeuger-Dehnung','Körpergewicht',2,'45 s',20,'Dehnung','time')],
  mobil:[P('Katze-Kuh','Körpergewicht',2,'10',20,'Wirbelsäule'),P('Thorakale Rotation (Seitenlage)','Körpergewicht',2,'8/Seite',20,'Brustwirbelsäule'),P('Türrahmen-Dehnung Brust','Körpergewicht',2,'40 s',20,'Dehnung','time'),P('Brustwirbelsäule über Rolle','Körpergewicht',2,'60 s',20,'Mobilisation','time')]
 };
 var EQGROUP={'Hexbar':'Langhantel'};
-var EQ_ALL=['Körpergewicht','Langhantel','Kurzhantel','Kettlebell','Maschine','Seilzug','Band','Medizinball','Box','Cardio'];
+var EQ_ALL=['Körpergewicht','Langhantel','Kurzhantel','Kettlebell','Maschine','Seilzug','Band','Medizinball','Box','Cardio','Schlitten','Sandsack'];
 /* Belastete Gelenke je Muster (für „Heute meiden“) und Start-/Schrittgewichte je Equipment */
 var JOINTS={push:['Schulter','Ellbogen','Handgelenk'],pull:['Schulter','Ellbogen'],squat:['Knie'],hinge:['Rücken'],schnell:['Knie','Rücken'],rumpf:['Rücken'],assist:[],warm:[],zusatz:[],haltung:['Schulter'],huefte:[],mobil:[]};
 var JOINT_X={'Brust-zur-Wand-Handstand halten':['Schulter','Handgelenk'],'Handgelenk-Vorbereitung':['Handgelenk'],'Scapular Shrug im Stütz':['Schulter','Handgelenk'],'Scapula Push-up':['Schulter','Handgelenk'],'Schulterflexion an der Wand':['Schulter'],'Hollow-Hold':[],'Plank':['Schulter'],'Beinpresse':['Knie'],'Beinbeuger':[],'Beinstrecker':['Knie'],'Hip Thrust':[],'Face Pull':['Schulter'],'Hammer Curl':['Ellbogen'],'Wadenheben':[],'Seitstütz statisch':['Schulter'],'Roll-Out':['Schulter','Rücken'],'Pallof Press':[],'Kabelrotation':[],'MedBall-Rotationswurf':['Schulter'],'Box Sprung':['Knie'],'Kettlebell Swing':['Rücken']};
@@ -103,7 +108,7 @@ var MACH_DEFAULT=['Beinpresse','Beinbeuger','Beinstrecker','Brustpresse','Wadenm
 /* Cardio-Geräte für die Erwärmung: ebenfalls je Ort einstellbar, beliebig erweiterbar (jedes Gerät ist zugleich eine Erwärmungs-Übung) */
 var CARD_DEFAULT=['Ruderergometer','Skiergometer','Fahrradergometer','Airbike','Ellipsenmaschine'];
 var SUBS={'Maschine':{list:'machines',flag:'mach',what:'Maschinen'},'Cardio':{list:'cardios',flag:'card',what:'Geräte'}};
-var EQDEF={'Cardio':{kg:0,step:2.5},'Langhantel':{kg:40,step:2.5},'Kurzhantel':{kg:12,step:2},'Maschine':{kg:30,step:2.5},'Seilzug':{kg:20,step:2.5},'Kettlebell':{kg:16,step:4},'Medizinball':{kg:4,step:1},'Körpergewicht':{kg:0,step:2.5},'Band':{kg:0,step:2.5},'Box':{kg:0,step:5}};
+var EQDEF={'Cardio':{kg:0,step:2.5},'Langhantel':{kg:40,step:2.5},'Kurzhantel':{kg:12,step:2},'Maschine':{kg:30,step:2.5},'Seilzug':{kg:20,step:2.5},'Kettlebell':{kg:16,step:4},'Medizinball':{kg:4,step:1},'Körpergewicht':{kg:0,step:2.5},'Band':{kg:0,step:2.5},'Box':{kg:0,step:5},'Schlitten':{kg:50,step:10},'Sandsack':{kg:10,step:5}};
 var REF={
  'MedBall-Rotationswurf':{kg:4,reps:5,sug:4,step:1,why:'Maximale Absicht, weit weg vom Muskelversagen.'},
  'Box Sprung':{kg:0,reps:5,sug:0,step:5,why:'Sprunghöhe steigern, solange die Landung sauber bleibt.'},
@@ -134,7 +139,10 @@ function bandNext(b,kg,r,d,step){
  if(r==='w'){if(b>0)return {b:Math.max(1,b-1),kg:kg};if(kg>0)return {b:0,kg:Math.max(0,kg-a)};return {b:BANDS.length,kg:0}}
  return {b:b,kg:kg}}
 /* Übungen mit eigenem Körpergewicht (Liegestütz, Klimmzug …): steigern auch über die Wiederholungen (dw = Änderung der Wiederholungen) */
-function bwEx(ex,eqSel){return ex.mode!=='time'&&ex.cat!=='warm'&&((eqSel||ex.eq)==='Körpergewicht'||bandEx(ex.name))}
+/* Strecken-Übungen: Vorgabe wie „50 m“ */
+function isDist(n){var e=exFromLib(n);return !!(e&&/^\d+\s*m$/.test(String(e.reps||'').trim()))}
+function setTxt(n,kg,b,r){var m=isDist(n);return (m&&!b&&!(kg>0)?'':loadTxt(kg,b)+' × ')+r+(m?' m':'')}
+function bwEx(ex,eqSel){return ex.mode!=='time'&&!isDist(ex.name)&&ex.cat!=='warm'&&((eqSel||ex.eq)==='Körpergewicht'||bandEx(ex.name))}
 function repsWhy(dw){var a=Math.abs(dw);return (dw>0?'Letzte Bewertung „Mehr“, daher '+a+(a===1?' Wiederholung mehr.':' Wiederholungen mehr.'):'Letzte Bewertung „Weniger“, daher '+a+(a===1?' Wiederholung weniger.':' Wiederholungen weniger.'))}
 function getRef(n,eqSel){
  var r=getRefOld(n,eqSel),le=LIB.filter(function(x){return x.name===n})[0],d=EQDEF[eqSel||(le?le.eq:'')]||null;
@@ -305,6 +313,7 @@ var TPL={
  aufb:{name:'Aufrichtung B',slots:['huefte','mobil','haltung','huefte','haltung','mobil']}
 };
 Object.keys(TPL).forEach(function(k){TPL[k].type=/^auf/.test(k)?'aufricht':'kraft'});
+TPL.hyrox={name:'HYROX',slots:['zusatz:hyrox','zusatz:hyrox','zusatz:hyrox','zusatz:hyrox','zusatz:hyrox','zusatz:hyrox','zusatz:hyrox','zusatz:hyrox'],type:'hyrox'};
 TPL.hand={name:'Handstand-Vorbereitung',slots:['warm:allg','zusatz:hand','zusatz:hand','zusatz:hand','zusatz:schulter','zusatz:schulter'],type:'handstand'};
 /* Eigene Trainingsarten: ein Name und die Bewegungsmuster, aus denen die Einheit besteht (in der festen Reihenfolge der Muster) */
 function typeCats(t){var o=[];UCATS.forEach(function(k){if(t.cats.indexOf(k)<0)return;if(k==='praev'){o.push('zusatz:as','zusatz:schulter')}else if(k==='zusatz'){o.push('zusatz:hand')}else o.push(k)});return o}
@@ -316,7 +325,7 @@ function unregisterType(t){delete TYPES[t.id];delete TPL[t.id]}
 function customType(id){return S.types.filter(function(t){return t.id===id})[0]}
 /* Trainingsarten in zwei Oberkategorien: Krafttraining (Ganzkörper, Unterkörper, Oberkörper, eigene) und Mikrotraining (Aufrichtung, Handstand-Vorbereitung, eigene). Eingebaute lassen sich ausblenden, eigene löschen. */
 var TAG={kraft:{name:'Krafttraining',sub:'Krafttrainingseinheit'},mikro:{name:'Mikrotraining',sub:'Mikrotrainingseinheit'}};
-var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka'],fixed:true,icon:'body',sub:'Jedes Mal neu zusammengewürfelt'},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb'],icon:'spine',sub:'Haltung, Hüfte, Mobilisation'},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand'],icon:'hand',sub:'Schulter und Körperspannung'}];
+var TA_BUILTIN=[{id:'ta_gk',name:'Ganzkörper',group:'kraft',type:'kraft',tpls:['gka'],fixed:true,icon:'body',sub:'Jedes Mal neu zusammengewürfelt'},{id:'ta_auf',name:'Aufrichtung',group:'mikro',type:'aufricht',tpls:['aufa','aufb'],icon:'spine',sub:'Haltung, Hüfte, Mobilisation'},{id:'ta_hyrox',name:'HYROX',group:'kraft',type:'hyrox',tpls:['hyrox'],icon:'dumbbell',sub:'Acht Stationen in Wettkampf-Reihenfolge'},{id:'ta_hand',name:'Handstand-Vorbereitung',group:'mikro',type:'handstand',tpls:['hand'],icon:'hand',sub:'Schulter und Körperspannung'}];
 function allTA(){return TA_BUILTIN.concat(S.types.map(function(t){return {id:t.id,name:t.name,group:t.group||'kraft',type:t.id,tpls:[t.id],custom:true,icon:'dumbbell',sub:'Eigene Trainingsart'}}))}
 /* Ganzkörper ist die Standard-Trainingsart und bleibt immer sichtbar */
 function visTA(){return allTA().filter(function(t){return t.fixed||S.hiddenTA.indexOf(t.id)<0})}
@@ -352,9 +361,9 @@ function slotsFor(id){
 function genItem(slot,used,recent,type){
  var cat=slotCat(slot),sg=slotSg(slot);
  var c=POOL[cat].filter(function(x){return okEx(x,cat)&&used.indexOf(x.name)<0&&(!sg||x.sg===sg)&&(type!=='handstand'||cat!=='zusatz'||sg!=='hand'||focusAllowed(x.name))}),fresh=c.filter(function(x){return recent.indexOf(x.name)<0});
- if(fresh.length)c=fresh;
+ if(fresh.length&&sg!=='hyrox')c=fresh;
  if(!c.length)return null;
- var p=c[Math.floor(Math.random()*c.length)];
+ var p=sg==='hyrox'?c[0]:c[Math.floor(Math.random()*c.length)];
  return Object.assign({},p,{cat:cat,grp:'',locked:false,na:false,was:null,slot:slot});
 }
 function sortMain(items){
@@ -541,11 +550,11 @@ function sTrain(){
  out+='<div class="dots">';for(var s=1;s<=total;s++){var cls=(s<t.set?'done':(s===t.set&&t.phase!=='done'?'cur':(t.phase==='done'&&s<=nLog?'done':''))),isDoneSet=s<=nLog;
   out+='<button type="button" class="dotb '+cls+'" data-act="peek" data-k="'+(s-1)+'" aria-label="Satz '+s+(isDoneSet?' ansehen':'')+'"'+(isDoneSet?'':' disabled')+'><i></i></button>'}out+='</div></div></div><div class="pad">'+restBanner();
  if(t.peek>=0&&t.log[t.peek]){var pl=t.log[t.peek];
-  out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):loadTxt(pl.kg,pl.band)+' × '+pl.reps+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.dw?' ('+(pl.dw>0?'+':'−')+Math.abs(pl.dw)+' Wdh.)':(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':'')))+'</div>'}
+  out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):setTxt(ex.name,pl.kg,pl.band,pl.reps)+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.dw?' ('+(pl.dw>0?'+':'−')+Math.abs(pl.dw)+' Wdh.)':(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':'')))+'</div>'}
  if(t.phase==='done'){
   var last=t.log[t.log.length-1],nx=warm?'':nextSuggest(last,rf,time,ss);
   out+='<div class="eyebrow" style="margin-bottom:8px">Übung abgeschlossen</div><div class="group" style="margin-bottom:12px">';
-  t.log.forEach(function(l,k){out+='<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+(warm?warmLine(l):(time?fmtSec(l.sec):loadTxt(l.kg,l.band)+' × '+l.reps))+'</span>'+(warm?'':'<span class="ic">'+ic(l.r==='m'?'up':(l.r==='w'?'down':'eq'),18)+'</span>')+'</div>'});
+  t.log.forEach(function(l,k){out+='<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+(warm?warmLine(l):(time?fmtSec(l.sec):setTxt(ex.name,l.kg,l.band,l.reps)))+'</span>'+(warm?'':'<span class="ic">'+ic(l.r==='m'?'up':(l.r==='w'?'down':'eq'),18)+'</span>')+'</div>'});
   out+='</div>'+(warm?'':'<div class="hint">'+ic('info',18)+'<span>Nächstes Mal: <b>'+nx+'</b> (abgeleitet aus deiner letzten Bewertung).</span></div>');
   var nxi=t.over?-1:nextOpenIdx(t.i),nxt=nxi>=0?S.plan[nxi]:null;
   out+='<button class="btn wide" data-act="addset" style="margin-bottom:8px">'+ic('plus',18)+'Satz hinzufügen</button>';
@@ -553,7 +562,7 @@ function sTrain(){
   return out;
  }
  if(t.phase==='rate'){
-  out+='<div class="field"><small>Satz '+t.set+' gespeichert</small><div class="num" style="font-size:44px;line-height:1.1;padding:2px 6px">'+(time?fmtSec(t.secLog||t.sec):loadTxt(t.kg,t.band)+' × '+t.reps)+(!time?' <span class="mut" style="font-size:20px">· '+t.rir+' RIR</span>':'')+'</div></div>'+
+  out+='<div class="field"><small>Satz '+t.set+' gespeichert</small><div class="num" style="font-size:44px;line-height:1.1;padding:2px 6px">'+(time?fmtSec(t.secLog||t.sec):setTxt(ex.name,t.kg,t.band,t.reps))+(!time?' <span class="mut" style="font-size:20px">· '+t.rir+' RIR</span>':'')+'</div></div>'+
   '<div class="eyebrow" style="margin:14px 0 0">Wie war der Satz?</div><div class="rate">'+
   '<button data-act="rate" data-r="w">'+ic('down',26)+'Weniger<small>nächstes Mal</small></button>'+
   '<button data-act="rate" data-r="p">'+ic('eq',26)+'Passt<small>so lassen</small></button>'+
@@ -561,7 +570,7 @@ function sTrain(){
   return out;
  }
  if(t.phase==='amount'){
-  var more=t.ra==='m',cur=time?fmtSec(t.secLog||t.sec):loadTxt(t.kg,t.band)+' × '+t.reps;
+  var more=t.ra==='m',cur=time?fmtSec(t.secLog||t.sec):setTxt(ex.name,t.kg,t.band,t.reps);
   out+='<div class="field"><small>Satz '+t.set+' gespeichert</small><div class="num" style="font-size:44px;line-height:1.1;padding:2px 6px">'+cur+'</div></div>'+
   '<div class="eyebrow" style="margin:14px 0 8px">'+(more?'Wie viel mehr beim nächsten Satz?':'Wie viel weniger beim nächsten Satz?')+'</div><div class="amounts">'+
   (bwEx(ex,eqSel)?amountBw(ex,eqSel,more):amountChoices(ex,eqSel).map(function(v){return '<button data-act="rateamt" data-v="'+v+'">'+(more?'+':'−')+fmt(v)+(time?' s':' kg')+'</button>'}).join('')+'</div>')+
@@ -595,7 +604,7 @@ function sTrain(){
   }
  }else{
   out+='<div class="goal"><div><small>Ziel</small><b>'+total+' × '+esc(ex.reps)+'</b></div><div><small>'+(time?'Pause (Empfehlung)':'Pause (Empfehlung) · Reserve')+'</small><b>'+(ex.rest?fmtRest(ex.rest):'–')+(time?'':' · 1 RIR')+'</b></div></div>'+
-  '<div class="hint">'+ic('info',18)+'<span><b>'+(rf.hist?(time?'Letztes Mal '+fmtSec(rf.sec):'Letztes Mal '+loadTxt(rf.kg,rf.band)+' × '+rf.reps+(locBound(ex.name,eqSel)?' · '+curLoc().name:'')):'Startwert')+'.</b> '+esc(rf.why)+'</span></div>';
+  '<div class="hint">'+ic('info',18)+'<span><b>'+(rf.hist?(time?'Letztes Mal '+fmtSec(rf.sec):'Letztes Mal '+setTxt(ex.name,rf.kg,rf.band,rf.reps)+(locBound(ex.name,eqSel)?' · '+curLoc().name:'')):'Startwert')+'.</b> '+esc(rf.why)+'</span></div>';
   if(time){
    /* Zeit-Übung: Stoppuhr zählt von der Zielzeit auf 0 herunter, bei beidseitigen Übungen je Seite ein Durchgang */
    var sides=ex.both?2:1,hd=t.held||[],side=Math.min(hd.length+1,sides),left=t.running?Math.max(0,Math.ceil((t.end-Date.now())/1000)):t.sec,fin=hd.length>=sides;
@@ -607,8 +616,9 @@ function sTrain(){
    var ws=wstepOf(ex,eqSel,rf);
    if(ch.length>1)out+='<div class="field"><small>Gerät</small><div class="seg">'+ch.map(function(q){return '<button data-act="seteq" data-v="'+esc(q)+'" aria-pressed="'+(q===eqSel)+'">'+esc(q)+'</button>'}).join('')+'</div></div>';
    if(bx)out+='<div class="field"><small>Unterstützung (Band)</small><div class="seg">'+[0,1,2,3,4].map(function(b){return '<button data-act="band" data-v="'+b+'" aria-pressed="'+((t.band||0)===b)+'">'+(b?BANDS[b-1]:'Ohne')+'</button>'}).join('')+'</div></div>';
-   out+='<div class="field"><small>'+(bx?'Zusatzgewicht':'Gewicht')+'</small><div class="stepper"><button class="sb" data-act="adj" data-f="kg" data-d="-'+ws+'" aria-label="Gewicht verringern">'+ic('minus',22)+'</button><div class="val">'+fmt(t.kg)+'<em>kg</em></div><button class="sb" data-act="adj" data-f="kg" data-d="'+ws+'" aria-label="Gewicht erhöhen">'+ic('plus',22)+'</button></div></div>'+
-   '<div class="field"><small>Wiederholungen</small><div class="stepper"><button class="sb" data-act="adj" data-f="reps" data-d="-1" aria-label="Eine Wiederholung weniger">'+ic('minus',22)+'</button><div class="val">'+t.reps+'</div><button class="sb" data-act="adj" data-f="reps" data-d="1" aria-label="Eine Wiederholung mehr">'+ic('plus',22)+'</button></div></div>'+
+   var dist=isDist(ex.name),rs=dist?(t.reps>=500?50:5):1;
+   if(eqSel!=='Cardio')out+='<div class="field"><small>'+(bx?'Zusatzgewicht':'Gewicht')+'</small><div class="stepper"><button class="sb" data-act="adj" data-f="kg" data-d="-'+ws+'" aria-label="Gewicht verringern">'+ic('minus',22)+'</button><div class="val">'+fmt(t.kg)+'<em>kg</em></div><button class="sb" data-act="adj" data-f="kg" data-d="'+ws+'" aria-label="Gewicht erhöhen">'+ic('plus',22)+'</button></div></div>';
+   out+='<div class="field"><small>'+(dist?'Strecke':'Wiederholungen')+'</small><div class="stepper"><button class="sb" data-act="adj" data-f="reps" data-d="-'+rs+'" aria-label="'+(dist?'Strecke verringern':'Eine Wiederholung weniger')+'">'+ic('minus',22)+'</button><div class="val">'+t.reps+(dist?'<em>m</em>':'')+'</div><button class="sb" data-act="adj" data-f="reps" data-d="'+rs+'" aria-label="'+(dist?'Strecke erhöhen':'Eine Wiederholung mehr')+'">'+ic('plus',22)+'</button></div></div>'+
    '<div class="field"><small>Wiederholungen in Reserve (optional)'+helpBtn('rir')+'</small><div class="seg">'+[0,1,2,3].map(function(v){return '<button data-act="rir" data-v="'+v+'" aria-pressed="'+(t.rir===v)+'">'+v+(v===3?'+':'')+' RIR</button>'}).join('')+'</div></div>';
   }
  }
@@ -816,7 +826,7 @@ function pendingList(){
  return p.length?'<div class="chips" style="margin-top:8px">'+p.map(function(m,i){return '<span class="chip">'+ic(m.type==='link'?'link':(m.type==='video'?'video':'image'),14)+esc(m.title||m.url||'Medium')+'<button data-act="wzdelp" data-i="'+i+'" aria-label="Entfernen" style="background:none;border:0;padding:0;margin-left:4px;line-height:0">'+ic('close',14)+'</button></span>'}).join('')+'</div>':'';
 }
 /* Untergruppen im Assistenten: Prehab nur Achillessehne oder Schulter, Spezial mit oder ohne Handstand */
-function sgListFor(w){var k=tagKey({cat:w.cat,sg:w.sg,name:''});if(k==='praev')return ['as','schulter'];if(w.cat==='zusatz')return ['','hand'];return SG_OF[w.cat]?[''].concat(SG_OF[w.cat]):null}
+function sgListFor(w){var k=tagKey({cat:w.cat,sg:w.sg,name:''});if(k==='praev')return ['as','schulter'];if(w.cat==='zusatz')return ['','hand','hyrox'];return SG_OF[w.cat]?[''].concat(SG_OF[w.cat]):null}
 function sWizard(){
  var w=S.wiz,ctx=S.wizCtx||{mode:'lib'},time=w.meas==='time',ta='height:auto;padding:12px 14px;line-height:1.4;font-weight:500;font-size:15px';
  var edit=ctx.mode==='edit',ttl=edit?'Übung bearbeiten':(ctx.mode==='replace'?'Übung ersetzen':(ctx.mode==='add'?'Übung hinzufügen':'Neue Übung'));
@@ -1036,7 +1046,7 @@ function sRueck(){
     return '<div class="rmet" role="button" tabindex="0" data-act="editset" data-hi="'+S.hist.indexOf(h)+'" aria-label="Satz bearbeiten">'+c+'<span class="ed">'+ic('edit',16)+'</span></div>'}).join('');
   }else if(on){
    out+='<div class="group" style="margin-top:8px">'+e.sl.map(function(h,k){
-    var v=h.sec?fmtSec(h.sec):loadTxt(h.kg,h.band)+' × '+h.reps+(h.rir!=null?' · '+h.rir+' RIR':'');
+    var v=h.sec?fmtSec(h.sec):setTxt(h.name,h.kg,h.band,h.reps)+(h.rir!=null?' · '+h.rir+' RIR':'');
     return '<button class="logrow" data-act="editset" data-hi="'+S.hist.indexOf(h)+'" aria-label="Satz '+(k+1)+' bearbeiten"><span><b>Satz '+(k+1)+'</b> &nbsp;'+v+'</span><span class="ic">'+ic(h.r==='m'?'up':(h.r==='w'?'down':'eq'),18)+' &nbsp;'+ic('edit',16)+'</span></button>'}).join('')+'</div>';
   }
   out+='</div>';return out},false);

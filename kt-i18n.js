@@ -23,7 +23,8 @@
     'Wadenheben einbeinig exzentrisch': 'Single-leg eccentric calf raise', 'Wadenheben einbeinig exzentrisch, Knie gebeugt': 'Single-leg eccentric calf raise, bent knee', 'Wadenheben exzentrisch an der Maschine': 'Eccentric calf raise (machine)',
     'Wadenheben zwei Beine hoch, ein Bein runter': 'Calf raise, two legs up, one leg down', 'Wadenhalten isometrisch': 'Isometric calf hold',
     'Schulterflexion an der Wand': 'Wall shoulder flexion', 'Scapular Shrug im Stütz': 'Scapular shrug in plank', 'Hollow-Body-Halten': 'Hollow body hold', 'Brust-zur-Wand-Handstand halten': 'Chest-to-wall handstand hold', 'Handgelenk-Vorbereitung': 'Wrist prep',
-    'Band-Außenrotation': 'Band external rotation', 'Face Pull mit Außenrotation': 'Face pull with external rotation'
+    'Band-Außenrotation': 'Band external rotation', 'Face Pull mit Außenrotation': 'Face pull with external rotation',
+    'Skiergometer 1000 m': 'Ski erg 1000 m', 'Schlitten schieben (Sled Push)': 'Sled push', 'Schlitten ziehen (Sled Pull)': 'Sled pull', 'Ruderergometer 1000 m': 'Rowing erg 1000 m', 'Ausfallschritte mit Sandsack (Sandbag Lunges)': 'Sandbag lunges'
     /* gleichlautend und daher nicht eingetragen: Split Squat, Hip Thrust, Kettlebell Swing, Pallof Press, Face Pull, Hammer Curl, Wall Angels, Band Pull-Apart, Dead Bug, Bird Dog, Glute Bridge, Farmer Carry, Suitcase Carry, Plank, Hollow-Hold, Airbike, Scapular Wall Slide, Serratus Wall Slide, Scapula Push-up */
   };
   var CUSTOM = {};   /* eigene Übungen: Name -> englischer Name (von der App gesetzt) */

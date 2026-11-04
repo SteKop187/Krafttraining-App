@@ -44,6 +44,12 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.22.0
+- **Trainingsart HYROX:** Neue eingebaute Trainingsart unter Krafttraining. Der Plan enthält die acht Stationen in Wettkampf-Reihenfolge, je ein Durchgang: Skiergometer 1000 m, Schlitten schieben (Sled Push) 50 m, Schlitten ziehen (Sled Pull) 50 m, Burpee Broad Jump 100 m, Ruderergometer 1000 m, Farmers Carry 100 m, Ausfallschritte mit Sandsack (Sandbag Lunges) 100 m, Wall Balls 100 Stück.
+- **Bibliothek:** Die Stationen stehen unter Spezial in der Gruppe „HYROX“ und lassen sich wie jede Übung bearbeiten.
+- **Neues Equipment:** Schlitten und Sandsack, je Ort unter Mehr → Orte und Equipment einschalten. Die Lunges gehen auch mit Kurzhanteln, Farmers Carry mit Kurzhantel oder Kettlebell.
+- **Strecke statt Wiederholungen:** Übungen mit einer Vorgabe wie „50 m“ zeigen im Training „Strecke“ in Metern (Schritte von 5 m, ab 500 m von 50 m). Bei Cardio-Geräten entfällt das Gewicht.
+
 ## Neu in 3.21.0
 - **Abgeschlossene Übungen wiederholen:** Unter „Abgeschlossen“ hat jede Übung ein Plus für einen weiteren Satz; die Übung öffnet sich direkt mit dem neuen Satz. Auch im Abschluss-Bildschirm der Erwärmung gibt es jetzt „Satz hinzufügen“.
 - **Übung erneut hinzufügen:** Bei „Übung hinzufügen“ sind erledigte Übungen wieder wählbar, z. B. das Skiergometer zum Ausfahren nach den Kraftübungen. Die Übung kommt ans Ende des Plans und zählt ihre Sätze getrennt vom ersten Durchgang.
