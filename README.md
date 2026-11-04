@@ -44,6 +44,10 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.21.0
+- **Abgeschlossene Übungen wiederholen:** Unter „Abgeschlossen“ hat jede Übung ein Plus für einen weiteren Satz; die Übung öffnet sich direkt mit dem neuen Satz. Auch im Abschluss-Bildschirm der Erwärmung gibt es jetzt „Satz hinzufügen“.
+- **Übung erneut hinzufügen:** Bei „Übung hinzufügen“ sind erledigte Übungen wieder wählbar, z. B. das Skiergometer zum Ausfahren nach den Kraftübungen. Die Übung kommt ans Ende des Plans und zählt ihre Sätze getrennt vom ersten Durchgang.
+
 ## Neu in 3.20.0
 - **Steigern über Wiederholungen bei Körpergewicht:** Bei Übungen mit eigenem Körpergewicht (z. B. Liegestütz, Klimmzug, Dips) bietet „Mehr“ bzw. „Weniger“ zuerst ±1 oder ±2 Wiederholungen an. Darunter steht bei Band-Übungen der Bandwechsel, sonst das Zusatzgewicht. Gewählte Wiederholungen gelten für den nächsten Satz und, als letzte Bewertung, für das nächste Training; Gewicht und Band bleiben dabei gleich.
 

@@ -385,7 +385,7 @@ function weekCount(){var d=new Date(),dow=(d.getDay()+6)%7,mon=new Date(d.getFul
  S.hist.forEach(function(h){var p=h.date.split('-'),x=new Date(+p[0],+p[1]-1,+p[2]);if(x>=mon)o[h.date]=1});
  var n=Object.keys(o).length;return o[todayStr()]?n:n+1}
 /* Fortschritt heute: die heute geloggten Sätze einer Übung (nach Name und Trainingsart) bestimmen, ob sie offen oder abgeschlossen ist */
-function todaySets(p){var d=todayStr();return S.hist.filter(function(h){return h.date===d&&h.name===p.name&&typOf(h)===S.type})}
+function todaySets(p){var d=todayStr();return S.hist.filter(function(h){return h.date===d&&h.name===p.name&&typOf(h)===S.type&&(h.k||0)===(p.k||0)})}
 function setsDone(p){return todaySets(p).length}
 /* Übung gilt als erledigt, wenn alle Sätze gemacht sind oder du sie vorzeitig abgeschlossen hast (fin) */
 function isDone(p){return !!p.fin||(p.sets>0&&setsDone(p)>=p.sets)}
@@ -508,7 +508,7 @@ function sHeute(){
  /* Abgeschlossene Übungen sind unter einem Punkt gesammelt, nur offene stehen in der Liste */
  if(doneL){
   out+='<button class="donebtn" data-act="toggledone" aria-expanded="'+S.showDone+'"><span class="ck">'+ic('check',16)+'</span><span class="txt"><b>Abgeschlossen · '+doneL+(doneL===1?' Übung':' Übungen')+'</b><small>'+(S.showDone?'Tippen zum Einklappen':'Tippen zum Anzeigen')+'</small></span>'+ic(S.showDone?'chevd':'next',16)+'</button>';
-  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<div class="item k-'+kcls(p)+'"><button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button></div>':''}).join('')+'</div>';
+  if(S.showDone)out+='<div class="group" style="margin-bottom:12px">'+S.plan.map(function(p,i){return isDone(p)?'<div class="item k-'+kcls(p)+'"><div class="xrow2"><button class="lrow" data-act="reopen" data-i="'+i+'"><span class="grp">'+p.grp+'</span><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+'</b><small>'+esc(progP(p))+'</small></span><span class="okbadge">'+ic('check',14)+'Erledigt</span></button><button class="iconbtn sm" data-act="moreset" data-i="'+i+'" aria-label="Weiteren Satz: '+esc(p.name)+'">'+ic('plus',20)+'</button></div></div>':''}).join('')+'</div>';
  }
  out+='<button class="btn ghost" data-act="sheet" data-s="add">'+ic('plus',18)+'Übung hinzufügen</button>'+
  '<div class="row2" style="margin-top:10px"><button class="btn" style="flex:1" data-act="rerollall">'+ic('dice',18)+'Alles neu würfeln</button>'+(tplCount()>1?'<button class="btn" style="flex:1" data-act="sheet" data-s="tpl">'+ic('swap',18)+'Variante wechseln</button>':'')+'</div>'+
@@ -548,7 +548,7 @@ function sTrain(){
   t.log.forEach(function(l,k){out+='<div class="logrow"><span><b>Satz '+(k+1)+'</b> &nbsp;'+(warm?warmLine(l):(time?fmtSec(l.sec):loadTxt(l.kg,l.band)+' × '+l.reps))+'</span>'+(warm?'':'<span class="ic">'+ic(l.r==='m'?'up':(l.r==='w'?'down':'eq'),18)+'</span>')+'</div>'});
   out+='</div>'+(warm?'':'<div class="hint">'+ic('info',18)+'<span>Nächstes Mal: <b>'+nx+'</b> (abgeleitet aus deiner letzten Bewertung).</span></div>');
   var nxi=t.over?-1:nextOpenIdx(t.i),nxt=nxi>=0?S.plan[nxi]:null;
-  if(!warm)out+='<button class="btn wide" data-act="addset" style="margin-bottom:8px">'+ic('plus',18)+'Satz hinzufügen</button>';
+  out+='<button class="btn wide" data-act="addset" style="margin-bottom:8px">'+ic('plus',18)+'Satz hinzufügen</button>';
   out+='</div><div class="cta"><button class="btn primary big" data-act="nextex">'+(nxt?'Weiter: '+esc(nxt.name):'Training abschließen')+ic('next',18)+'</button></div>';
   return out;
  }
@@ -1167,7 +1167,7 @@ function sheetExtra(sh){
 }
 /* Übungen hinzufügen oder ersetzen: Suche, Neu-Anlegen direkt daneben, die Bibliothek nach Oberkategorien eingeklappt */
 function exListHtml(sh){
- var replace=sh.type==='pick',cur=replace?S.plan[sh.i]:null,names=S.plan.map(function(x){return x.name}).filter(function(n){return !cur||n!==cur.name}),q=(sh.q||'').toLowerCase().trim(),out='',any=false,nSec=0;
+ var replace=sh.type==='pick',cur=replace?S.plan[sh.i]:null,names=S.plan.filter(function(x){return replace||!isDone(x)}).map(function(x){return x.name}).filter(function(n){return !cur||n!==cur.name}),q=(sh.q||'').toLowerCase().trim(),out='',any=false,nSec=0;
  /* gleiche Gliederung wie im Plan: Vorbereitung, Hauptteil auf getönter Fläche mit Linien oben und unten, Ergänzung, Aufrichtung */
  UGROUPS.forEach(function(g,gi){
   var inner='',cnt=0;
@@ -1437,7 +1437,7 @@ function applyRating(r,amt,dw){
  dw=dw||0;var bxa=!time&&bandEx(ex.name);t.log.push({kg:t.kg,band:bxa?(t.band||0):0,dw:dw,reps:t.reps,sec:secVal,rir:t.rir,r:r,d:dd,pv:pv,pu:pv!==null?PARAMS[pk].u:'',dr:warm&&t.drag&&pk&&PARAMS[pk].u==='m'?t.drag:0,rpe:warm&&pk?(t.rpe||0):0});
  var now=new Date(),ds=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
  var h={typ:S.type,tpl:S.tpl,date:ds,time:now.toTimeString().slice(0,5),loc:curLoc().name,lid:S.loc,name:ex.name,cat:ex.cat,eq:eqSel,set:t.set,kg:time?0:t.kg,reps:time?0:t.reps,sec:secVal,rir:time?null:t.rir,r:r,d:dd};
- if(pv!==null){h.pv=pv;h.pu=PARAMS[pk].u}if(warm&&t.drag&&pk&&PARAMS[pk].u==='m')h.dr=t.drag;if(warm&&pk&&t.rpe)h.rpe=t.rpe;if(bxa)h.band=t.band||0;if(dw)h.dw=dw;
+ if(pv!==null){h.pv=pv;h.pu=PARAMS[pk].u}if(warm&&t.drag&&pk&&PARAMS[pk].u==='m')h.dr=t.drag;if(warm&&pk&&t.rpe)h.rpe=t.rpe;if(bxa)h.band=t.band||0;if(dw)h.dw=dw;if(ex.k)h.k=ex.k;
  S.hist.push(h);
  S.eqPick[ex.name]=eqSel;markSet();
  var n=t.log.length,done=n>=ex.sets;
@@ -1481,7 +1481,9 @@ document.addEventListener('click',function(e){
   case 'sheetclose':stopTimers();stopRec();S.sheet=null;render();break;
   case 'exgrp':{if(!S.sheet)break;var og=S.sheet.open;if(!og){og={};var cur0=S.sheet.type==='pick'?S.plan[S.sheet.i]:null;if(cur0)og[tagKey(cur0)]=true}og[d.c]=!og[d.c];S.sheet.open=og;render();break}
   case 'adddo':{var le=LIB.filter(function(x){return x.name===d.n})[0],pe=exFromLib(d.n),curN=S.screen==='train'&&!S.tr.over?S.plan[S.tr.i]:null;snap();
-   S.plan.splice(insertPos(le.cat),0,planItem(pe,le.cat,''));relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;toast(le.name+' zum Plan hinzugefügt',true);render();break}
+   var same=S.plan.filter(function(x){return x.name===d.n});
+   if(same.length){var again=planItem(pe,le.cat,'');again.k=Math.max.apply(null,same.map(function(x){return x.k||1}))+1;S.plan.push(again)}else S.plan.splice(insertPos(le.cat),0,planItem(pe,le.cat,''));
+   relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;toast(same.length?le.name+' erneut am Ende hinzugefügt':le.name+' zum Plan hinzugefügt',true);render();break}
   case 'enter':enterTrain(+d.i);break;
   case 'mv':{var nj=movePlan(+d.i,+d.d);S.exp=nj;S.sheet=null;if(S.screen==='train'&&!S.tr.over)S.tr.i=nj;render();break}
   /* Training pausieren und fortsetzen: Gesamtzeit und „seit dem letzten Satz“ halten an, die Pause zählt nicht mit */
@@ -1520,6 +1522,7 @@ document.addEventListener('click',function(e){
   case 'toast':toast(d.m);render();break;
   case 'start':{var fo=openIdx();if(fo.length)enterTrain(fo[0]);else{toast('Alle Übungen sind schon erledigt');render()}break}
   case 'reopen':enterTrain(+d.i);break;
+  case 'moreset':{var pm=S.plan[+d.i];if(!pm)break;pm.sets=Math.max(pm.sets,setsDone(pm)+1);pm.fin=false;saveLocs();toast('Satz hinzugefügt · '+pm.sets+' Sätze');enterTrain(+d.i);break}
   case 'toggledone':S.showDone=!S.showDone;render();break;
   case 'adj':{var t=S.tr;if(d.f==='kg')t.kg=Math.max(0,Math.round((t.kg+(+d.d))*10)/10);else if(d.f==='reps')t.reps=Math.max(1,t.reps+(+d.d));else if(d.f==='sec'){if(t.running)break;t.sec=Math.max(secStep(curEx().name),t.sec+(+d.d))}render();break}
   case 'rir':S.tr.rir=+d.v;render();break;
@@ -1668,7 +1671,7 @@ function wizCommit(){
   if(name!==ctx.orig)renameEx(ctx.orig,name);
   S.custom=S.custom.filter(function(x){return x.name!==name});S.custom.push(cu);addCustom(cu);
   S.removed=S.removed.filter(function(x){return x!==name});
-  S.plan=S.plan.map(function(p){return (p.name===name||p.name===ctx.orig)?Object.assign(planItem(exFromLib(name),cu.cat,p.grp,p.slot),{locked:p.locked}):p});relabel();
+  S.plan=S.plan.map(function(p){return (p.name===name||p.name===ctx.orig)?Object.assign(planItem(exFromLib(name),cu.cat,p.grp,p.slot),{locked:p.locked,k:p.k}):p});relabel();
  }else if(!lib){S.removed=S.removed.filter(function(x){return x!==name});S.custom.push(cu);addCustom(cu)}
  var lines=String(w.steps||'').split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean),cues=String(w.cues||'').trim();
  if(lines.length||cues)S.stepsX[name]={st:lines,cues:cues};else if(edit)delete S.stepsX[name];
