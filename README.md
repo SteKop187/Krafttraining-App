@@ -44,6 +44,9 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.20.0
+- **Steigern über Wiederholungen bei Körpergewicht:** Bei Übungen mit eigenem Körpergewicht (z. B. Liegestütz, Klimmzug, Dips) bietet „Mehr“ bzw. „Weniger“ zuerst ±1 oder ±2 Wiederholungen an. Darunter steht bei Band-Übungen der Bandwechsel, sonst das Zusatzgewicht. Gewählte Wiederholungen gelten für den nächsten Satz und, als letzte Bewertung, für das nächste Training; Gewicht und Band bleiben dabei gleich.
+
 ## Neu in 3.19.0
 - **Maschinengewichte je Ort:** Bei Übungen an einer Maschine (z. B. Beinstrecker, Beinbeuger) richtet sich der Vorschlag nur nach den Sätzen am aktuellen Ort. Im Hinweis steht der Ort dabei („Letztes Mal 45 kg × 12 · Potsdam Ruderzentrum“). Gibt es am Ort noch keine Einträge, schlägt die App einen Startwert vor. Neue Sätze speichern dafür die Kennung des Orts, ältere werden über den Ortsnamen zugeordnet.
 - **Klimmzug mit Band oder Zusatzgewicht:** Im Training wählst du die Unterstützung (Ohne, Dick, Mittel, Dünn, Ganz dünn), darunter das Zusatzgewicht. „Mehr“ führt zum nächstdünneren Band, nach „Ganz dünn“ ohne Band und danach zu mehr Zusatzgewicht; „Weniger“ geht denselben Weg zurück. Mit Band wird ohne Mengenwahl genau ein Band weitergeschaltet. Das Band lässt sich auch in der Rückschau beim Satz ändern.

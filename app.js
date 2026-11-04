@@ -133,6 +133,9 @@ function bandNext(b,kg,r,d,step){
  if(r==='m'){if(b>0)return {b:b>=BANDS.length?0:b+1,kg:kg};return {b:0,kg:kg+a}}
  if(r==='w'){if(b>0)return {b:Math.max(1,b-1),kg:kg};if(kg>0)return {b:0,kg:Math.max(0,kg-a)};return {b:BANDS.length,kg:0}}
  return {b:b,kg:kg}}
+/* Übungen mit eigenem Körpergewicht (Liegestütz, Klimmzug …): steigern auch über die Wiederholungen (dw = Änderung der Wiederholungen) */
+function bwEx(ex,eqSel){return ex.mode!=='time'&&ex.cat!=='warm'&&((eqSel||ex.eq)==='Körpergewicht'||bandEx(ex.name))}
+function repsWhy(dw){var a=Math.abs(dw);return (dw>0?'Letzte Bewertung „Mehr“, daher '+a+(a===1?' Wiederholung mehr.':' Wiederholungen mehr.'):'Letzte Bewertung „Weniger“, daher '+a+(a===1?' Wiederholung weniger.':' Wiederholungen weniger.'))}
 function getRef(n,eqSel){
  var r=getRefOld(n,eqSel),le=LIB.filter(function(x){return x.name===n})[0],d=EQDEF[eqSel||(le?le.eq:'')]||null;
  if(!r.hist){var elsewhere=locBound(n,eqSel)&&(S.hist||[]).some(function(x){return x.name===n});
@@ -145,6 +148,7 @@ function getRef(n,eqSel){
 function getRefOld(n,eqSel){
  var td=new Date(),tds=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0')+'-'+String(td.getDate()).padStart(2,'0'),lb=locBound(n,eqSel),h=(S.hist||[]).filter(function(x){return x.name===n&&x.date!==tds&&(!lb||atLoc(x))});
  if(h.length){var l=h[h.length-1],b=REF[n]||{},step=b.step||2.5;
+  if(typeof l.dw==='number'&&l.dw&&!l.sec)return {kg:l.kg,reps:l.reps,band:l.band||0,sug:l.kg,sugBand:l.band||0,sugReps:Math.max(1,l.reps+l.dw),step:step,hist:true,bandEx:bandEx(n),dd:true,why:repsWhy(l.dw)};
   if(bandEx(n)&&!l.sec){var lb0=l.band||0,nb=bandNext(lb0,l.kg,l.r,l.d,step),why;
    if(l.r==='m')why=lb0>0?(nb.b?'Letzte Bewertung „Mehr“, daher ein dünneres Band.':'Letzte Bewertung „Mehr“, daher ohne Band.'):'Letzte Bewertung „Mehr“, daher +'+fmt(nb.kg-l.kg)+' kg.';
    else if(l.r==='w')why=lb0>0?'Letzte Bewertung „Weniger“, daher ein dickeres Band.':(l.kg>0?'Letzte Bewertung „Weniger“, daher −'+fmt(l.kg-nb.kg)+' kg.':'Letzte Bewertung „Weniger“, daher wieder mit Band.');
@@ -524,7 +528,7 @@ function resetInputs(){
  var ex=curEx(),ch=eqChoices(ex),pk=S.eqPick[ex.name],t=S.tr;
  t.eq=ch.indexOf(pk)>-1?pk:ch[0];
  var rf=getRef(ex.name,t.eq);
- t.kg=rf.sug;t.band=bandEx(ex.name)?(rf.sugBand||0):0;t.reps=parseInt(ex.reps,10)||8;t.rir=1;t.sec=ex.mode==='time'?(rf.hist?rf.sug:secOf(ex)):0;t.running=false;t.held=[];t.secLog=0;t.el=0;t.pv='';t.drag=(lastWarm(ex.name)||{}).dr||5;t.rpe=0;if(ex.cat==='warm'&&paramOf(ex)){t.goal=timerCardio(ex)?(secOf(ex)||300):0;t.el=t.goal?0:(secOf(ex)||300)}t.peek=-1;t.ra='';t.phase='input';
+ t.kg=rf.sug;t.band=bandEx(ex.name)?(rf.sugBand||0):0;t.reps=rf.sugReps||parseInt(ex.reps,10)||8;t.rir=1;t.sec=ex.mode==='time'?(rf.hist?rf.sug:secOf(ex)):0;t.running=false;t.held=[];t.secLog=0;t.el=0;t.pv='';t.drag=(lastWarm(ex.name)||{}).dr||5;t.rpe=0;if(ex.cat==='warm'&&paramOf(ex)){t.goal=timerCardio(ex)?(secOf(ex)||300):0;t.el=t.goal?0:(secOf(ex)||300)}t.peek=-1;t.ra='';t.phase='input';
 }
 function sTrain(){
  var t=S.tr,ex=curEx(),eqSel=t.eq||ex.eq,rf=getRef(ex.name,eqSel),time=ex.mode==='time',warm=ex.cat==='warm',total=ex.sets,out='',ch=eqChoices(ex),ss=secStep(ex.name),bx=bandEx(ex.name);
@@ -537,7 +541,7 @@ function sTrain(){
  out+='<div class="dots">';for(var s=1;s<=total;s++){var cls=(s<t.set?'done':(s===t.set&&t.phase!=='done'?'cur':(t.phase==='done'&&s<=nLog?'done':''))),isDoneSet=s<=nLog;
   out+='<button type="button" class="dotb '+cls+'" data-act="peek" data-k="'+(s-1)+'" aria-label="Satz '+s+(isDoneSet?' ansehen':'')+'"'+(isDoneSet?'':' disabled')+'><i></i></button>'}out+='</div></div></div><div class="pad">'+restBanner();
  if(t.peek>=0&&t.log[t.peek]){var pl=t.log[t.peek];
-  out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):loadTxt(pl.kg,pl.band)+' × '+pl.reps+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':''))+'</div>'}
+  out+='<div class="peek"><b>Satz '+(t.peek+1)+'</b> · '+(warm?mmss(pl.sec)+(pl.pv!=null?' · '+fmt(pl.pv)+' '+pl.pu:''):(time?fmtSec(pl.sec):loadTxt(pl.kg,pl.band)+' × '+pl.reps+(pl.rir!=null?' · '+pl.rir+' RIR':'')))+(warm?'':' · '+(pl.r==='m'?'Mehr':(pl.r==='w'?'Weniger':'Passt'))+(pl.dw?' ('+(pl.dw>0?'+':'−')+Math.abs(pl.dw)+' Wdh.)':(pl.d?' ('+(pl.d>0?'+':'−')+fmt(Math.abs(pl.d))+(time?' s':' kg')+')':'')))+'</div>'}
  if(t.phase==='done'){
   var last=t.log[t.log.length-1],nx=warm?'':nextSuggest(last,rf,time,ss);
   out+='<div class="eyebrow" style="margin-bottom:8px">Übung abgeschlossen</div><div class="group" style="margin-bottom:12px">';
@@ -560,7 +564,7 @@ function sTrain(){
   var more=t.ra==='m',cur=time?fmtSec(t.secLog||t.sec):loadTxt(t.kg,t.band)+' × '+t.reps;
   out+='<div class="field"><small>Satz '+t.set+' gespeichert</small><div class="num" style="font-size:44px;line-height:1.1;padding:2px 6px">'+cur+'</div></div>'+
   '<div class="eyebrow" style="margin:14px 0 8px">'+(more?'Wie viel mehr beim nächsten Satz?':'Wie viel weniger beim nächsten Satz?')+'</div><div class="amounts">'+
-  amountChoices(ex,eqSel).map(function(v){return '<button data-act="rateamt" data-v="'+v+'">'+(more?'+':'−')+fmt(v)+(time?' s':' kg')+'</button>'}).join('')+'</div>'+
+  (bwEx(ex,eqSel)?amountBw(ex,eqSel,more):amountChoices(ex,eqSel).map(function(v){return '<button data-act="rateamt" data-v="'+v+'">'+(more?'+':'−')+fmt(v)+(time?' s':' kg')+'</button>'}).join('')+'</div>')+
   '<button class="btn wide" style="margin-top:12px" data-act="rateback">'+ic('back',18)+'Zurück zur Bewertung</button></div>';
   return out;
  }
@@ -615,6 +619,7 @@ function sTrain(){
 }
 function mmss(s){var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
 function nextSuggest(last,rf,time,ss){
+ if(!time&&last.dw)return loadTxt(last.kg,last.band)+' × '+Math.max(1,last.reps+last.dw);
  if(!time&&bandEx(curEx().name)){var nb=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);return loadTxt(nb.kg,nb.b)+' × '+last.reps}
  if(time){var d=last.r==='m'?ss:(last.r==='w'?-ss:0);return fmtSec(Math.max(ss,last.sec+d))}
  var d2=last.r==='m'?rf.step:(last.r==='w'?-rf.step:0);return fmt(last.kg+d2)+' kg × '+last.reps
@@ -1325,13 +1330,13 @@ var exitArmed=false,userActive=false;
 function ensureGuard(){try{if(userActive&&!exitArmed&&!(history.state&&history.state.kt===1))history.pushState({kt:1},'')}catch(e){}}
 /* Übung öffnen: heute schon geloggte Sätze zählen mit, es geht beim nächsten offenen Satz weiter */
 function enterTrain(i){
- var ex=S.plan[i],log=todaySets(ex).map(function(h){return {kg:h.kg,band:h.band||0,reps:h.reps,sec:h.sec,rir:h.rir,r:h.r,d:h.d,pv:h.pv==null?null:h.pv,pu:h.pu||'',dr:h.dr||0,rpe:h.rpe||0}}),n=log.length;
+ var ex=S.plan[i],log=todaySets(ex).map(function(h){return {kg:h.kg,band:h.band||0,dw:h.dw||0,reps:h.reps,sec:h.sec,rir:h.rir,r:h.r,d:h.d,pv:h.pv==null?null:h.pv,pu:h.pu||'',dr:h.dr||0,rpe:h.rpe||0}}),n=log.length;
  startLive();
  go('train',{i:i,set:Math.min(n+1,ex.sets),log:log});
  if(!n)return;
  var t=S.tr,last=log[n-1],rf=getRef(ex.name,t.eq),time=ex.mode==='time',step=time?secStep(ex.name):rf.step,d=typeof last.d==='number'?last.d:(last.r==='m'?step:(last.r==='w'?-step:0));
  if(ex.cat==='warm'){}
- else if(time)t.sec=Math.max(secStep(ex.name),last.sec+d);else if(bandEx(ex.name)){var nb2=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);t.kg=nb2.kg;t.band=nb2.b;t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}else{t.kg=Math.max(0,last.kg+d);t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}
+ else if(time)t.sec=Math.max(secStep(ex.name),last.sec+d);else if(last.dw){t.kg=last.kg;t.band=last.band||0;t.reps=Math.max(1,last.reps+last.dw);t.rir=last.rir==null?t.rir:last.rir}else if(bandEx(ex.name)){var nb2=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);t.kg=nb2.kg;t.band=nb2.b;t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}else{t.kg=Math.max(0,last.kg+d);t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}
  if(n>=ex.sets||ex.fin)t.phase='done';
  render();
 }
@@ -1414,17 +1419,25 @@ function lastWarm(name){for(var i=S.hist.length-1;i>=0;i--){var h=S.hist[i];if(h
 function warmAvg(){var n=0,s=0;S.hist.forEach(function(h){if(h.cat==='warm'&&h.sec>0){n++;s+=h.sec}});return {n:n,avg:n?Math.round(s/n):0}}
 function warmVal(h){return h&&h.pv!=null&&h.pu?fmt(h.pv)+' '+h.pu:''}
 /* Auswahl beim Bewerten: wie viel mehr oder weniger für den nächsten Satz, in den gewohnten Einheiten */
+/* Körpergewicht: zuerst Wiederholungen, dann Band oder Zusatzgewicht */
+function amountBw(ex,eqSel,more){
+ var t=S.tr,sg=more?'+':'−',bx=bandEx(ex.name),bandStep=bx&&((t.band||0)>0||(!more&&t.kg<=0)),out='';
+ out+='<button data-act="rateamt" data-w="1">'+sg+'1 Wdh.</button><button data-act="rateamt" data-w="2">'+sg+'2 Wdh.</button></div>';
+ if(bandStep){var nb=bandNext(t.band||0,t.kg,more?'m':'w',0,2.5);out+='<div class="eyebrow" style="margin:14px 0 8px">Oder das Band wechseln</div><button class="btn wide" style="height:64px;font-size:17px" data-act="rateband">'+(nb.b?bandTxt(nb.b):'Ohne Band')+'</button>'}
+ else if(more||t.kg>0)out+='<div class="eyebrow" style="margin:14px 0 8px">Oder das Zusatzgewicht ändern</div><div class="amounts">'+amountChoices(ex,eqSel).map(function(v){return '<button data-act="rateamt" data-v="'+v+'">'+sg+fmt(v)+' kg</button>'}).join('')+'</div>';
+ return out;
+}
 function amountChoices(ex,eqSel){
  if(ex.mode==='time')return [5,10,15,30];
  return (eqSel==='Kurzhantel'||eqSel==='Kettlebell')?[0.5,1,2,4]:[1,2.5,5,10];
 }
-function applyRating(r,amt){
+function applyRating(r,amt,dw){
  var t=S.tr,ex=curEx(),eqSel=t.eq||ex.eq,time=ex.mode==='time',warm=ex.cat==='warm',secVal=time?(warm?t.el:(t.secLog||t.sec)):0,dd=(r==='m'?1:(r==='w'?-1:0))*(amt||0);
  var pv=null,pk=warm?paramOf(ex):'';if(pk&&String(t.pv).trim()!==''){pv=parseFloat(String(t.pv).replace(',','.'));if(!isFinite(pv))pv=null}
- var bxa=!time&&bandEx(ex.name);t.log.push({kg:t.kg,band:bxa?(t.band||0):0,reps:t.reps,sec:secVal,rir:t.rir,r:r,d:dd,pv:pv,pu:pv!==null?PARAMS[pk].u:'',dr:warm&&t.drag&&pk&&PARAMS[pk].u==='m'?t.drag:0,rpe:warm&&pk?(t.rpe||0):0});
+ dw=dw||0;var bxa=!time&&bandEx(ex.name);t.log.push({kg:t.kg,band:bxa?(t.band||0):0,dw:dw,reps:t.reps,sec:secVal,rir:t.rir,r:r,d:dd,pv:pv,pu:pv!==null?PARAMS[pk].u:'',dr:warm&&t.drag&&pk&&PARAMS[pk].u==='m'?t.drag:0,rpe:warm&&pk?(t.rpe||0):0});
  var now=new Date(),ds=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
  var h={typ:S.type,tpl:S.tpl,date:ds,time:now.toTimeString().slice(0,5),loc:curLoc().name,lid:S.loc,name:ex.name,cat:ex.cat,eq:eqSel,set:t.set,kg:time?0:t.kg,reps:time?0:t.reps,sec:secVal,rir:time?null:t.rir,r:r,d:dd};
- if(pv!==null){h.pv=pv;h.pu=PARAMS[pk].u}if(warm&&t.drag&&pk&&PARAMS[pk].u==='m')h.dr=t.drag;if(warm&&pk&&t.rpe)h.rpe=t.rpe;if(bxa)h.band=t.band||0;
+ if(pv!==null){h.pv=pv;h.pu=PARAMS[pk].u}if(warm&&t.drag&&pk&&PARAMS[pk].u==='m')h.dr=t.drag;if(warm&&pk&&t.rpe)h.rpe=t.rpe;if(bxa)h.band=t.band||0;if(dw)h.dw=dw;
  S.hist.push(h);
  S.eqPick[ex.name]=eqSel;markSet();
  var n=t.log.length,done=n>=ex.sets;
@@ -1512,8 +1525,9 @@ document.addEventListener('click',function(e){
   case 'rir':S.tr.rir=+d.v;render();break;
   case 'band':S.tr.band=+d.v;render();break;
   case 'done':{var td=S.tr;if(curEx().cat==='warm'){if(td.running)wuStop();applyRating('p',0);break}stopTimers();td.running=false;if(curEx().mode==='time')td.secLog=td.held.length?Math.min.apply(null,td.held):td.sec;td.phase='rate';render();break}
-  case 'rate':{var trb=S.tr,bxr=curEx().mode!=='time'&&bandEx(curEx().name);if(d.r==='p'||(bxr&&((trb.band||0)>0||(d.r==='w'&&trb.kg<=0))))applyRating(d.r,0);else{S.tr.ra=d.r;S.tr.phase='amount';render()}break}
-  case 'rateamt':applyRating(S.tr.ra,+d.v);break;
+  case 'rate':{var trb=S.tr,bxr=curEx().mode!=='time'&&bandEx(curEx().name);if(d.r==='p'||(bxr&&!bwEx(curEx(),trb.eq)&&((trb.band||0)>0||(d.r==='w'&&trb.kg<=0))))applyRating(d.r,0);else{S.tr.ra=d.r;S.tr.phase='amount';render()}break}
+  case 'rateamt':if(d.w)applyRating(S.tr.ra,0,(S.tr.ra==='m'?1:-1)*(+d.w));else applyRating(S.tr.ra,+d.v);break;
+  case 'rateband':applyRating(S.tr.ra,0);break;
   case 'rateback':S.tr.phase='rate';render();break;
   /* Satz hinzufügen: in der Eingabe einen Satz mehr als geplant, nach dem Abschluss mit einem Satz weitermachen */
   case 'addset':{var ta=S.tr,xa=curEx(),na=ta.log.length;
