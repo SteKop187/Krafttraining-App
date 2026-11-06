@@ -139,6 +139,52 @@ function bandNext(b,kg,r,d,step){
  if(r==='w'){if(b>0)return {b:Math.max(1,b-1),kg:kg};if(kg>0)return {b:0,kg:Math.max(0,kg-a)};return {b:BANDS.length,kg:0}}
  return {b:b,kg:kg}}
 /* Übungen mit eigenem Körpergewicht (Liegestütz, Klimmzug …): steigern auch über die Wiederholungen (dw = Änderung der Wiederholungen) */
+/* Beschwerden während einer Übung: Körperstelle, Seite, Stärke, Notiz und was daraufhin geschah (notiert, Belastung reduziert, abgebrochen) */
+var PARTS=['Knie','Hüfte','Rücken','Schulter','Ellbogen','Handgelenk','Sprunggelenk','Achillessehne','Nacken','Sonstiges'];
+var SIDES={l:'links',r:'rechts',b:'beidseitig',n:''},SEVS={1:'leicht',2:'mittel',3:'stark'};
+function issueTxt(x){return x.part+(SIDES[x.side]?' '+SIDES[x.side]:'')+', '+SEVS[x.sev]}
+function issueAct(x){return x.act==='abort'?'abgebrochen':(x.act==='less'?'Belastung reduziert':'notiert')}
+function lastIssue(n){var l=(S.issues||[]).filter(function(x){return x.name===n&&!x.ok});return l.length?l[l.length-1]:null}
+function shortDate(ds){var p=ds.split('-');return (+p[2])+'.'+(+p[1])+'.'}
+function issueDate(x){return x.date===todayStr()?'heute':'am '+shortDate(x.date)}
+function issueSheet(sh){
+ var ex=S.plan[sh.i];if(!ex)return '';
+ var chip=function(f,v,l,on){return '<button class="chip" data-act="isset" data-f="'+f+'" data-v="'+v+'" aria-pressed="'+on+'">'+l+'</button>'};
+ return '<h3>Beschwerden</h3><p>'+esc(ex.name)+' · Satz '+(S.tr?S.tr.set:1)+'</p>'+
+  '<div class="q"><small>Wo?</small><div class="chips">'+PARTS.map(function(p){return chip('part',p,p,sh.part===p)}).join('')+'</div></div>'+
+  '<div class="q"><small>Seite</small><div class="seg">'+['l','r','b','n'].map(function(k){return '<button data-act="isset" data-f="side" data-v="'+k+'" aria-pressed="'+(sh.side===k)+'">'+(k==='l'?'Links':(k==='r'?'Rechts':(k==='b'?'Beide':'Keine')))+'</button>'}).join('')+'</div></div>'+
+  '<div class="q"><small>Stärke</small><div class="seg">'+[1,2,3].map(function(k){return '<button data-act="isset" data-f="sev" data-v="'+k+'" aria-pressed="'+(sh.sev===k)+'">'+SEVS[k].charAt(0).toUpperCase()+SEVS[k].slice(1)+'</button>'}).join('')+'</div></div>'+
+  '<div class="q"><small>Notiz (optional)</small><textarea data-nt="1" class="inp" id="isnote" rows="2" style="height:auto;padding:10px 14px;font-weight:500;font-size:15px" placeholder="z. B. Stechen beim Absenken">'+esc(sh.note||'')+'</textarea></div>'+
+  (sh.part?'':'<p class="mut" style="font-size:13px">Wähle zuerst die Körperstelle.</p>')+
+  '<div class="group" style="margin-bottom:10px">'+
+  '<button class="lrow" data-act="issave" data-a="less"'+(sh.part?'':' disabled')+'><span class="txt"><b>'+ic('down',18)+' &nbsp;Notieren und Belastung reduzieren</b><small>'+esc(lessTxt(ex))+'</small></span></button>'+
+  '<button class="lrow" data-act="issave" data-a="note"'+(sh.part?'':' disabled')+'><span class="txt"><b>'+ic('edit',18)+' &nbsp;Nur notieren und weitermachen</b></span></button>'+
+  '<button class="lrow" data-act="issave" data-a="abort"'+(sh.part?'':' disabled')+'><span class="txt"><b>'+ic('stop',18)+' &nbsp;Übung abbrechen</b><small>Die bisherigen Sätze bleiben gespeichert.</small></span></button></div>'+
+  '<button class="btn wide" data-act="sheetclose">Schließen</button>';
+}
+/* Belastung reduzieren: Gewicht −20 % (auf die Schrittweite gerundet), ohne Zusatzgewicht mit Band ein dickeres Band, bei Zeit −20 %, sonst 2 Wiederholungen weniger */
+function lessPlan(ex){var t=S.tr,eqSel=t.eq||ex.eq,time=ex.mode==='time';
+ if(time){var ss=secStep(ex.name);return {sec:Math.max(ss,Math.round(t.sec*0.8/ss)*ss)}}
+ if(bandEx(ex.name)&&t.kg<=0)return {band:(t.band||0)>0?Math.max(1,t.band-1):BANDS.length};
+ if(t.kg>0){var st=wstepOf(ex,eqSel,getRef(ex.name,eqSel))||2.5;return {kg:Math.max(0,Math.round(t.kg*0.8/st)*st)}}
+ return {reps:Math.max(1,t.reps-2)}}
+function lessTxt(ex){var t=S.tr,l=lessPlan(ex);
+ if(l.sec!=null)return 'Zeit auf '+fmtSec(l.sec);if(l.band!=null)return 'Mit '+bandTxt(l.band);if(l.kg!=null)return 'Gewicht von '+fmt(t.kg)+' auf '+fmt(l.kg)+' kg';return 'Wiederholungen von '+t.reps+' auf '+l.reps}
+function issueSave(a){
+ var sh=S.sheet,ex=S.plan[sh.i],t=S.tr;if(!ex||!sh.part)return;
+ var nt=$('#isnote'),now=new Date();if(nt)sh.note=nt.value.trim();
+ var x={id:'is'+now.getTime(),date:todayStr(),time:now.toTimeString().slice(0,5),name:ex.name,loc:curLoc().name,typ:S.type,part:sh.part,side:sh.side||'n',sev:sh.sev||1,note:sh.note||'',set:t?t.set:0,act:a};
+ if(a==='less'){x.less=lessTxt(ex);var l=lessPlan(ex);if(l.sec!=null)t.sec=l.sec;if(l.band!=null)t.band=l.band;if(l.kg!=null)t.kg=l.kg;if(l.reps!=null)t.reps=l.reps}
+ S.issues.push(x);
+ if(a==='abort'){ex.fin=true;ex.abort=issueTxt(x);stopTimers();t.running=false;saveLocs();S.sheet={type:'issuealt',i:sh.i};render();return}
+ saveLocs();S.sheet=null;toast(a==='less'?'Notiert · '+x.less:'Beschwerden notiert');render()}
+function issueAltSheet(sh){var ex=S.plan[sh.i];if(!ex)return '';
+ return '<h3>Übung abgebrochen</h3><p>'+esc(ex.name)+' · '+esc(ex.abort||'')+'. Soll stattdessen eine Ersatzübung in den heutigen Plan?</p><div class="group" style="margin-bottom:10px">'+
+  '<button class="lrow" data-act="isalt" data-a="pick"><span class="txt"><b>'+ic('plus',18)+' &nbsp;Ersatzübung auswählen</b><small>Kommt direkt nach '+esc(ex.name)+'</small></span></button>'+
+  '<button class="lrow" data-act="isalt" data-a="dice"><span class="txt"><b>'+ic('dice',18)+' &nbsp;Ersatzübung würfeln</b><small>Aus dem gleichen Bereich ('+esc(ukLabel(tagKey(ex)))+')</small></span></button>'+
+  '<button class="lrow" data-act="isalt" data-a="none"><span class="txt"><b>'+ic('check',18)+' &nbsp;Ohne Ersatz weiter</b></span></button></div>'}
+function issueHint(n){var x=lastIssue(n);if(!x)return '';
+ return '<div class="hint" style="border:1px solid var(--c-push)"><span style="color:var(--c-push)">'+ic('alert',18)+'</span><span><b>Beschwerden '+issueDate(x)+': '+esc(issueTxt(x))+'</b> · '+issueAct(x)+(x.set?' bei Satz '+x.set:'')+(x.less?' ('+esc(x.less)+')':'')+(x.note?'. „'+esc(x.note)+'“':'')+'<br><button class="btn" style="height:34px;margin-top:6px;font-size:13px" data-act="issueok" data-id="'+x.id+'">'+ic('check',14)+'Wieder in Ordnung</button></span></div>'}
 /* Strecken-Übungen: Vorgabe wie „50 m“ */
 function isDist(n){var e=exFromLib(n);return !!(e&&/^\d+\s*m$/.test(String(e.reps||'').trim()))}
 function setTxt(n,kg,b,r){var m=isDist(n);return (m&&!b&&!(kg>0)?'':loadTxt(kg,b)+' × ')+r+(m?' m':'')}
@@ -183,7 +229,7 @@ var STEPS={
 
 /* ---------- Zustand ---------- */
 var S={
- screen:'start',prev:'start',exp:-1,toast:null,sheet:null,undo:null,type:'kraft',ta:'ta_gk',hiddenTA:[],stash:{},
+ screen:'start',prev:'start',exp:-1,toast:null,sheet:null,undo:null,type:'kraft',ta:'ta_gk',hiddenTA:[],stash:{},issues:[],
  plan:[
   {cat:'schnell',grp:'A1',rest:30},{cat:'schnell',grp:'A2',rest:90},{cat:'squat',grp:'B',rest:150},{cat:'push',grp:'C',rest:120},
   {cat:'hinge',grp:'D',rest:150},{cat:'pull',grp:'E',rest:90},{cat:'rumpf',grp:'F',rest:30}
@@ -231,7 +277,7 @@ function usesOf(name){var d={};S.hist.forEach(function(h){if(h.name===name)d[h.d
 function mediaCount(name,t){return (S.media[name]||[]).filter(function(m){return m.type===t}).length}
 /* Orte merken: letzter gewählter Ort ist beim nächsten Öffnen Standard (nur in diesem Browser) */
 var LSKEY='krafttraining-app-v1';
-function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,lastEnd:S.lastEnd,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,onb:!!S.onb,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash}))}catch(e){}}
+function saveLocs(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,eqPick:S.eqPick,live:S.live,lastEnd:S.lastEnd,removed:S.removed,setup:S.setup,focus:S.focus,planReady:S.planReady,info:S.info,infoSrc:S.infoSrc,onb:!!S.onb,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,planDate:S.planDate,tpl:S.tpl,type:S.type,ta:S.ta,hiddenTA:S.hiddenTA,stash:S.stash,issues:S.issues}))}catch(e){}}
 function applyData(d){
  if(!d)return;
  if(Array.isArray(d.machines)&&d.machines.length)S.machines=d.machines.filter(function(m){return typeof m==='string'&&m});
@@ -252,6 +298,7 @@ function applyData(d){
  if(d.hist)S.hist=d.hist;
  if(d.media)S.media=d.media;
  if(d.stepsX)S.stepsX=d.stepsX;
+ if(Array.isArray(d.issues))S.issues=d.issues;
  if(d.planDate)S.planDate=d.planDate;
  if(d.tpl&&TPL[d.tpl])S.tpl=d.tpl;
  if(d.type&&TYPES[d.type])S.type=d.type;
@@ -398,7 +445,7 @@ function todaySets(p){var d=todayStr();return S.hist.filter(function(h){return h
 function setsDone(p){return todaySets(p).length}
 /* Übung gilt als erledigt, wenn alle Sätze gemacht sind oder du sie vorzeitig abgeschlossen hast (fin) */
 function isDone(p){return !!p.fin||(p.sets>0&&setsDone(p)>=p.sets)}
-function progP(p){var n=setsDone(p);return p.fin&&n<p.sets?n+' von '+p.sets+' Sätzen · vorzeitig beendet':progText(n,p.sets)}
+function progP(p){var n=setsDone(p);return p.abort?n+' von '+p.sets+' Sätzen · abgebrochen: '+p.abort:(p.fin&&n<p.sets?n+' von '+p.sets+' Sätzen · vorzeitig beendet':progText(n,p.sets))}
 function openIdx(){var o=[];S.plan.forEach(function(p,i){if(!isDone(p))o.push(i)});return o}
 function nextOpenIdx(from){var o=openIdx().filter(function(i){return i!==from}),a=o.filter(function(i){return i>from});return a.length?a[0]:(o.length?o[0]:-1)}
 function progText(n,total){return n+' von '+total+' Sätzen · '+(total-n>0?(total-n)+' offen':'alles erledigt')}
@@ -490,7 +537,7 @@ function planList(preview){
   /* Supersatz-Kopf nur, wenn beide Übungen des Supersatzes noch offen sind */
   if(p.grp==='A2'&&i>0&&!isDone(S.plan[i-1])){out+='<div class="ss">'+ic('swap',13)+'Supersatz · abwechselnd</div>'}
   var open=S.exp===i,nd=setsDone(p),up=moveTarget(i,-1)>-1,dn=moveTarget(i,1)>-1;
-  out+='<div class="item k-'+kcls(p)+(preview?' pv':'')+'" data-i="'+i+'" data-sec="'+sc+'"><div class="irow"><div class="lcol"><span class="grp">'+p.grp+'</span><button class="dh" data-i="'+i+'" aria-label="'+esc(p.name)+' verschieben">'+ic('grip',18)+'</button></div><button class="item-main" data-act="exp" data-i="'+i+'" aria-expanded="'+open+'"><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+(p.locked?' &nbsp;'+ic('lock',13):'')+'</b><small>'+esc(metaLine(p))+'</small>'+(nd?'<span class="prog" aria-label="'+esc(progText(nd,p.sets))+'"><span class="mini">'+Array.apply(null,Array(p.sets)).map(function(x,k){return '<i'+(k<nd?' class="done"':'')+'></i>'}).join('')+'</span>'+esc(progText(nd,p.sets))+'</span>':'')+(p.na?'<span class="warn">'+ic('alert',13)+(eqOk(p)?'Wegen „Heute meiden“ gesperrt':esc(eqOn(p.eq)?machOf(p):p.eq)+' gibt es hier nicht')+'</span>':(p.was&&p.was!==p.name?'<span class="was">statt '+esc(p.was)+'</span>':''))+'</span><span class="mut">'+ic(open?'chevd':'next',16)+'</span></button>'+
+  out+='<div class="item k-'+kcls(p)+(preview?' pv':'')+'" data-i="'+i+'" data-sec="'+sc+'"><div class="irow"><div class="lcol"><span class="grp">'+p.grp+'</span><button class="dh" data-i="'+i+'" aria-label="'+esc(p.name)+' verschieben">'+ic('grip',18)+'</button></div><button class="item-main" data-act="exp" data-i="'+i+'" aria-expanded="'+open+'"><span class="txt">'+slotTag(p)+'<b>'+esc(p.name)+(p.locked?' &nbsp;'+ic('lock',13):'')+'</b><small>'+esc(metaLine(p))+'</small>'+(lastIssue(p.name)?'<span class="warn">'+ic('alert',13)+'Beschwerden '+issueDate(lastIssue(p.name))+': '+esc(issueTxt(lastIssue(p.name)))+'</span>':'')+(nd?'<span class="prog" aria-label="'+esc(progText(nd,p.sets))+'"><span class="mini">'+Array.apply(null,Array(p.sets)).map(function(x,k){return '<i'+(k<nd?' class="done"':'')+'></i>'}).join('')+'</span>'+esc(progText(nd,p.sets))+'</span>':'')+(p.na?'<span class="warn">'+ic('alert',13)+(eqOk(p)?'Wegen „Heute meiden“ gesperrt':esc(eqOn(p.eq)?machOf(p):p.eq)+' gibt es hier nicht')+'</span>':(p.was&&p.was!==p.name?'<span class="was">statt '+esc(p.was)+'</span>':''))+'</span><span class="mut">'+ic(open?'chevd':'next',16)+'</span></button>'+
    (preview?'':'<button class="playbtn" data-act="enter" data-i="'+i+'" aria-label="'+esc(p.name)+(nd?' fortsetzen':' starten')+'">'+ic('play',20)+'</button>')+'</div>';
   if(open){out+='<div class="actions">'+
    '<button class="act" data-act="exinfo" data-n="'+esc(p.name)+'">'+ic('info',20)+'Info</button>'+
@@ -604,7 +651,7 @@ function sTrain(){
   }
  }else{
   out+='<div class="goal"><div><small>Ziel</small><b>'+total+' × '+esc(ex.reps)+'</b></div><div><small>'+(time?'Pause (Empfehlung)':'Pause (Empfehlung) · Reserve')+'</small><b>'+(ex.rest?fmtRest(ex.rest):'–')+(time?'':' · 1 RIR')+'</b></div></div>'+
-  '<div class="hint">'+ic('info',18)+'<span><b>'+(rf.hist?(time?'Letztes Mal '+fmtSec(rf.sec):'Letztes Mal '+setTxt(ex.name,rf.kg,rf.band,rf.reps)+(locBound(ex.name,eqSel)?' · '+curLoc().name:'')):'Startwert')+'.</b> '+esc(rf.why)+'</span></div>';
+  issueHint(ex.name)+'<div class="hint">'+ic('info',18)+'<span><b>'+(rf.hist?(time?'Letztes Mal '+fmtSec(rf.sec):'Letztes Mal '+setTxt(ex.name,rf.kg,rf.band,rf.reps)+(locBound(ex.name,eqSel)?' · '+curLoc().name:'')):'Startwert')+'.</b> '+esc(rf.why)+'</span></div>';
   if(time){
    /* Zeit-Übung: Stoppuhr zählt von der Zielzeit auf 0 herunter, bei beidseitigen Übungen je Seite ein Durchgang */
    var sides=ex.both?2:1,hd=t.held||[],side=Math.min(hd.length+1,sides),left=t.running?Math.max(0,Math.ceil((t.end-Date.now())/1000)):t.sec,fin=hd.length>=sides;
@@ -623,6 +670,7 @@ function sTrain(){
   }
  }
  if(!warm)out+='<div class="row2" style="margin-bottom:8px"><button class="btn" style="flex:1" data-act="addset">'+ic('plus',18)+'Satz hinzufügen</button><button class="btn" style="flex:1" data-act="finex"'+(nLog?'':' disabled')+'>'+ic('check',18)+'Übung abschließen</button></div>';
+ if(!warm&&t.phase==='input')out+='<button class="btn wide" style="margin-bottom:8px;color:var(--c-push)" data-act="issue">'+ic('alert',18)+'Beschwerden melden</button>';
  out+='<div class="row2" style="margin-bottom:4px"><button class="btn" style="flex:1" data-act="exinfo" data-n="'+esc(ex.name)+'">'+ic('info',18)+'Beschreibung</button><button class="btn" style="flex:1" data-act="go" data-s="detail" data-n="'+esc(ex.name)+'">'+ic('video',18)+'Ablauf und Medien</button></div></div>'+
  '<div class="cta"><button class="btn primary big kc k-'+kcls(ex)+'" data-act="done"'+(canDone?'':' disabled')+'>'+ic('check',20)+'Satz abschließen</button></div>';
  return out;
@@ -1184,7 +1232,7 @@ function exListHtml(sh){
   g[1].forEach(function(c){
    var items=LIB.filter(function(e){return tagKey(e)===c&&names.indexOf(e.name)<0&&eqOk(e)&&(!q||(e.name+' '+I18N.tr(e.name)).toLowerCase().indexOf(q)>-1||(e.sub||'').toLowerCase().indexOf(q)>-1||(e.sg&&SG[e.sg].toLowerCase().indexOf(q)>-1))});
    if(!items.length)return;any=true;cnt+=items.length;
-   var open=q?true:(sh.open?!!sh.open[c]:(replace&&tagKey(cur)===c));
+   var open=q?true:(sh.open?!!sh.open[c]:((replace&&tagKey(cur)===c)||sh.openCat===c));
    inner+='<div class="xgrp"><button class="xhead k-'+kcls(c)+'" data-act="exgrp" data-c="'+c+'" aria-expanded="'+open+'"><b>'+ukLabel(c)+'</b><span class="mut">'+items.length+'</span>'+ic(open?'chevd':'next',16)+'</button>'+
     (open?'<div class="group" style="margin-bottom:8px">'+items.map(function(e){return '<div class="xrow2"><button class="lrow" data-act="'+(replace?'pickdo':'adddo')+'" data-i="'+(replace?sh.i:'')+'" data-n="'+esc(e.name)+'"><span class="txt"><b>'+esc(e.name)+'</b><small>'+esc((e.sg?SG[e.sg]+' · ':'')+(e.sub&&!(e.sg&&e.sub.indexOf(SG[e.sg])===0)?e.sub+' · ':'')+eqLabel(e))+'</small></span>'+ic('plus',18)+'</button><button class="iconbtn sm" data-act="exinfo" data-n="'+esc(e.name)+'" aria-label="Beschreibung zu '+esc(e.name)+'">'+ic('info',18)+'</button><button class="iconbtn sm" data-act="editex" data-n="'+esc(e.name)+'" aria-label="'+esc(e.name)+' bearbeiten">'+ic('edit',18)+'</button><button class="iconbtn sm" data-act="delcat" data-n="'+esc(e.name)+'" aria-label="'+esc(e.name)+' aus dem Katalog löschen">'+ic('trash',18)+'</button></div>'}).join('')+'</div>':'')+'</div>';
   });
@@ -1271,6 +1319,8 @@ function overlay(){
    out+='<h3>Wo trainierst du?</h3><p>Die Übungen richten sich nach dem Equipment vor Ort. Deine Wahl bleibt als Standard gespeichert.</p><div class="group">'+S.locs.map(function(l){var on=l.id===S.loc,ls=eqList(l);
     return '<button class="lrow" data-act="pickloc" data-v="'+l.id+'" aria-pressed="'+on+'"><span class="radio">'+(on?ic('check',14):'')+'</span><span class="txt"><b>'+esc(l.name)+'</b><small>'+ls.length+' Geräte · '+esc(eqNames(l).join(', '))+'</small></span>'+(on?'<span class="badge">Zuletzt</span>':'')+'</button>'}).join('')+'</div>'+
    '<button class="btn wide" style="margin-top:10px" data-act="manageloc">'+ic('more',18)+'Orte und Equipment verwalten</button>';
+  }else if(sh.type==='issue'){out+=issueSheet(sh)
+  }else if(sh.type==='issuealt'){out+=issueAltSheet(sh)
   }else if(sh.type==='editset'){out+=editSheet(sh)
   }else if(sh.type==='pick'||sh.type==='add'){out+=exSheet(sh)
   }else if(sh.type==='exmenu'){out+=exMenu()}else if(sh.type==='confirm'){out+=confirmSheet(sh)}else if(sh.type==='info'){out+=infoSheet(sh)}else if(sh.type==='help'){var hp=HELP[sh.k]||{t:'',h:''};out+='<h3>'+hp.t+'</h3><p style="line-height:1.45">'+hp.h+'</p><button class="btn primary wide" data-act="sheetclose">Schließen</button>'}
@@ -1492,9 +1542,19 @@ document.addEventListener('click',function(e){
   case 'exgrp':{if(!S.sheet)break;var og=S.sheet.open;if(!og){og={};var cur0=S.sheet.type==='pick'?S.plan[S.sheet.i]:null;if(cur0)og[tagKey(cur0)]=true}og[d.c]=!og[d.c];S.sheet.open=og;render();break}
   case 'adddo':{var le=LIB.filter(function(x){return x.name===d.n})[0],pe=exFromLib(d.n),curN=S.screen==='train'&&!S.tr.over?S.plan[S.tr.i]:null;snap();
    var same=S.plan.filter(function(x){return x.name===d.n});
-   if(same.length){var again=planItem(pe,le.cat,'');again.k=Math.max.apply(null,same.map(function(x){return x.k||1}))+1;S.plan.push(again)}else S.plan.splice(insertPos(le.cat),0,planItem(pe,le.cat,''));
-   relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;toast(same.length?le.name+' erneut am Ende hinzugefügt':le.name+' zum Plan hinzugefügt',true);render();break}
+   if(same.length){var again=planItem(pe,le.cat,'');again.k=Math.max.apply(null,same.map(function(x){return x.k||1}))+1;S.plan.push(again)}else S.plan.splice(S.sheet&&S.sheet.after!=null?S.sheet.after+1:insertPos(le.cat),0,planItem(pe,le.cat,''));
+   var aft=S.sheet&&S.sheet.after!=null;relabel();if(curN)S.tr.i=S.plan.indexOf(curN);S.sheet=null;if(aft){saveLocs();toast(le.name+' als Ersatz aufgenommen',true);go('heute');break}toast(same.length?le.name+' erneut am Ende hinzugefügt':le.name+' zum Plan hinzugefügt',true);render();break}
   case 'enter':enterTrain(+d.i);break;
+  case 'issue':{var tri=S.tr;if(!tri)break;var lx=lastIssue(curEx().name);S.sheet={type:'issue',i:tri.i,part:lx?lx.part:'',side:lx?lx.side:'',sev:lx?lx.sev:1,note:''};render();break}
+  case 'isset':{var shi=S.sheet,nti=$('#isnote');if(!shi)break;if(nti)shi.note=nti.value;shi[d.f]=d.f==='sev'?+d.v:d.v;render();break}
+  case 'issave':issueSave(d.a);break;
+  case 'issueok':{var ix=(S.issues||[]).filter(function(x){return x.id===d.id})[0];if(ix){S.issues.forEach(function(x){if(x.name===ix.name&&!x.ok)x.ok=todayStr()});saveLocs();toast('Als in Ordnung vermerkt')}render();break}
+  case 'isalt':{var sa=S.sheet,xa=S.plan[sa.i];if(!xa)break;
+   if(d.a==='pick'){S.sheet={type:'add',q:'',open:null,after:sa.i,openCat:tagKey(xa)};render();break}
+   if(d.a==='dice'){var used=S.plan.map(function(x){return x.name}),cat=xa.cat,c=POOL[cat].filter(function(x){return okEx(x,cat)&&used.indexOf(x.name)<0&&(!xa.sg||x.sg===xa.sg)});
+    if(!c.length){toast('Keine passende Ersatzübung am Ort gefunden');S.sheet=null;go('heute');break}
+    var pz=c[Math.floor(Math.random()*c.length)];snap();S.plan.splice(sa.i+1,0,planItem(pz,cat,''));relabel();saveLocs();S.sheet=null;toast(pz.name+' als Ersatz aufgenommen',true);go('heute');break}
+   S.sheet=null;go('heute');break}
   case 'mv':{var nj=movePlan(+d.i,+d.d);S.exp=nj;S.sheet=null;if(S.screen==='train'&&!S.tr.over)S.tr.i=nj;render();break}
   /* Training pausieren und fortsetzen: Gesamtzeit und „seit dem letzten Satz“ halten an, die Pause zählt nicht mit */
   case 'livepause':{if(!isLive())break;var Lv=S.live;if(Lv.pausedAt){Lv.start+=Date.now()-Lv.pausedAt;Lv.pausedAt=0}else Lv.pausedAt=Date.now();saveLocs();render();break}
@@ -1576,7 +1636,7 @@ document.addEventListener('click',function(e){
    if(wctx.mode==='replace'&&S.plan[wctx.i]){S.plan[wctx.i]=planItem(wr2.pe,wr2.cat,S.plan[wctx.i].grp,S.plan[wctx.i].slot)}else S.plan.splice(insertPos(wr2.cat),0,planItem(wr2.pe,wr2.cat,''));
    relabel();S.wizCtx={mode:'lib'};go('heute');toast(wr2.name+(wctx.mode==='replace'?' ersetzt die Übung':' zum heutigen Plan hinzugefügt'),true);render();break}
   case 'export':{var blob,fn,stamp=new Date().toISOString().slice(0,10);
-   if(d.f==='json'){blob=new Blob([JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,removed:S.removed,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,info:S.info,infoSrc:S.infoSrc},null,2)],{type:'application/json'});fn='krafttraining-'+stamp+'.json'}
+   if(d.f==='json'){blob=new Blob([JSON.stringify({v:2,locs:S.locs,loc:S.loc,locRecent:S.locRecent,machines:S.machines,cardios:S.cardios,removed:S.removed,types:S.types,plan:S.plan,set:S.set,hist:S.hist,custom:S.custom,media:S.media,stepsX:S.stepsX,issues:S.issues,info:S.info,infoSrc:S.infoSrc},null,2)],{type:'application/json'});fn='krafttraining-'+stamp+'.json'}
    else{var q=function(v){v=v==null?'':String(v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
     var rows=[['Datum','Uhrzeit','Ort','Übung','Muster','Satz','kg','Wdh','Sekunden','RIR','Bewertung','Art','Band']].concat(S.hist.map(function(h){return [h.date,h.time,h.loc,h.name,SLOT[h.cat]?SLOT[h.cat].l:h.cat,h.set,h.kg?String(h.kg).replace('.',','):'',h.reps||'',h.sec||'',h.rir==null?'':h.rir,h.r==='m'?'Mehr':(h.r==='w'?'Weniger':'Passt'),typeName(typOf(h)),h.band?BANDS[h.band-1]:'']}));
     blob=new Blob(['\ufeff'+rows.map(function(r){return r.map(q).join(';')}).join('\r\n')],{type:'text/csv'});fn='krafttraining-'+stamp+'.csv'}

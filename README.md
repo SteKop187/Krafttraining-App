@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.23.0
+- **Beschwerden melden:** Im Training gibt es unter den Eingaben „Beschwerden melden“. Du wählst Körperstelle (Knie, Hüfte, Rücken, Schulter, Ellbogen, Handgelenk, Sprunggelenk, Achillessehne, Nacken, Sonstiges), Seite, Stärke und optional eine Notiz.
+- **Was daraufhin passiert:** „Notieren und Belastung reduzieren“ senkt das Gewicht für den nächsten Satz um 20 % (auf die Schrittweite gerundet); ohne Zusatzgewicht mit Band gibt es ein dickeres Band, bei Zeitübungen 20 % weniger Zeit, sonst 2 Wiederholungen weniger. „Nur notieren“ lässt alles, wie es ist. „Übung abbrechen“ beendet die Übung mit dem Grund (z. B. „abgebrochen: Knie rechts, stark“) und fragt nach einer Ersatzübung: auswählen (direkt nach der abgebrochenen Übung, gleicher Bereich aufgeklappt), würfeln oder ohne Ersatz weiter.
+- **Beim nächsten Mal:** Die letzte Beschwerde steht in der Planzeile und beim Öffnen der Übung, mit Datum, Stelle, Seite, Stärke, was getan wurde, bei welchem Satz und der Notiz. „Wieder in Ordnung“ blendet den Hinweis aus. Die Beschwerden sind in der JSON-Sicherung enthalten.
+
 ## Neu in 3.22.0
 - **Trainingsart HYROX:** Neue eingebaute Trainingsart unter Krafttraining. Der Plan enthält die acht Stationen in Wettkampf-Reihenfolge, je ein Durchgang: Skiergometer 1000 m, Schlitten schieben (Sled Push) 50 m, Schlitten ziehen (Sled Pull) 50 m, Burpee Broad Jump 100 m, Ruderergometer 1000 m, Farmers Carry 100 m, Ausfallschritte mit Sandsack (Sandbag Lunges) 100 m, Wall Balls 100 Stück.
 - **Bibliothek:** Die Stationen stehen unter Spezial in der Gruppe „HYROX“ und lassen sich wie jede Übung bearbeiten.
