@@ -122,6 +122,8 @@ var REF={
 /* Vorschlag fürs Training: letzte echte Einträge zählen, sonst ein Startwert nach Equipment (kein „Letztes Mal“ erfinden) */
 /* Zeit-Übungen: Zielzeit aus „45 s“ oder „5 min“, Schrittweite 5 s (Erwärmung 30 s) */
 function secOf(ex){var m=/(\d+(?:[.,]\d+)?)\s*(min|s)?/.exec(String(ex.reps||''));if(!m)return 30;var v=parseFloat(m[1].replace(',','.'));return Math.round(/min/.test(m[2]||'')?v*60:v)}
+/* Zeiten auf die Schrittweite runden (5 s, bei der Erwärmung 30 s) */
+function snapSec(n,v){var ss=secStep(n);return Math.max(ss,Math.round(v/ss)*ss)}
 function secStep(n){var le=LIB.filter(function(x){return x.name===n})[0];return le&&le.cat==='warm'?30:5}
 function fmtSec(s){return s>=120&&s%60===0?(s/60)+' min':(s>=60?mmss(s):s+' s')}
 /* Maschinen unterscheiden sich je Ort: bei Übungen an der Maschine zählen nur Einträge vom aktuellen Ort (über die Ort-ID, bei älteren Einträgen über den Namen) */
@@ -209,7 +211,7 @@ function getRefOld(n,eqSel){
    else why='Letzte Bewertung „Passt“, Einstellung bleibt.';
    return {kg:l.kg,reps:l.reps,band:lb0,sug:nb.kg,sugBand:nb.b,step:step,hist:true,bandEx:true,dd:true,why:why}}
   /* war beim Bewerten eine Menge gewählt (d), gilt sie, sonst die übliche Schrittweite */
-  if(l.sec&&!l.kg){var ss=secStep(n),ds5=typeof l.d==='number'?l.d:(l.r==='m'?ss:(l.r==='w'?-ss:0));return {kg:0,sec:l.sec,sug:Math.max(ss,l.sec+ds5),step:ss,hist:true,why:ds5>0?'Letzte Bewertung „Mehr“, daher +'+fmt(ds5)+' s.':(ds5<0?'Letzte Bewertung „Weniger“, daher −'+fmt(-ds5)+' s.':'Letzte Bewertung „Passt“, Zeit bleibt.')}}
+  if(l.sec&&!l.kg){var ss=secStep(n),ds5=typeof l.d==='number'?l.d:(l.r==='m'?ss:(l.r==='w'?-ss:0));return {kg:0,sec:l.sec,sug:snapSec(n,l.sec+ds5),step:ss,hist:true,dd:true,why:ds5>0?'Letzte Bewertung „Mehr“, daher +'+fmt(ds5)+' s.':(ds5<0?'Letzte Bewertung „Weniger“, daher −'+fmt(-ds5)+' s.':'Letzte Bewertung „Passt“, Zeit bleibt.')}}
   var dk=typeof l.d==='number'?l.d:(l.r==='m'?step:(l.r==='w'?-step:0)),sug=Math.max(0,l.kg+dk);
   return {kg:l.kg,reps:l.reps,sug:sug,step:step,hist:true,dd:typeof l.d==='number',why:dk>0?'Letzte Bewertung „Mehr“, daher +'+fmt(dk)+' kg.':(dk<0?'Letzte Bewertung „Weniger“, daher −'+fmt(-dk)+' kg.':'Letzte Bewertung „Passt“, Gewicht bleibt.')}}
  return REF[n]||{kg:40,reps:8,sug:40,step:2.5,why:'Noch keine Vorgeschichte, starte mit einem leichten Satz.'}}
@@ -611,9 +613,9 @@ function sTrain(){
  if(t.phase==='rate'){
   out+='<div class="field"><small>Satz '+t.set+' gespeichert</small><div class="num" style="font-size:44px;line-height:1.1;padding:2px 6px">'+(time?fmtSec(t.secLog||t.sec):setTxt(ex.name,t.kg,t.band,t.reps))+(!time?' <span class="mut" style="font-size:20px">· '+t.rir+' RIR</span>':'')+'</div></div>'+
   '<div class="eyebrow" style="margin:14px 0 0">Wie war der Satz?</div><div class="rate">'+
-  '<button data-act="rate" data-r="w">'+ic('down',26)+'Weniger<small>nächstes Mal</small></button>'+
+  '<button data-act="rate" data-r="w">'+ic('down',26)+'Weniger<small>'+(time&&!warm?'−'+ss+' s':'nächstes Mal')+'</small></button>'+
   '<button data-act="rate" data-r="p">'+ic('eq',26)+'Passt<small>so lassen</small></button>'+
-  '<button data-act="rate" data-r="m">'+ic('up',26)+'Mehr<small>nächstes Mal</small></button></div></div>';
+  '<button data-act="rate" data-r="m">'+ic('up',26)+'Mehr<small>'+(time&&!warm?'+'+ss+' s':'nächstes Mal')+'</small></button></div></div>';
   return out;
  }
  if(t.phase==='amount'){
@@ -679,7 +681,7 @@ function mmss(s){var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
 function nextSuggest(last,rf,time,ss){
  if(!time&&last.dw)return loadTxt(last.kg,last.band)+' × '+Math.max(1,last.reps+last.dw);
  if(!time&&bandEx(curEx().name)){var nb=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);return loadTxt(nb.kg,nb.b)+' × '+last.reps}
- if(time){var d=last.r==='m'?ss:(last.r==='w'?-ss:0);return fmtSec(Math.max(ss,last.sec+d))}
+ if(time){var d=last.r==='m'?ss:(last.r==='w'?-ss:0);return fmtSec(snapSec(curEx().name,last.sec+d))}
  var d2=last.r==='m'?rf.step:(last.r==='w'?-rf.step:0);return fmt(last.kg+d2)+' kg × '+last.reps
 }
 
@@ -1396,7 +1398,7 @@ function enterTrain(i){
  if(!n)return;
  var t=S.tr,last=log[n-1],rf=getRef(ex.name,t.eq),time=ex.mode==='time',step=time?secStep(ex.name):rf.step,d=typeof last.d==='number'?last.d:(last.r==='m'?step:(last.r==='w'?-step:0));
  if(ex.cat==='warm'){}
- else if(time)t.sec=Math.max(secStep(ex.name),last.sec+d);else if(last.dw){t.kg=last.kg;t.band=last.band||0;t.reps=Math.max(1,last.reps+last.dw);t.rir=last.rir==null?t.rir:last.rir}else if(bandEx(ex.name)){var nb2=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);t.kg=nb2.kg;t.band=nb2.b;t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}else{t.kg=Math.max(0,last.kg+d);t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}
+ else if(time)t.sec=snapSec(ex.name,last.sec+d);else if(last.dw){t.kg=last.kg;t.band=last.band||0;t.reps=Math.max(1,last.reps+last.dw);t.rir=last.rir==null?t.rir:last.rir}else if(bandEx(ex.name)){var nb2=bandNext(last.band||0,last.kg,last.r,last.d,rf.step);t.kg=nb2.kg;t.band=nb2.b;t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}else{t.kg=Math.max(0,last.kg+d);t.reps=last.reps||t.reps;t.rir=last.rir==null?t.rir:last.rir}
  if(n>=ex.sets||ex.fin)t.phase='done';
  render();
 }
@@ -1594,11 +1596,11 @@ document.addEventListener('click',function(e){
   case 'reopen':enterTrain(+d.i);break;
   case 'moreset':{var pm=S.plan[+d.i];if(!pm)break;pm.sets=Math.max(pm.sets,setsDone(pm)+1);pm.fin=false;saveLocs();toast('Satz hinzugefügt · '+pm.sets+' Sätze');enterTrain(+d.i);break}
   case 'toggledone':S.showDone=!S.showDone;render();break;
-  case 'adj':{var t=S.tr;if(d.f==='kg')t.kg=Math.max(0,Math.round((t.kg+(+d.d))*10)/10);else if(d.f==='reps')t.reps=Math.max(1,t.reps+(+d.d));else if(d.f==='sec'){if(t.running)break;t.sec=Math.max(secStep(curEx().name),t.sec+(+d.d))}render();break}
+  case 'adj':{var t=S.tr;if(d.f==='kg')t.kg=Math.max(0,Math.round((t.kg+(+d.d))*10)/10);else if(d.f==='reps')t.reps=Math.max(1,t.reps+(+d.d));else if(d.f==='sec'){if(t.running)break;t.sec=snapSec(curEx().name,t.sec+(+d.d))}render();break}
   case 'rir':S.tr.rir=+d.v;render();break;
   case 'band':S.tr.band=+d.v;render();break;
   case 'done':{var td=S.tr;if(curEx().cat==='warm'){if(td.running)wuStop();applyRating('p',0);break}stopTimers();td.running=false;if(curEx().mode==='time')td.secLog=td.held.length?Math.min.apply(null,td.held):td.sec;td.phase='rate';render();break}
-  case 'rate':{var trb=S.tr,bxr=curEx().mode!=='time'&&bandEx(curEx().name);if(d.r==='p'||(bxr&&!bwEx(curEx(),trb.eq)&&((trb.band||0)>0||(d.r==='w'&&trb.kg<=0))))applyRating(d.r,0);else{S.tr.ra=d.r;S.tr.phase='amount';render()}break}
+  case 'rate':{var trb=S.tr,bxr=curEx().mode!=='time'&&bandEx(curEx().name);if(curEx().mode==='time'&&curEx().cat!=='warm'){applyRating(d.r,d.r==='p'?0:secStep(curEx().name));break}if(d.r==='p'||(bxr&&!bwEx(curEx(),trb.eq)&&((trb.band||0)>0||(d.r==='w'&&trb.kg<=0))))applyRating(d.r,0);else{S.tr.ra=d.r;S.tr.phase='amount';render()}break}
   case 'rateamt':if(d.w)applyRating(S.tr.ra,0,(S.tr.ra==='m'?1:-1)*(+d.w));else applyRating(S.tr.ra,+d.v);break;
   case 'rateband':applyRating(S.tr.ra,0);break;
   case 'rateback':S.tr.phase='rate';render();break;

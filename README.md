@@ -44,6 +44,11 @@ In der Übungsliste steht bei begonnenen Übungen, wie viele Sätze schon erledi
 ## Plan im Krafttraining
 Erwärmung (Cardio-Gerät nach Verfügbarkeit am Ort, beliebig erweiterbar, sonst „Allgemeines Aufwärmen“), Schnellkraft, Hauptübungen, Rumpf seitlich und gerade (je 2 Sätze), Zusatz: AS-Prävention (exzentrisches Wadenheben, 3 × 8–12) und Handstand-Vorbereitung. Zusatz hat außerdem die Gruppe Schulterstabilität (wählbar). Cardio-Geräte stellst du je Ort bei Mehr → Orte und Equipment ein.
 
+## Neu in 3.24.0
+- **Zeitübungen in 5-Sekunden-Schritten:** Bei Plank, Seitstütz und anderen Zeitübungen stellt Plus/Minus die Zeit in 5-Sekunden-Schritten ein, und alle Zeiten werden auf 5 s gerundet (eine gemessene Haltezeit von 42 s wird beim nächsten Vorschlag zu 45 s). Die Erwärmung bleibt bei 30-Sekunden-Schritten.
+- **Bewertung ohne Mengenwahl:** „Mehr“ heißt bei Zeitübungen +5 s, „Weniger“ −5 s, „Passt“ lässt die Zeit; die Tasten zeigen das direkt an.
+- **Behoben:** Bei Zeitübungen mit Körpergewicht wurde der Zeitvorschlag aus dem letzten Training durch eine Gewichtsrechnung überschrieben (z. B. 2,5 s statt 45 s).
+
 ## Neu in 3.23.0
 - **Beschwerden melden:** Im Training gibt es unter den Eingaben „Beschwerden melden“. Du wählst Körperstelle (Knie, Hüfte, Rücken, Schulter, Ellbogen, Handgelenk, Sprunggelenk, Achillessehne, Nacken, Sonstiges), Seite, Stärke und optional eine Notiz.
 - **Was daraufhin passiert:** „Notieren und Belastung reduzieren“ senkt das Gewicht für den nächsten Satz um 20 % (auf die Schrittweite gerundet); ohne Zusatzgewicht mit Band gibt es ein dickeres Band, bei Zeitübungen 20 % weniger Zeit, sonst 2 Wiederholungen weniger. „Nur notieren“ lässt alles, wie es ist. „Übung abbrechen“ beendet die Übung mit dem Grund (z. B. „abgebrochen: Knie rechts, stark“) und fragt nach einer Ersatzübung: auswählen (direkt nach der abgebrochenen Übung, gleicher Bereich aufgeklappt), würfeln oder ohne Ersatz weiter.
